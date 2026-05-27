@@ -4751,6 +4751,11 @@ document.getElementById('lastUpdate').textContent = `Atualizado ${new Date().toL
   // Senha de admin — recomendado trocar no HTML antes de subir ao GitHub
   const ADMIN_PASSWORD = 'Infa99Adelfi';
 
+  // Bin ID padrão (embutido no HTML) — usado por todos os usuários para LER dados da JSONBin.
+  // Pode ser sobrescrito pelo localStorage se o admin configurar outro bin.
+  // É seguro deixar visível: o Bin ID só permite leitura. Para gravar, precisa da Master Key (privada).
+  const BUILTIN_BIN_ID = '6a025e88c0954111d80c7018';
+
   // Estado interno
   let pendingPayload = null;
   let pendingOrigin = '';
@@ -4790,7 +4795,9 @@ document.getElementById('lastUpdate').textContent = `Atualizado ${new Date().toL
   // ---- JSONBin: CARREGAMENTO ----
   function getConfig() {
     return {
-      binId: localStorage.getItem(STORAGE_KEYS.binId) || '',
+      // Bin ID: usa o do localStorage se admin sobrescreveu, senão usa o embutido no HTML
+      binId: localStorage.getItem(STORAGE_KEYS.binId) || BUILTIN_BIN_ID || '',
+      // Master Key: só fica no localStorage (privada, nunca embutida)
       masterKey: localStorage.getItem(STORAGE_KEYS.masterKey) || ''
     };
   }
