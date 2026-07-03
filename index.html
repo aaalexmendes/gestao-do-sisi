@@ -2553,7 +2553,6 @@
   .kpi.kpi-emp::before { background:var(--fab-blue-light); }
   .kpi.kpi-liq::before { background:var(--green); }
   .kpi.kpi-pago::before { background:var(--fab-blue-mid); }
-  .kpi.kpi-dev::before { background:var(--red); }
   .kpi.kpi-warn::before { background:var(--orange); }
   .nd-row { margin-bottom:14px; }
   .nd-row .nd-head { display:flex; justify-content:space-between; font-family:'Roboto Condensed',sans-serif;
@@ -3091,9 +3090,10 @@
 </header>
 <!-- VIEW TABS -->
 <div class="view-tabs">
-  <div class="view-tab active" data-view="exec">Execução do Exercício</div>
-  <div class="view-tab" data-view="rap">Restos a Pagar 2026</div>
-  <div class="view-tab" data-view="comp">Comparativo entre Anos</div>
+  <div class="view-tab active" data-view="hist">2023&#8211;2025 · Histórico</div>
+  <div class="view-tab" data-view="corrente">2026 · Ano Corrente</div>
+  <div class="view-tab" data-view="rap">Restos a Pagar</div>
+  <div class="view-tab" data-view="plan">Necessário × Recebido</div>
 </div>
 
 <main>
@@ -3110,7 +3110,6 @@
           <button class="year-btn" data-ano="2023">2023</button>
           <button class="year-btn" data-ano="2024">2024</button>
           <button class="year-btn active" data-ano="2025">2025</button>
-          <button class="year-btn" data-ano="2026">2026</button>
           <button class="year-btn" data-ano="Consolidado">Consolidado</button>
         </div>
       </div>
@@ -3149,19 +3148,20 @@
   </section>
 
   <!-- ============ VIEW: EXECUÇÃO ============ -->
+  <!-- ============ ABA: 2023–2025 (HISTÓRICO) ============ -->
   <div class="view-section active" id="view-exec">
     <div class="kpi-grid" id="exec-kpis"></div>
 
     <h2 class="section-title"><span>Movimento e Execução do Crédito</span><span class="count" id="exec-sub-count"></span></h2>
     <section class="charts-row r-21">
       <div class="chart-card">
-        <h3>Funil de Execução<span class="info-ico" tabindex="0" data-tip="Mostra a conversão do crédito ao longo das fases da despesa: do destaque líquido recebido até o pagamento, com o percentual de cada etapa sobre o destaque.">i</span></h3>
-        <div class="chart-sub">Destaque líquido &#8594; Empenhado &#8594; Liquidado &#8594; Pago</div>
+        <h3 id="execCard1H3">Funil de Execução<span class="info-ico" tabindex="0" data-tip="Mostra a conversão do crédito ao longo das fases da despesa: do destaque líquido recebido até o pagamento, com o percentual de cada etapa sobre o destaque.">i</span></h3>
+        <div class="chart-sub" id="execCard1Sub">Destaque líquido &#8594; Empenhado &#8594; Liquidado &#8594; Pago</div>
         <div class="funnel" id="funnelExec"></div>
       </div>
       <div class="chart-card">
-        <h3>Destaque Líquido por Natureza<span class="info-ico" tabindex="0" data-tip="Participação de cada natureza de despesa (ND) no total de destaque líquido recebido no período filtrado.">i</span></h3>
-        <div class="chart-sub">Participação de cada ND no crédito recebido</div>
+        <h3 id="execCard2H3">Destaque Líquido por Natureza<span class="info-ico" tabindex="0" data-tip="Participação de cada natureza de despesa (ND) no total de destaque líquido recebido no período filtrado.">i</span></h3>
+        <div class="chart-sub" id="execCard2Sub">Participação de cada ND no crédito recebido</div>
         <div class="donut-wrap">
           <svg class="donut-svg" viewBox="0 0 200 200" id="donut-nd"></svg>
           <div class="donut-legend" id="legend-nd"></div>
@@ -3172,17 +3172,17 @@
     <h2 class="section-title"><span>Análise por Natureza e por OM</span></h2>
     <section class="charts-row r-2">
       <div class="chart-card">
-        <h3>Execução por Natureza de Despesa<span class="info-ico" tabindex="0" data-tip="Para cada ND, divide o destaque entre o que já foi liquidado, o empenhado ainda não liquidado e o saldo ainda a empenhar.">i</span></h3>
-        <div class="chart-sub">Liquidado / Empenhado-não-liquidado / Saldo &#183; sobre o destaque líquido</div>
+        <h3 id="execCard3H3">Execução por Natureza de Despesa<span class="info-ico" tabindex="0" data-tip="Para cada ND, divide o destaque entre o que já foi liquidado, o empenhado ainda não liquidado e o saldo ainda a empenhar.">i</span></h3>
+        <div class="chart-sub" id="execCard3Sub">Liquidado / Empenhado-não-liquidado / Saldo &#183; sobre o destaque líquido</div>
         <div id="ndExec"></div>
-        <div class="legend-inline">
+        <div class="legend-inline" id="execCard3Legend">
           <span><span class="sw" style="background:var(--green)"></span>Liquidado</span>
           <span><span class="sw" style="background:var(--fab-blue-light)"></span>Empenhado não liq.</span>
           <span><span class="sw" style="background:var(--gray-300)"></span>Saldo a empenhar</span>
         </div>
       </div>
       <div class="chart-card">
-        <h3>Top OMs<span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada nos botões acima. Clique numa barra para abrir o detalhamento da OM por natureza de despesa.">i</span></h3>
+        <h3 class="sortable" data-sort="topoms" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Top OMs<span class="sort-arrow" id="sa-topoms"></span><span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada nos botões abaixo. Clique no título para inverter a ordem; clique numa barra para abrir o detalhamento da OM por natureza de despesa.">i</span></h3>
         <div class="chart-sub">Ranking &#183; valores em R$ &#183; &#8599; clique para detalhar</div>
         <div class="toggle-row" id="omToggle">
           <button class="toggle-btn active" data-metric="saldo">Destaque receb.</button>
@@ -3192,6 +3192,16 @@
           <button class="toggle-btn" data-metric="devolvido">Devolvido</button>
         </div>
         <div class="bar-chart" id="omChart"></div>
+      </div>
+    </section>
+
+    <!-- EFICIÊNCIA POR OM (só 2023–2025) -->
+    <section class="charts-row r-1" id="sec-eficiencia">
+      <div class="chart-card">
+        <h3>Eficiência por OM · Liquidado &#247; Recebido Bruto<span class="info-ico" tabindex="0" data-tip="Ranking completo de prestação de contas: TODAS as OMs que receberam crédito no exercício, da melhor para a pior eficiência. Eficiência = liquidado &#247; recebido bruto (movimento devedor, antes de qualquer devolução). Devoluções reduzem a eficiência: crédito devolvido é crédito recebido que não virou liquidação. Clique numa barra para ver o detalhamento por natureza de despesa; inverta a ordem para ver os piores primeiro.">i</span></h3>
+        <div class="chart-sub" id="eficSub">liquidado &#247; recebido bruto (movimento devedor) &#183; devoluções reduzem a eficiência</div>
+        <div class="sort-ctl">ordenar por: <span class="sort-lbl active" data-sort="efic" data-sortkey="pct" id="eficSort-pct">% eficiência</span><span class="sort-lbl" data-sort="efic" data-sortkey="v" id="eficSort-v">Valor liquidado</span></div>
+        <div class="bar-chart" id="eficChart"></div>
       </div>
     </section>
 
@@ -3209,7 +3219,7 @@
     </h2>
     <div class="table-wrap">
       <table id="execTable">
-        <thead><tr>
+        <thead id="execThead"><tr>
           <th>OM</th><th>ND</th>
           <th class="num">Destaque Recebido</th>
           <th class="num">Devolvido</th>
@@ -3220,7 +3230,7 @@
           <th class="num">Pago</th>
         </tr></thead>
         <tbody id="execTbody"></tbody>
-        <tfoot><tr>
+        <tfoot id="execTfoot"><tr>
           <td colspan="2">Total Filtrado</td>
           <td class="num"><span class="cur">R$</span><span id="fe-sal">0</span></td>
           <td class="num"><span class="cur">R$</span><span id="fe-dev">0</span></td>
@@ -3233,126 +3243,138 @@
       </table>
     </div>
     </div>
+  </div>
+  <div class="view-section" id="view-comp">
+    <div class="kpi-grid" id="comp-kpis"></div>
 
-    <!-- ===== MESCLADO: CRÉDITO A LIBERAR & MÓDULOS SISI (2026) ===== -->
-    <div style="margin-top:34px;border-top:2px solid var(--fab-blue);padding-top:6px;"></div>
     <h2 class="section-title">
-      <span>Crédito a Liberar &amp; Módulos SISI <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--fab-yellow-dark);font-weight:600;margin-left:6px;">· 2026 (planejamento)</span></span>
-      <span class="count">independe do seletor de exercício · usa filtros OM / Natureza / ODS / Guarnição</span>
+      <span>Comparativo entre Anos &#183; mesma OM e Natureza lado a lado</span>
+      <span class="count" id="comp-sub-count"></span>
     </h2>
-
-    <!-- Cascata / Controle Anual -->
-    <section class="annual" id="cred-annual" style="margin-bottom:24px;">
-      <div class="annual-head">
-        <h2>Cascata Financeira · Cobertura das Necessidades</h2>
-        <span class="tag">Visão consolidada do Projeto SISI</span>
-      </div>
-      <div class="annual-body">
-        <div class="compare-bar">
-          <div class="cb-head">
-            <div class="cb-titles">
-              <span class="cb-pretitle">Aprovado · cobertura</span>
-              <span class="cb-value"><span class="cur">R$</span><span id="cr-bar-apr">0</span></span>
-            </div>
-            <div class="cb-titles right">
-              <span class="cb-pretitle">Total Necessário · Projeto SISI</span>
-              <span class="cb-value alt"><span class="cur">R$</span><span id="cr-bar-nec">0</span></span>
-            </div>
-          </div>
-          <div class="cb-track" id="cr-bar-track">
-            <div class="cb-fill" id="cr-bar-fill" style="width:0%; background: linear-gradient(90deg, var(--fab-yellow-dark) 0%, var(--fab-yellow) 100%);"></div>
-            <span class="cb-pct-inner" id="cr-bar-pct-in" style="color: var(--fab-blue);"></span>
-            <span class="cb-pct-outer" id="cr-bar-pct-out"></span>
-            <div class="cb-rest-label" id="cr-bar-rest"></div>
-          </div>
-          <div class="cb-warn" id="cr-bar-warn"></div>
+    <section class="charts-row r-1">
+      <div class="chart-card">
+        <h3>Total por Ano</h3>
+        <div class="chart-sub">Selecione a métrica para comparar 2023, 2024 e 2025</div>
+        <div class="toggle-row" id="compToggle">
+          <button class="toggle-btn active" data-metric="saldo">Destaque receb.</button>
+          <button class="toggle-btn" data-metric="empenhado">Empenhado</button>
+          <button class="toggle-btn" data-metric="liquidado">Liquidado</button>
+          <button class="toggle-btn" data-metric="pago">Pago</button>
+          <button class="toggle-btn" data-metric="devolvido">Devolvido</button>
         </div>
+        <div class="bar-chart" id="compYearChart"></div>
       </div>
     </section>
 
-    <div class="kpi-grid" id="cred-kpis"></div>
-
-    <h2 class="section-title"><span>Crédito a Liberar &#183; por OM e por Natureza</span><span class="count" id="cred-sub-count"></span></h2>
+    <h2 class="section-title"><span>Análise Estatística &#183; 2023&#8211;2025</span><span class="count">composição, evolução por OM/ODS e variação ano a ano</span></h2>
     <section class="charts-row r-2">
       <div class="chart-card">
-        <h3>Top OMs<span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada. Clique numa barra para ver o detalhamento de crédito a liberar da OM por natureza.">i</span></h3>
-        <div class="chart-sub">Ranking &#183; valores em R$ &#183; &#8599; clique para detalhar</div>
-        <div class="toggle-row" id="credOmToggle">
-          <button class="toggle-btn active" data-metric="necessario">Necessário</button>
-          <button class="toggle-btn" data-metric="aprovado">Aprovado</button>
-          <button class="toggle-btn" data-metric="recebido">Já na OM</button>
-          <button class="toggle-btn" data-metric="disponivel">A Liberar</button>
-        </div>
-        <div class="bar-chart" id="credOmChart"></div>
+        <h3>Composição por Natureza, por Ano<span class="info-ico" tabindex="0" data-tip="Para cada exercício, mostra a participação de cada natureza de despesa (ND) no total da métrica selecionada. Permite ver como o perfil de gasto mudou entre 2023, 2024 e 2025.">i</span></h3>
+        <div class="chart-sub">Participação de cada ND no total de cada ano &#183; <span id="comp-stat-metric">Destaque líq.</span></div>
+        <div id="compNdYear"></div>
+        <div class="legend-inline" id="compNdLegend"></div>
       </div>
       <div class="chart-card">
-        <h3>Crédito a Liberar por Natureza<span class="info-ico" tabindex="0" data-tip="Distribuição do crédito a liberar por ODS, separado por natureza de despesa (339039 e 449052 nos dados atuais).">i</span></h3>
-        <div class="chart-sub">Distribuição por ODS &#183; 339039 / 449052</div>
-        <div id="credStacked"></div>
-        <div class="legend-inline">
-          <span><span class="sw" style="background:var(--fab-blue)"></span>339039</span>
-          <span><span class="sw" style="background:var(--fab-yellow)"></span>449052</span>
-        </div>
+        <h3>Composição por ODS, por Ano<span class="info-ico" tabindex="0" data-tip="Para cada exercício, mostra a participação de cada ODS (organização de suporte) no total da métrica selecionada.">i</span></h3>
+        <div class="chart-sub">Participação de cada ODS no total de cada ano</div>
+        <div id="compOdsYear"></div>
+        <div class="legend-inline" id="compOdsLegend"></div>
       </div>
     </section>
-
-    <h2 class="section-title"><span>Análise por Módulo SISI</span><span class="count" id="cred-mod-count"></span></h2>
     <section class="charts-row r-2">
       <div class="chart-card">
-        <h3>Necessidades por Módulo<span class="info-ico" tabindex="0" data-tip="Participação de cada módulo do SISI (Infraestrutura, Vigilância Operacional, Controle de Acesso, Equipe de Reação) no total solicitado pelas OMs filtradas.">i</span></h3>
-        <div class="chart-sub">Valor solicitado por módulo</div>
-        <div class="donut-wrap">
-          <svg class="donut-svg" viewBox="0 0 200 200" id="cred-donut-modulo"></svg>
-          <div class="donut-legend" id="cred-legend-modulo"></div>
-        </div>
+        <h3>Evolução por OM &#183; 2023&#8211;2025<span class="info-ico" tabindex="0" data-tip="OMs com maior total no triênio. Cada barra é dividida por ano (2023/2024/2025), mostrando como o crédito da OM evoluiu.">i</span></h3>
+        <div class="chart-sub">Top OMs pelo total do triênio &#183; barra dividida por ano</div>
+        <div id="compOmYear"></div>
+        <div class="legend-inline" id="compOmLegend"></div>
       </div>
       <div class="chart-card">
-        <h3>Top Categorias<span class="info-ico" tabindex="0" data-tip="Categorias de segurança (barreiras, câmeras, rádios, etc.) com maior valor solicitado nas OMs filtradas.">i</span></h3>
-        <div class="chart-sub">Maiores valores solicitados por categoria</div>
-        <div class="bar-chart" id="credCatChart"></div>
+        <h3>Variação % Ano a Ano<span class="info-ico" tabindex="0" data-tip="Crescimento percentual do total entre exercícios consecutivos (2023→2024 e 2024→2025) na métrica selecionada. Verde indica aumento; laranja, queda.">i</span></h3>
+        <div class="chart-sub">Variação do total entre anos consecutivos</div>
+        <div class="bar-chart" id="compVar"></div>
       </div>
     </section>
 
-    <div id="section-tabela-cred">
+    <div id="section-tabela-comp">
     <h2 class="section-title">
-      <span>Detalhamento de Crédito a Liberar <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--fab-yellow-dark);font-weight:500;letter-spacing:.05em;margin-left:8px;">&#8599; clique numa linha</span></span>
+      <span>Evolução por OM e Natureza <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--fab-yellow-dark);font-weight:500;letter-spacing:.05em;margin-left:8px;">métrica: <span id="comp-metric-name">Destaque líq.</span></span></span>
       <span style="display:flex;align-items:center;gap:14px;margin-left:auto;">
-        <span class="count" id="cred-table-count"></span>
-        <button class="export-btn" id="exportCredBtn" title="Exportar para CSV">
+        <span class="count" id="comp-table-count"></span>
+        <button class="export-btn" id="exportCompBtn" title="Exportar para CSV">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>Exportar CSV</span>
         </button>
       </span>
     </h2>
     <div class="table-wrap">
-      <table id="credTable">
+      <table id="compTable">
         <thead><tr>
-          <th>Guarn</th><th>OM</th><th>ODS</th><th>Nomenclatura</th>
-          <th class="num">Necessário</th>
-          <th class="num">Aprovado</th>
-          <th class="num">Já na OM</th>
-          <th class="num">A Liberar 339039</th>
-          <th class="num">A Liberar 449052</th>
-          <th class="num">Total a Liberar</th>
-          <th class="num">Empenhado</th>
+          <th>OM</th><th>ND</th>
+          <th class="num">2023</th>
+          <th class="num">2024</th>
+          <th class="num">2025</th>
+          <th class="num">Total 23-25</th>
+          <th class="num">Var. 24&#8594;25</th>
         </tr></thead>
-        <tbody id="credTbody"></tbody>
+        <tbody id="compTbody"></tbody>
         <tfoot><tr>
-          <td colspan="4">Total Filtrado</td>
-          <td class="num"><span class="cur">R$</span><span id="fcr-nec">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fcr-apr">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fcr-rec">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fcr-39">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fcr-52">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fcr-disp">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fcr-emp">0</span></td>
+          <td colspan="2">Total Filtrado</td>
+          <td class="num"><span class="cur">R$</span><span id="fc-23">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fc-24">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fc-25">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fc-tot">0</span></td>
+          <td class="num" id="fc-var">&#8212;</td>
         </tr></tfoot>
       </table>
     </div>
     </div>
   </div>
 
-  <!-- ============ VIEW: RESTOS A PAGAR ============ -->
+  <!-- ============ ABA: 2026 (ANO CORRENTE) · PLANEJADO × EXECUTADO ============ -->
+  <div class="view-section" id="sec-liberar">
+    <h2 class="section-title"><span>Planejado × Executado · 2026</span><span class="count">aprovado &#8594; descentralizado &#8594; empenhado</span></h2>
+    <section class="charts-row r-2">
+      <div class="chart-card">
+        <h3>Execução do Aprovado · 2026<span class="info-ico" tabindex="0" data-tip="Caminho do crédito aprovado (descentralizado) para 2026: do aprovado para o ano, ao que já foi descentralizado/recebido pelas OMs, até os empenhos a liquidar. Percentuais sobre o Aprovado.">i</span></h3>
+        <div class="chart-sub">Aprovado p/ o ano &#8594; Liberado (na OM) &#8594; Empenhos a Liquidar</div>
+        <div class="funnel" id="liberarFunnel"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Situação do Crédito que está na OM<span class="info-ico" tabindex="0" data-tip="Do crédito já na OM em 2026: quanto está disponível, quanto está bloqueado para controle interno e quanto já virou empenho a liquidar.">i</span></h3>
+        <div class="chart-sub">Disponível · Bloqueado · Empenhos a Liquidar</div>
+        <div class="funnel" id="liberarStatus"></div>
+      </div>
+    </section>
+  </div>
+  <div class="view-section" id="sec-uge">
+    <h2 class="section-title"><span>Disponível por UGR · em qual UGE está</span><span class="count">controle por UGR — DIREF ou outra UGE</span></h2>
+    <section class="charts-row r-1">
+      <div class="chart-card">
+        <h3>Onde está o crédito disponível · DIREF &#215; outra UGE<span class="info-ico" tabindex="0" data-tip="Do crédito disponível de 2026 (após os filtros aplicados), quanto está na UGE DIREF (Diretoria de Economia e Finanças da Aeronáutica) e quanto está descentralizado em outra UGE. O controle continua sendo feito por UGR.">i</span></h3>
+        <div class="chart-sub">sobre o total disponível filtrado</div>
+        <div class="funnel" id="ugeResumo"></div>
+      </div>
+    </section>
+    <section class="charts-row r-2">
+      <div class="chart-card">
+        <h3 class="sortable" data-sort="poruge" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Disponível por UGE executora<span class="sort-arrow" id="sa-poruge"></span><span class="info-ico" tabindex="0" data-tip="Total do crédito disponível em cada UGE onde as UGRs mantêm seu crédito. Azul = DIREF; laranja = demais UGEs. Grupamentos de Apoio aparecem como GAP-XX. Clique no título para inverter a ordem; clique numa barra para ver as UGRs.">i</span></h3>
+        <div class="chart-sub">onde o crédito está fisicamente alocado &#183; <span style="color:var(--fab-blue);font-weight:600;">DIREF</span> / <span style="color:var(--orange);font-weight:600;">outra UGE</span></div>
+        <div id="ugePorUge" style="margin-top:6px;"></div>
+      </div>
+      <div class="chart-card">
+        <h3 class="sortable" data-sort="porods" data-sortkey="total" title="Clique no título para inverter a ordem (crescente/decrescente)">Disponível por ODS · DIREF &#215; outra UGE<span class="sort-arrow" id="sa-porods"></span><span class="info-ico" tabindex="0" data-tip="Para cada ODS, o crédito disponível das suas OMs separado entre o que está na DIREF (azul) e o que está descentralizado em outra UGE (laranja). Clique no título para inverter a ordem; clique numa barra para ver as OMs.">i</span></h3>
+        <div class="chart-sub">posição de cada ODS &#183; <span style="color:var(--fab-blue);font-weight:600;">DIREF</span> / <span style="color:var(--orange);font-weight:600;">outra UGE</span></div>
+        <div id="ugePorOds" style="margin-top:6px;"></div>
+      </div>
+    </section>
+    <section class="charts-row r-1">
+      <div class="chart-card">
+        <h3 class="sortable" data-sort="ugelist" data-sortkey="total" title="Clique no título para inverter a ordem (crescente/decrescente)">Disponível de cada UGR e a UGE onde está<span class="sort-arrow" id="sa-ugelist"></span><span class="info-ico" tabindex="0" data-tip="Para cada UGR (UG Responsável) é mostrado o crédito disponível e em qual UGE ele está alocado. Ponto azul = crédito na DIREF; ponto laranja = crédito em outra UGE. Grupamentos de Apoio aparecem como GAP-XX. Clique no título para inverter a ordem. Respeita os filtros de OM, ND e ODS.">i</span></h3>
+        <div class="chart-sub">cada UGR preservada; dentro dela, a UGE (nome real) onde o disponível está</div>
+        <div id="ugeList" style="max-height:560px;overflow-y:auto;padding-right:6px;margin-top:4px;"></div>
+      </div>
+    </section>
+  </div>
   <div class="view-section" id="view-rap">
     <div class="kpi-grid" id="rap-kpis"></div>
 
@@ -3367,9 +3389,29 @@
         </div>
       </div>
       <div class="chart-card">
-        <h3>Top OMs &#183; RaP a Liquidar<span class="info-ico" tabindex="0" data-tip="OMs com maior saldo de Restos a Pagar não processados pendente de liquidação.">i</span></h3>
-        <div class="chart-sub">OMs com maior saldo pendente de liquidação</div>
+        <h3>Top OMs &#183; RaP Liquidado<span class="info-ico" tabindex="0" data-tip="Ranking das OMs por quem mais liquidou os Restos a Pagar não processados. Ponto de partida = RaP não processados (inscritos + reinscritos − cancelados); o valor liquidado e o % são atualizados a cada planilha mensal. Clique numa barra para ver por ND.">i</span></h3>
+        <div class="chart-sub">quem mais liquidou os RaP não-processados &#183; R$ liquidado e % da base</div>
+        <div class="sort-ctl">ordenar por: <span class="sort-lbl active" data-sort="rapliq" data-sortkey="v" id="rapSort-v">Valor</span><span class="sort-lbl" data-sort="rapliq" data-sortkey="pct" id="rapSort-pct">% liquidado</span></div>
         <div class="bar-chart" id="rapChart"></div>
+      </div>
+    </section>
+
+    <h2 class="section-title"><span>Análise Estatística &#183; Restos a Pagar</span><span class="count">composição por situação e por natureza</span></h2>
+    <section class="charts-row r-2">
+      <div class="chart-card">
+        <h3>Composição por Situação<span class="info-ico" tabindex="0" data-tip="Distribuição do saldo de Restos a Pagar entre as situações: inscritos/reinscritos, a liquidar, liquidados, pagos e cancelados.">i</span></h3>
+        <div class="chart-sub">Saldo de RaP por situação &#183; em R$</div>
+        <div class="bar-chart" id="rapStatus"></div>
+      </div>
+      <div class="chart-card">
+        <h3>RaP por Natureza &#183; situação<span class="info-ico" tabindex="0" data-tip="Para cada ND, divide o saldo de Restos a Pagar não processados entre o que está a liquidar, o já liquidado e o já pago.">i</span></h3>
+        <div class="chart-sub">A liquidar / Liquidado / Pago &#183; por ND</div>
+        <div id="rapNd"></div>
+        <div class="legend-inline">
+          <span><span class="sw" style="background:var(--fab-yellow-dark)"></span>A liquidar</span>
+          <span><span class="sw" style="background:var(--green)"></span>Liquidado</span>
+          <span><span class="sw" style="background:var(--fab-blue)"></span>Pago</span>
+        </div>
       </div>
     </section>
 
@@ -3414,63 +3456,94 @@
     </div>
   </div>
 
-  <!-- ============ VIEW: COMPARATIVO ENTRE ANOS ============ -->
-  <div class="view-section" id="view-comp">
-    <div class="kpi-grid" id="comp-kpis"></div>
-
-    <h2 class="section-title">
-      <span>Comparativo entre Anos &#183; mesma OM e Natureza lado a lado</span>
-      <span class="count" id="comp-sub-count"></span>
-    </h2>
-    <section class="charts-row r-1">
+  <!-- ============ ABA: NECESSÁRIO × RECEBIDO + MÓDULOS SISI ============ -->
+  <div class="view-section" id="sec-necrec">
+    <div class="kpi-grid" id="necrec-kpis"></div>
+    <h2 class="section-title"><span>Necessário × Recebido por Ano</span><span class="count">Projeto SISI · usa filtros OM / Natureza / ODS</span></h2>
+    <section class="charts-row r-2">
       <div class="chart-card">
-        <h3>Total por Ano</h3>
-        <div class="chart-sub">Selecione a métrica para comparar 2023, 2024 e 2025</div>
-        <div class="toggle-row" id="compToggle">
-          <button class="toggle-btn active" data-metric="saldo">Destaque receb.</button>
-          <button class="toggle-btn" data-metric="empenhado">Empenhado</button>
-          <button class="toggle-btn" data-metric="liquidado">Liquidado</button>
-          <button class="toggle-btn" data-metric="pago">Pago</button>
-          <button class="toggle-btn" data-metric="devolvido">Devolvido</button>
-        </div>
-        <div class="bar-chart" id="compYearChart"></div>
+        <h3>Recebido por Ano<span class="info-ico" tabindex="0" data-tip="Quanto crédito entrou nas OMs a cada exercício. 2023–2025 usam o destaque recebido (execução); 2026 usa o crédito bloqueado para controle interno, conforme definido.">i</span></h3>
+        <div class="chart-sub">Crédito recebido em cada exercício &#183; em R$</div>
+        <div class="bar-chart" id="necrecChart"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Cobertura do Necessário<span class="info-ico" tabindex="0" data-tip="Total recebido acumulado (todos os anos) ante o total necessário do Projeto SISI. Mostra o quanto das necessidades já foi efetivamente recebido.">i</span></h3>
+        <div class="chart-sub">Recebido acumulado sobre o total necessário</div>
+        <div id="necrecCum"></div>
       </div>
     </section>
-
-    <div id="section-tabela-comp">
+    <h2 class="section-title"><span>O que as OMs precisam · Crédito a Liberar por OM e Natureza</span><span class="count">necessário por OM &#183; será atualizado pela planilha de planejamento</span></h2>
+    <section class="charts-row r-1">
+      <div class="chart-card">
+        <h3 class="sortable" data-sort="credoms" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Top OMs<span class="sort-arrow" id="sa-credoms"></span><span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada (necessário, aprovado, já na OM ou a liberar). Clique no título para inverter a ordem; clique numa barra para ver o detalhamento da OM.">i</span></h3>
+        <div class="chart-sub">Ranking &#183; valores em R$ &#183; &#8599; clique para detalhar</div>
+        <div class="toggle-row" id="credOmToggle">
+          <button class="toggle-btn active" data-metric="necessario">Necessário</button>
+          <button class="toggle-btn" data-metric="aprovado">Aprovado</button>
+          <button class="toggle-btn" data-metric="recebido">Já na OM</button>
+          <button class="toggle-btn" data-metric="disponivel">A Liberar</button>
+        </div>
+        <div class="bar-chart" id="credOmChart"></div>
+      </div>
+    </section>
+    <div id="section-tabela-cred">
     <h2 class="section-title">
-      <span>Evolução por OM e Natureza <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--fab-yellow-dark);font-weight:500;letter-spacing:.05em;margin-left:8px;">métrica: <span id="comp-metric-name">Destaque líq.</span></span></span>
+      <span>Detalhamento de Crédito a Liberar <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--fab-yellow-dark);font-weight:500;letter-spacing:.05em;margin-left:8px;">&#8599; clique numa linha</span></span>
       <span style="display:flex;align-items:center;gap:14px;margin-left:auto;">
-        <span class="count" id="comp-table-count"></span>
-        <button class="export-btn" id="exportCompBtn" title="Exportar para CSV">
+        <span class="count" id="cred-table-count"></span>
+        <button class="export-btn" id="exportCredBtn" title="Exportar para CSV">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>Exportar CSV</span>
         </button>
       </span>
     </h2>
     <div class="table-wrap">
-      <table id="compTable">
+      <table id="credTable">
         <thead><tr>
-          <th>OM</th><th>ND</th>
-          <th class="num">2023</th>
-          <th class="num">2024</th>
-          <th class="num">2025</th>
-          <th class="num">Total 23-25</th>
-          <th class="num">Var. 24&#8594;25</th>
+          <th>Guarn</th><th>OM</th><th>ODS</th><th>Nomenclatura</th>
+          <th class="num">Necessário</th>
+          <th class="num">Aprovado</th>
+          <th class="num">Já na OM</th>
+          <th class="num">A Liberar 339039</th>
+          <th class="num">A Liberar 449052</th>
+          <th class="num">Total a Liberar</th>
+          <th class="num">Empenhado</th>
         </tr></thead>
-        <tbody id="compTbody"></tbody>
+        <tbody id="credTbody"></tbody>
         <tfoot><tr>
-          <td colspan="2">Total Filtrado</td>
-          <td class="num"><span class="cur">R$</span><span id="fc-23">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fc-24">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fc-25">0</span></td>
-          <td class="num"><span class="cur">R$</span><span id="fc-tot">0</span></td>
-          <td class="num" id="fc-var">&#8212;</td>
+          <td colspan="4">Total Filtrado</td>
+          <td class="num"><span class="cur">R$</span><span id="fcr-nec">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fcr-apr">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fcr-rec">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fcr-39">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fcr-52">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fcr-disp">0</span></td>
+          <td class="num"><span class="cur">R$</span><span id="fcr-emp">0</span></td>
         </tr></tfoot>
       </table>
     </div>
     </div>
   </div>
+  <div class="view-section" id="sec-modulos">
+    <h2 class="section-title"><span>Análise dos Módulos SISI · Planejamento 2026</span><span class="count">independe do exercício · usa filtros OM / Natureza / ODS / Guarnição</span></h2>
+    <h2 class="section-title"><span>Análise por Módulo SISI</span><span class="count" id="cred-mod-count"></span></h2>
+    <section class="charts-row r-2">
+      <div class="chart-card">
+        <h3>Necessidades por Módulo<span class="info-ico" tabindex="0" data-tip="Participação de cada módulo do SISI (Infraestrutura, Vigilância Operacional, Controle de Acesso, Equipe de Reação) no total solicitado pelas OMs filtradas.">i</span></h3>
+        <div class="chart-sub">Valor solicitado por módulo</div>
+        <div class="donut-wrap">
+          <svg class="donut-svg" viewBox="0 0 200 200" id="cred-donut-modulo"></svg>
+          <div class="donut-legend" id="cred-legend-modulo"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Top Categorias<span class="info-ico" tabindex="0" data-tip="Categorias de segurança (barreiras, câmeras, rádios, etc.) com maior valor solicitado nas OMs filtradas.">i</span></h3>
+        <div class="chart-sub">Maiores valores solicitados por categoria</div>
+        <div class="bar-chart" id="credCatChart"></div>
+      </div>
+    </section>
+  </div>
+
 </main>
 
 <!-- MODAL -->
@@ -3491,7 +3564,7 @@
 <footer>
   <span>Acompanhamento SISI &#183; Execução &amp; Restos a Pagar</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno</span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.2 &#183; 02/07/2026</span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -3516,7 +3589,7 @@
       <div class="admin-panel-content" id="adminPanelView">
         <div class="admin-section">
           <h3>Upload da planilha de 2026</h3>
-          <p>Envie a planilha de execução de 2026 — mesmo formato das de 2023&ndash;2025 (cabeçalho nas linhas 5&ndash;6, dados a partir da linha 7), com as abas mensais. O sistema seleciona automaticamente a aba mais recente; você pode trocar a aba abaixo, se necessário. Os valores ficam salvos neste navegador e são substituídos a cada novo upload.</p>
+          <p>Envie a planilha semanal de execução de 2026. O sistema reconhece as colunas pelo <strong>nome do cabeçalho</strong> (não pela posição), então diferenças de layout entre relatórios são toleradas — inclusive quando a OM vem como código + nome em colunas separadas. Reconhece tanto o formato com <strong>Destaque Recebido / Empenhado / Liquidado / Pago</strong> quanto o de situação de crédito (<strong>Crédito Disponível / Crédito Bloqueado / Empenhos a Liquidar</strong>). A aba mais recente é detectada automaticamente; a prévia mostra as colunas reconhecidas antes de aplicar. Os valores ficam salvos neste navegador e são substituídos a cada novo upload.</p>
           <div class="admin-upload-grid">
             <label class="admin-upload-card xlsx" id="adminXlsxCard">
               <span class="icon">XLS</span>
@@ -3600,9 +3673,12 @@ const ndLabel = {
   '449051':'449051 — Obras e Instalações'
 };
 const ndColor = { '339030':'#2A5A8C', '339039':'#002B5C', '449052':'#FFCC00', '449051':'#E07B00' };
+const odsPalette = ['#002B5C','#FFCC00','#2E8B57','#E07B00','#7A6FAA','#5B8DB8','#C0504D','#1F6F6F','#8C8C8C','#2A5A8C'];
+const odsColorOf = (list,o)=> odsPalette[Math.max(0,list.indexOf(o))%odsPalette.length];
+const yearColor = { '2023':'#2A5A8C', '2024':'#E07B00', '2025':'#2E8B57' };
 const ndOrder = (a,b)=> NDS.indexOf(a)-NDS.indexOf(b);
 
-const state = { ano:'2025', om:new Set(), natureza:new Set(), ods:new Set(), guarnicao:new Set(), view:'exec', omMetric:'saldo', compMetric:'saldo', credMetric:'necessario' };
+const state = { ano:'2025', om:new Set(), natureza:new Set(), ods:new Set(), guarnicao:new Set(), view:'hist', omMetric:'saldo', compMetric:'saldo', credMetric:'necessario' };
 const compMetricLabel = { saldo:'Destaque receb.', empenhado:'Empenhado', liquidado:'Liquidado', pago:'Pago', devolvido:'Devolvido' };
 
 // ---------- Planejamento 2026: aplica dados (upload) sobre o CREDDATA, mutando os arrays no lugar ----------
@@ -3648,10 +3724,11 @@ function fmtBRLc(v){ const a=Math.abs(v);
 function fmtPct(v,d){ if(!isFinite(v)) return '—'; return v.toLocaleString('pt-BR',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})+'%'; }
 
 // ---------- Carrega dados de 2026 salvos no navegador ----------
+DATA.execUGE = DATA.execUGE || {};
 (function load2026(){
   try{
     const raw = localStorage.getItem('sisi_exec_2026_v1');
-    if(raw){ const o=JSON.parse(raw); if(o && Array.isArray(o.rows) && o.rows.length){ DATA.execution['2026']=o.rows; DATA.movim['2026']=[]; } }
+    if(raw){ const o=JSON.parse(raw); if(o && Array.isArray(o.rows) && o.rows.length){ DATA.execution['2026']=o.rows; DATA.movim['2026']=[]; if(Array.isArray(o.uge)) DATA.execUGE['2026']=o.uge; } }
   }catch(e){ /* ignora */ }
 })();
 
@@ -3669,10 +3746,11 @@ let omList = allOMs();
 function execRows(ano){
   const years = ano==='Consolidado' ? anosDisponiveis() : [ano];
   const map = {};
-  const get = (om,nd)=>{ const k=om+'|'+nd; return map[k]||(map[k]={om,nd,ods:odsOf(om),recebido:0,devolvido:0,saldo:0,disponivel:0,empenhado:0,liquidado:0,liq_a_pagar:0,inscrito_rp:0,pago:0}); };
+  const get = (om,nd)=>{ const k=om+'|'+nd; return map[k]||(map[k]={om,nd,ods:odsOf(om),recebido:0,devolvido:0,saldo:0,disponivel:0,bloqueado:0,emp_a_liquidar:0,empenhado:0,liquidado:0,liq_a_pagar:0,inscrito_rp:0,pago:0}); };
   years.forEach(y=>{
     (DATA.execution[y]||[]).forEach(r=>{ const o=get(r.om,r.nd);
       o.saldo+=r.destaque_recebido; o.disponivel+=r.credito_disponivel; o.empenhado+=r.empenhadas;
+      o.bloqueado+=(r.credito_bloqueado||0); o.emp_a_liquidar+=(r.empenhos_a_liquidar||0);
       o.liquidado+=r.liquidadas; o.liq_a_pagar+=r.liquidadas_a_pagar; o.inscrito_rp+=r.inscritas_rp; o.pago+=r.pagas; });
     (DATA.movim[y]||[]).forEach(r=>{ const o=get(r.om,r.nd); o.recebido+=r.mov_devedor; o.devolvido+=r.mov_credor; });
   });
@@ -3704,16 +3782,97 @@ function kpi(cls,lbl,val,sub,tip){
 }
 
 // ---------- Render EXEC ----------
+const ICO = tip => `<span class="info-ico" tabindex="0" data-tip="${String(tip).replace(/"/g,'&quot;')}">i</span>`;
+let _execChrome='';
+function setExecChrome(mode){ if(_execChrome===mode) return; _execChrome=mode; (mode==='2026'?setExecChrome2026:setExecChromeLegacy)(); }
+function setExecChromeLegacy(){
+  { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display=''; }
+  document.getElementById('execCard1H3').innerHTML='Funil de Execução'+ICO('Conversão do crédito ao longo das fases da despesa: do destaque líquido recebido até o pagamento, com o percentual de cada etapa sobre o destaque.');
+  document.getElementById('execCard1Sub').innerHTML='Destaque líquido &#8594; Empenhado &#8594; Liquidado &#8594; Pago';
+  document.getElementById('execCard2H3').innerHTML='Destaque Líquido por Natureza'+ICO('Participação de cada ND no total de destaque líquido recebido no período filtrado.');
+  document.getElementById('execCard2Sub').textContent='Participação de cada ND no crédito recebido';
+  document.getElementById('execCard3H3').innerHTML='Execução por Natureza de Despesa'+ICO('Para cada ND, divide o destaque entre liquidado, empenhado não liquidado e saldo a empenhar.');
+  document.getElementById('execCard3Sub').textContent='Liquidado / Empenhado-não-liquidado / Saldo · sobre o destaque líquido';
+  document.getElementById('execCard3Legend').innerHTML='<span><span class="sw" style="background:var(--green)"></span>Liquidado</span><span><span class="sw" style="background:var(--fab-blue-light)"></span>Empenhado não liq.</span><span><span class="sw" style="background:var(--gray-300)"></span>Saldo a empenhar</span>';
+  document.getElementById('omToggle').innerHTML='<button class="toggle-btn" data-metric="saldo">Destaque receb.</button><button class="toggle-btn" data-metric="empenhado">Empenhado</button><button class="toggle-btn" data-metric="liquidado">Liquidado</button><button class="toggle-btn" data-metric="pago">Pago</button><button class="toggle-btn" data-metric="devolvido">Devolvido</button>';
+  if(!['saldo','empenhado','liquidado','pago','devolvido'].includes(state.omMetric)) state.omMetric='saldo';
+  document.querySelectorAll('#omToggle .toggle-btn').forEach(x=>x.classList.toggle('active',x.dataset.metric===state.omMetric));
+  document.getElementById('execThead').innerHTML='<tr><th>OM</th><th>ND</th><th class="num">Destaque Recebido</th><th class="num">Devolvido</th><th class="num">Empenhado</th><th class="num">Liquidado</th><th class="num">Liq. a Pagar</th><th class="num">Inscrito RP</th><th class="num">Pago</th></tr>';
+  document.getElementById('execTfoot').innerHTML='<tr><td colspan="2">Total Filtrado</td><td class="num"><span class="cur">R$</span><span id="fe-sal">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-dev">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-emp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-liq">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-lap">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-rp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-pag">0</span></td></tr>';
+}
+function setExecChrome2026(){
+  { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display='none'; }
+  document.getElementById('execCard1H3').innerHTML='Situação do Crédito · 2026'+ICO('No exercício corrente, a planilha semanal traz a situação do crédito: disponível, bloqueado para controle interno e empenhos ainda a liquidar.');
+  document.getElementById('execCard1Sub').innerHTML='Crédito Disponível · Bloqueado · Empenhos a Liquidar';
+  document.getElementById('execCard2H3').innerHTML='Crédito Disponível por Natureza'+ICO('Participação de cada ND no total de crédito disponível no período filtrado.');
+  document.getElementById('execCard2Sub').textContent='Participação de cada ND no crédito disponível';
+  document.getElementById('execCard3H3').innerHTML='Crédito por Natureza de Despesa'+ICO('Para cada ND: crédito disponível, bloqueado para controle interno e empenhos a liquidar.');
+  document.getElementById('execCard3Sub').textContent='Disponível / Bloqueado / Empenhos a liquidar · por ND';
+  document.getElementById('execCard3Legend').innerHTML='<span><span class="sw" style="background:var(--fab-blue)"></span>Disponível</span><span><span class="sw" style="background:var(--gray-400)"></span>Bloqueado</span><span><span class="sw" style="background:var(--fab-yellow-dark)"></span>Empenhos a liquidar</span>';
+  document.getElementById('omToggle').innerHTML='<button class="toggle-btn" data-metric="disponivel">Disponível</button><button class="toggle-btn" data-metric="bloqueado">Bloqueado</button><button class="toggle-btn" data-metric="emp_a_liquidar">Empenhos a Liquidar</button>';
+  if(!['disponivel','bloqueado','emp_a_liquidar'].includes(state.omMetric)) state.omMetric='disponivel';
+  document.querySelectorAll('#omToggle .toggle-btn').forEach(x=>x.classList.toggle('active',x.dataset.metric===state.omMetric));
+  document.getElementById('execThead').innerHTML='<tr><th>OM</th><th>ND</th><th class="num">Crédito Disponível</th><th class="num">Crédito Bloqueado</th><th class="num">Empenhos a Liquidar</th></tr>';
+  document.getElementById('execTfoot').innerHTML='<tr><td colspan="2">Total Filtrado</td><td class="num"><span class="cur">R$</span><span id="fe26-disp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-blq">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-eal">0</span></td></tr>';
+}
+function dispUGESplit(){
+  const raw=(DATA.execUGE&&DATA.execUGE['2026'])||[];
+  if(!raw.length) return {hasUGE:false, diref:0, outra:0};
+  let d=0,o=0;
+  raw.forEach(r=>{ if(state.om.size&&!state.om.has(r.om))return; if(state.natureza.size&&!state.natureza.has(r.nd))return; if(state.ods.size&&!state.ods.has(odsOf(r.om)))return; if(!(r.disponivel>0))return; if(isDirefUGE(r.uge)) d+=r.disponivel; else o+=r.disponivel; });
+  return {hasUGE:true, diref:d, outra:o};
+}
+function renderExec2026(rows){
+  const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
+  const disp=T.disponivel||0, blq=T.bloqueado||0, eal=T.emp_a_liquidar||0;
+  const apr=planRows().reduce((s,r)=>s+(r.aprovado||0),0);
+  const liberado=disp+blq+eal;
+  const sp=dispUGESplit();
+  document.getElementById('exec-kpis').innerHTML =
+    kpi('kpi-apr','Aprovado · 2026',apr,'descentralizado para o ano','Crédito aprovado (descentralizado) para o exercício de 2026, conforme o planejamento.') +
+    kpi('kpi-disp','Disponível na OM · p/ uso', sp.hasUGE?sp.outra:disp, sp.hasUGE?'em UGE que não é a DIREF':'total — envie a planilha p/ separar','Crédito disponível que está em UGE diferente da DIREF: efetivamente na OM/executora, pronto para uso pela UGR.') +
+    kpi('kpi-rec','Disponível na DIREF · a descentralizar', sp.hasUGE?sp.diref:0, sp.hasUGE?'descentralizar antes do uso':'requer upload da planilha','Crédito disponível retido na UGE DIREF: precisa ser descentralizado para a UGR antes de poder ser utilizado.') +
+    kpi('kpi-warn','Crédito Bloqueado',blq,'controle interno','Crédito bloqueado para controle interno — indisponível para empenho no momento.') +
+    kpi('kpi-emp','Empenhos a Liquidar',eal,'obrigações pendentes','Empenhos já emitidos e ainda não liquidados — despesas a liquidar.');
+  document.getElementById('exec-sub-count').textContent=`${rows.length} combinação(ões) OM×ND · ${new Set(rows.map(r=>r.om)).size} OM(s)`;
+  // "funil" reaproveitado como 3 barras de situação do crédito
+  const stages=[{l:'Crédito Disponível',v:disp,c:'var(--fab-blue)',k:'disponivel'},{l:'Crédito Bloqueado',v:blq,c:'var(--gray-400)',k:'bloqueado'},{l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'}];
+  const fmax=Math.max(disp,blq,eal,1);
+  document.getElementById('funnelExec').innerHTML=stages.map(s=>{ const w=Math.max(2,(s.v/fmax)*100);
+    return `<div class="funnel-row" data-drill="sit" data-key="${s.k}" title="Clique para ver as OMs"><div class="funnel-head"><span>${s.l}</span><span class="pct">R$ ${fmtBRL0(s.v)}</span></div><div class="funnel-track"><div class="funnel-fill" style="width:${w}%;background:${s.c}">${w>20?'R$ '+fmtBRLc(s.v):''}</div></div></div>`; }).join('');
+  // donut: disponível por ND
+  const byNd={}; NDS.forEach(nd=>byNd[nd]=0); rows.forEach(r=>byNd[r.nd]=(byNd[r.nd]||0)+r.disponivel);
+  renderDonut('donut-nd','legend-nd', NDS.map(nd=>({k:nd,label:nd,val:byNd[nd],color:ndColor[nd]})),'DISPON.');
+  // barras por ND
+  const ndAgg={}; NDS.forEach(nd=>ndAgg[nd]={disp:0,blq:0,eal:0}); rows.forEach(r=>{const a=ndAgg[r.nd]; if(!a)return; a.disp+=r.disponivel; a.blq+=r.bloqueado; a.eal+=r.emp_a_liquidar;});
+  const ndArr=NDS.map(nd=>({nd,...ndAgg[nd]})).filter(x=>x.disp||x.blq||x.eal);
+  const ndMax=Math.max(1,...ndArr.map(x=>x.disp+x.blq+x.eal));
+  document.getElementById('ndExec').innerHTML = ndArr.length? ndArr.map(x=>{
+    const tot=x.disp+x.blq+x.eal; const totPct=(tot/ndMax)*100; const seg=v=>tot>0?(v/tot)*totPct:0;
+    return `<div class="nd-row"><div class="nd-head"><span>${x.nd} · ${(ndLabel[x.nd]||'').split('— ')[1]||''}</span><span class="tot">R$ ${fmtBRL0(tot)}</span></div>
+      <div class="nd-bar"><div class="nd-seg" style="width:${seg(x.disp)}%;background:var(--fab-blue)"></div><div class="nd-seg" style="width:${seg(x.blq)}%;background:var(--gray-400)"></div><div class="nd-seg" style="width:${seg(x.eal)}%;background:var(--fab-yellow-dark)"></div></div>
+      <div class="nd-meta"><span>Disp.: R$ ${fmtBRL0(x.disp)}</span><span>Bloq.: R$ ${fmtBRL0(x.blq)}</span><span>A liquidar: R$ ${fmtBRL0(x.eal)}</span></div></div>`;
+  }).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
+  renderTopOms(rows);
+  // tabela 2026
+  const sorted=[...rows].sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
+  const num=v=>`<td class="num ${v===0?'zero':''}"><span class="cur">R$</span>${fmtBRL0(v)}</td>`;
+  document.getElementById('execTbody').innerHTML = sorted.length? sorted.map(r=>`<tr data-om="${r.om.replace(/"/g,'&quot;')}" title="Clique para ver a OM"><td class="code">${r.om}</td><td><span class="badge">${r.nd}</span></td>${num(r.disponivel)}${num(r.bloqueado)}${num(r.emp_a_liquidar)}</tr>`).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="glyph">∅</div><p>Sem registros para os filtros.</p></div></td></tr>`;
+  const sum=k=>sorted.reduce((s,r)=>s+(r[k]||0),0);
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=fmtBRL0(v); };
+  set('fe26-disp',sum('disponivel')); set('fe26-blq',sum('bloqueado')); set('fe26-eal',sum('emp_a_liquidar'));
+  document.getElementById('exec-table-count').textContent=`${sorted.length} linha(s)`;
+}
 function renderExec(){
   const rows = filterRows(execRows(state.ano));
+  if(state.ano==='2026'){ setExecChrome('2026'); renderExec2026(rows); return; }
+  setExecChrome('legacy');
   const T = rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; }, {});
   const sal=T.saldo||0, emp=T.empenhado||0, liq=T.liquidado||0, pag=T.pago||0, rec=T.recebido||0, dev=T.devolvido||0, disp=T.disponivel||0;
   // KPIs
   document.getElementById('exec-kpis').innerHTML =
     kpi('kpi-rec','Destaque Recebido',sal,'crédito recebido no ano',
         'Crédito (destaque) de fato recebido pela OM no exercício — é o valor da coluna "Destaque Recebido" da planilha de execução. Corresponde ao saldo líquido do Movimento Devedor/Credor (recebido menos devolvido).') +
-    kpi('kpi-dev','Devolvido',dev, sal>0?`<strong>${fmtPct(dev/(sal+dev)*100,1)}</strong> do bruto`:'—',
-        'Movimento credor acumulado: crédito que foi devolvido/estornado ao longo do exercício. O recebido bruto (antes da devolução) fica disponível no detalhe de cada OM.') +
     kpi('kpi-disp','Crédito Disponível',disp,'saldo ainda não empenhado',
         'Saldo de crédito que ainda não foi empenhado no período. Em exercícios já encerrados tende a zero; no ano corrente (2026) mostra o que ainda está disponível.') +
     kpi('kpi-emp','Empenhado',emp, sal>0?`<strong>${fmtPct(emp/sal*100,1)}</strong> do recebido`:'—',
@@ -3775,16 +3934,37 @@ function renderExec(){
   // Top OMs
   renderTopOms(rows);
 
+  // Eficiência por OM (liquidado ÷ recebido bruto)
+  renderEficiencia(rows);
+
   // Tabela
   renderExecTable(rows);
+}
+
+function renderEficiencia(rows){
+  const byOm={};
+  rows.forEach(r=>{ const o=byOm[r.om]||(byOm[r.om]={rec:0,dev:0,liq:0});
+    o.rec+=(r.recebido||0); o.dev+=(r.devolvido||0); o.liq+=(r.liquidado||0); });
+  const all=Object.entries(byOm).map(([om,x])=>({om,v:x.liq,rec:x.rec,dev:x.dev,pct:x.rec>0?x.liq/x.rec*100:0})).filter(x=>x.rec>0);
+  const rs=getSort('efic','pct','desc');
+  const arr=[...all].sort((a,b)=>{ const d=(b[rs.key]||0)-(a[rs.key]||0); const p=rs.dir==='asc'?-d:d; return p!==0?p:(b.rec-a.rec); });
+  const max=arr.length?Math.max(...arr.map(x=>x[rs.key]),1):1;
+  ['pct','v'].forEach(k=>{ const el=document.getElementById('eficSort-'+k); if(el){ el.classList.toggle('active', rs.key===k); el.textContent=(k==='pct'?'% eficiência':'Valor liquidado')+(rs.key===k?' '+sortArrow(rs.dir):''); } });
+  const sub=document.getElementById('eficSub'); if(sub) sub.textContent=`exercício ${state.ano} · todas as ${all.length} OM(s) com crédito recebido · liquidado ÷ recebido bruto (movimento devedor)`;
+  document.getElementById('eficChart').innerHTML = arr.length? arr.map(x=>`
+    <div class="bar-row" data-drill="efom" data-key="${x.om.replace(/"/g,'&quot;')}" title="Clique para ver por ND"><div class="bar-label"><span class="code-tag">${x.om}</span></div>
+      <div class="bar-value">${fmtPct(x.pct,0)} · liq. R$ ${fmtBRL0(x.v)} de R$ ${fmtBRL0(x.rec)}${x.dev>0.005?' · dev. R$ '+fmtBRL0(x.dev):''}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,(x[rs.key]/max)*100)}%;background:var(--green)"></div></div></div>`).join('')
+    : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
 }
 
 function renderTopOms(rows){
   const m=state.omMetric;
   const byOm={};
   rows.forEach(r=>{ byOm[r.om]=(byOm[r.om]||0)+ (r[m]||0); });
-  const arr=Object.entries(byOm).map(([om,v])=>({om,v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,12);
-  const max=arr.length?arr[0].v:1;
+  const s=getSort('topoms','v','desc'); setSortArrow('topoms', s.dir);
+  const arr=topSort(Object.entries(byOm).map(([om,v])=>({om,v})).filter(x=>x.v>0), 'v', s.dir, 12);
+  const max=arr.length?Math.max(...arr.map(x=>x.v),1):1;
   const cls = m==='liquidado'?'green':(m==='devolvido'?'':'alt');
   const wrap=document.getElementById('omChart');
   wrap.innerHTML = arr.length? arr.map(x=>`
@@ -3834,14 +4014,20 @@ function renderRap(){
   rows.forEach(r=>byNd[r.nd]=(byNd[r.nd]||0)+r.rap_nproc_a_liquidar);
   renderDonut('donut-rap','legend-rap', NDS.map(n=>({k:n,label:n,val:byNd[n],color:ndColor[n]})),'A LIQUIDAR');
 
-  // Top OMs a liquidar
-  const byOm={}; rows.forEach(r=>byOm[r.om]=(byOm[r.om]||0)+r.rap_nproc_a_liquidar);
-  const arr=Object.entries(byOm).map(([om,v])=>({om,v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,12);
-  const max=arr.length?arr[0].v:1;
+  // Top OMs por RaP liquidado (dos não-processados) — base = não-processados (inscritos+reinscritos−cancelados)
+  const byOmL={};
+  rows.forEach(r=>{ const o=byOmL[r.om]||(byOmL[r.om]={liq:0,base:0});
+    o.liq  += (r.rap_nproc_liquidados||0);
+    o.base += (r.rap_nproc_inscritos||0)+(r.rap_nproc_reinscritos||0)-(r.rap_nproc_cancelados||0); });
+  const all=Object.entries(byOmL).map(([om,x])=>({om,v:x.liq,base:x.base,pct:x.base>0?x.liq/x.base*100:0})).filter(x=>x.base>0);
+  const rs=getSort('rapliq','v','desc');
+  const arr=topSort(all, rs.key, rs.dir, 12);
+  const max=arr.length?Math.max(...arr.map(x=>x[rs.key]),1):1;
+  ['v','pct'].forEach(k=>{ const el=document.getElementById('rapSort-'+k); if(el){ el.classList.toggle('active', rs.key===k); el.textContent=(k==='v'?'Valor':'% liquidado')+(rs.key===k?' '+sortArrow(rs.dir):''); } });
   document.getElementById('rapChart').innerHTML = arr.length? arr.map(x=>`
-    <div class="bar-row"><div class="bar-label"><span class="code-tag">${x.om}</span></div>
-      <div class="bar-value">R$ ${fmtBRL0(x.v)}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(x.v/max)*100}%"></div></div></div>`).join('')
+    <div class="bar-row" data-drill="rapom" data-key="${x.om.replace(/"/g,'&quot;')}" title="Clique para ver por ND"><div class="bar-label"><span class="code-tag">${x.om}</span></div>
+      <div class="bar-value">R$ ${fmtBRL0(x.v)} · ${fmtPct(x.pct,0)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(x[rs.key]/max)*100}%;background:var(--green)"></div></div></div>`).join('')
       : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
 
   // Tabela
@@ -3855,6 +4041,32 @@ function renderRap(){
   set('fr-pi','rap_proc_inscritos');set('fr-pp','rap_proc_pagos');set('fr-ni','rap_nproc_inscritos');set('fr-nr','rap_nproc_reinscritos');
   set('fr-nc','rap_nproc_cancelados');set('fr-na','rap_nproc_a_liquidar');set('fr-nl','rap_nproc_liquidados');set('fr-np','rap_nproc_pagos');
   document.getElementById('rap-table-count').textContent=`${sorted.length} linha(s)`;
+
+  // ----- Estatística: composição por situação -----
+  const sit=[
+    {l:'Inscritos / Reinscritos',v:inscr,c:'var(--fab-blue)'},
+    {l:'A Liquidar',v:sum('rap_nproc_a_liquidar'),c:'var(--fab-yellow-dark)'},
+    {l:'Liquidados',v:sum('rap_nproc_liquidados'),c:'var(--green)'},
+    {l:'Pagos',v:sum('rap_nproc_pagos')+sum('rap_proc_pagos'),c:'var(--fab-blue-mid)'},
+    {l:'Cancelados',v:sum('rap_nproc_cancelados'),c:'var(--gray-400)'}
+  ];
+  const sMax=Math.max(1,...sit.map(s=>s.v));
+  document.getElementById('rapStatus').innerHTML = sit.map(s=>`
+    <div class="bar-row"><div class="bar-label" style="min-width:130px">${s.l}</div>
+      <div class="bar-value">R$ ${fmtBRL0(s.v)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(s.v/sMax)*100}%;background:${s.c}"></div></div></div>`).join('');
+
+  // ----- Estatística: RaP por ND (a liquidar / liquidado / pago) -----
+  const ndA={}; NDS.forEach(nd=>ndA[nd]={al:0,li:0,pa:0});
+  rows.forEach(r=>{ const a=ndA[r.nd]; if(!a) return; a.al+=r.rap_nproc_a_liquidar; a.li+=r.rap_nproc_liquidados; a.pa+=(r.rap_nproc_pagos+r.rap_proc_pagos); });
+  const ndArr=NDS.map(nd=>({nd,...ndA[nd]})).filter(x=>x.al||x.li||x.pa);
+  const ndMax=Math.max(1,...ndArr.map(x=>x.al+x.li+x.pa));
+  document.getElementById('rapNd').innerHTML = ndArr.length? ndArr.map(x=>{
+    const tot=x.al+x.li+x.pa; const totPct=(tot/ndMax)*100; const seg=v=>tot>0?(v/tot)*totPct:0;
+    return `<div class="nd-row"><div class="nd-head"><span>${x.nd} · ${(ndLabel[x.nd]||'').split('— ')[1]||''}</span><span class="tot">R$ ${fmtBRL0(tot)}</span></div>
+      <div class="nd-bar"><div class="nd-seg" style="width:${seg(x.al)}%;background:var(--fab-yellow-dark)"></div><div class="nd-seg" style="width:${seg(x.li)}%;background:var(--green)"></div><div class="nd-seg" style="width:${seg(x.pa)}%;background:var(--fab-blue)"></div></div>
+      <div class="nd-meta"><span>A liquidar: R$ ${fmtBRL0(x.al)}</span><span>Liquidado: R$ ${fmtBRL0(x.li)}</span><span>Pago: R$ ${fmtBRL0(x.pa)}</span></div></div>`;
+  }).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
 }
 
 // ---------- Render COMPARATIVO ----------
@@ -3916,6 +4128,54 @@ function renderComp(){
   set('fc-tot',yearTotals['2023']+yearTotals['2024']+yearTotals['2025']);
   document.getElementById('fc-var').innerHTML = varCell(yearTotals['2024'],yearTotals['2025']).replace(/^<td[^>]*>|<\/td>$/g,'');
   document.getElementById('comp-table-count').textContent=`${sorted.length} linha(s)`;
+
+  // ----- Estatística: composição por ND, por ano -----
+  const ndYear={}; years.forEach(y=>{ ndYear[y]={}; NDS.forEach(nd=>ndYear[y][nd]=0); });
+  years.forEach(y=>{ filterRows(execRows(y)).forEach(r=>{ ndYear[y][r.nd]=(ndYear[y][r.nd]||0)+(r[m]||0); }); });
+  const yrTot=y=>NDS.reduce((s,nd)=>s+(ndYear[y][nd]||0),0);
+  const maxYr=Math.max(1,...years.map(yrTot));
+  document.getElementById('compNdYear').innerHTML = years.map(y=>{
+    const tot=yrTot(y); const totPct=(tot/maxYr)*100; const seg=v=>tot>0?(v/tot)*totPct:0;
+    const segs=NDS.filter(nd=>ndYear[y][nd]>0).map(nd=>`<div class="nd-seg" style="width:${seg(ndYear[y][nd])}%;background:${ndColor[nd]}"></div>`).join('');
+    return `<div class="nd-row"><div class="nd-head"><span>${y}</span><span class="tot">R$ ${fmtBRL0(tot)}</span></div><div class="nd-bar">${segs}</div></div>`;
+  }).join('');
+  document.getElementById('compNdLegend').innerHTML = NDS.map(nd=>`<span><span class="sw" style="background:${ndColor[nd]}"></span>${nd}</span>`).join('');
+  document.getElementById('comp-stat-metric').textContent = compMetricLabel[m];
+
+  // ----- Estatística: composição por ODS, por ano -----
+  const odsYear={};
+  years.forEach(y=>{ filterRows(execRows(y)).forEach(r=>{ const o=r.ods||'—'; (odsYear[o]||(odsYear[o]={'2023':0,'2024':0,'2025':0}))[y]+=(r[m]||0); }); });
+  const odsL=Object.keys(odsYear).sort();
+  const odsTotY=y=>odsL.reduce((s,o)=>s+odsYear[o][y],0);
+  const maxOdsY=Math.max(1,...years.map(odsTotY));
+  document.getElementById('compOdsYear').innerHTML = odsL.length ? years.map(y=>{
+    const tot=odsTotY(y); const totPct=(tot/maxOdsY)*100; const seg=v=>tot>0?(v/tot)*totPct:0;
+    const segs=odsL.filter(o=>odsYear[o][y]>0).map(o=>`<div class="nd-seg" style="width:${seg(odsYear[o][y])}%;background:${odsColorOf(odsL,o)}"></div>`).join('');
+    return `<div class="nd-row"><div class="nd-head"><span>${y}</span><span class="tot">R$ ${fmtBRL0(tot)}</span></div><div class="nd-bar">${segs}</div></div>`;
+  }).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
+  document.getElementById('compOdsLegend').innerHTML = odsL.map(o=>`<span><span class="sw" style="background:${odsColorOf(odsL,o)}"></span>${o}</span>`).join('');
+
+  // ----- Estatística: evolução por OM (top OMs, barra por ano) -----
+  const omY={}; rows.forEach(r=>{ const o=omY[r.om]||(omY[r.om]={'2023':0,'2024':0,'2025':0,total:0}); o['2023']+=r['2023']; o['2024']+=r['2024']; o['2025']+=r['2025']; o.total+=r.total; });
+  const omArr=Object.entries(omY).map(([om,v])=>({om,...v})).filter(x=>x.total>0).sort((a,b)=>b.total-a.total).slice(0,10);
+  const omMax=Math.max(1,...omArr.map(x=>x.total));
+  document.getElementById('compOmYear').innerHTML = omArr.length ? omArr.map(x=>{
+    const totPct=(x.total/omMax)*100; const seg=v=>x.total>0?(v/x.total)*totPct:0;
+    const segs=years.map(y=>`<div class="nd-seg" style="width:${seg(x[y])}%;background:${yearColor[y]}"></div>`).join('');
+    return `<div class="nd-row"><div class="nd-head"><span>${x.om}</span><span class="tot">R$ ${fmtBRL0(x.total)}</span></div><div class="nd-bar">${segs}</div></div>`;
+  }).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
+  document.getElementById('compOmLegend').innerHTML = years.map(y=>`<span><span class="sw" style="background:${yearColor[y]}"></span>${y}</span>`).join('');
+
+  // ----- Estatística: variação % ano a ano (total) -----
+  const trans=[{l:'2023 → 2024',prev:yearTotals['2023'],cur:yearTotals['2024']},{l:'2024 → 2025',prev:yearTotals['2024'],cur:yearTotals['2025']}];
+  document.getElementById('compVar').innerHTML = trans.map(t=>{
+    const d = t.prev>0 ? (t.cur-t.prev)/t.prev*100 : (t.cur>0?100:0);
+    const up=d>=0; const col=up?'var(--green)':'var(--fab-orange, #E07B00)'; const sig=up?'+':'';
+    const w=Math.min(100,Math.abs(d)); const delta=t.cur-t.prev;
+    return `<div class="bar-row"><div class="bar-label"><span class="code-tag">${t.l}</span></div>
+      <div class="bar-value"><strong style="color:${col}">${sig}${fmtPct(d,1)}</strong> · ${sig}R$ ${fmtBRL0(delta)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,w)}%;background:${col}"></div></div></div>`;
+  }).join('');
 }
 
 // ---------- Donut genérico ----------
@@ -3952,6 +4212,27 @@ function showOm(om){
   const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
   document.getElementById('modal-eyebrow').textContent=`OM · EXERCÍCIO ${state.ano}`;
   document.getElementById('modal-title').textContent=om;
+  if(state.ano==='2026'){
+    document.getElementById('modal-subtitle').textContent=`Crédito disponível R$ ${fmtBRL0(T.disponivel||0)} · bloqueado R$ ${fmtBRL0(T.bloqueado||0)} · ${rows.length} ND`;
+    const fin=`<div class="modal-finance">
+      <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.disponivel||0)}</div></div>
+      <div class="mfin"><div class="mfin-lbl">Crédito Bloqueado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.bloqueado||0)}</div></div>
+      <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.emp_a_liquidar||0)}</div></div>
+    </div>`;
+    let body=fin+`<div class="modal-solicitacoes-head"><h3>Por Natureza de Despesa</h3><span class="count">${rows.length} ND</span></div>`;
+    body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">Empenhos a Liquidar</th></tr></thead><tbody>`+
+      rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.bloqueado)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td></tr>`).join('')+
+      `</tbody></table></div>`;
+    const rp2=DATA.rap.filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
+    if(rp2.length){
+      body+=`<div class="modal-solicitacoes-head" style="margin-top:20px"><h3>Restos a Pagar 2026</h3><span class="count">${rp2.length} ND</span></div>`;
+      body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Inscr. N-Proc</th><th class="num">A Liquidar</th><th class="num">Liquidado</th><th class="num">Pago</th></tr></thead><tbody>`+
+        rp2.map(r=>`<tr><td><span class="badge">${r.nd}</span></td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.rap_nproc_inscritos)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.rap_nproc_a_liquidar)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.rap_nproc_liquidados)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.rap_nproc_pagos)}</td></tr>`).join('')+
+        `</tbody></table></div>`;
+    }
+    document.getElementById('modal-body').innerHTML=body;
+    document.getElementById('modal-body').scrollTop=0; openModal(); return;
+  }
   document.getElementById('modal-subtitle').textContent=`Destaque recebido R$ ${fmtBRL0(T.saldo||0)} · mov. devedor acum. R$ ${fmtBRL0(T.recebido||0)} · ${rows.length} ND`;
   const fin=`<div class="modal-finance">
     <div class="mfin rec"><div class="mfin-lbl">Destaque Recebido</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.saldo||0)}</div></div>
@@ -3989,6 +4270,12 @@ function downloadCSV(filename, headerArr, rows){
 }
 document.getElementById('exportExecBtn').addEventListener('click',()=>{
   const rows=filterRows(execRows(state.ano)).sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
+  if(state.ano==='2026'){
+    downloadCSV(`SISI_Execucao_2026.csv`,
+      ['OM','ND','Credito Disponivel','Credito Bloqueado','Empenhos a Liquidar'],
+      rows.map(r=>[r.om,r.nd,r.disponivel,r.bloqueado,r.emp_a_liquidar]));
+    return;
+  }
   downloadCSV(`SISI_Execucao_${state.ano}.csv`,
     ['OM','ND','Destaque Recebido','Devolvido','Empenhado','Liquidado','Liq a pagar','Inscrito RP','Pago'],
     rows.map(r=>[r.om,r.nd,r.saldo,r.devolvido,r.empenhado,r.liquidado,r.liq_a_pagar,r.inscrito_rp,r.pago]));
@@ -4100,7 +4387,7 @@ function rebuildGuarnFilter(){
 
 // ---------- Filtros / status ----------
 function updateStatus(){
-  const c=[ state.view==='exec' && `Exercício ${state.ano}`, state.om.size && `${state.om.size} OM(s)`, state.natureza.size && `${state.natureza.size} ND(s)`, state.ods.size && `${state.ods.size} ODS`, state.guarnicao.size && `${state.guarnicao.size} guarn.` ].filter(Boolean);
+  const c=[ state.view==='hist' && `Exercício ${state.ano}`, state.view==='corrente' && '2026 · corrente', state.view==='plan' && 'Planejamento', state.om.size && `${state.om.size} OM(s)`, state.natureza.size && `${state.natureza.size} ND(s)`, state.ods.size && `${state.ods.size} ODS`, state.guarnicao.size && `${state.guarnicao.size} guarn.` ].filter(Boolean);
   document.getElementById('filter-status').textContent=c.length?c.join(' · '):'Sem filtros aplicados';
 }
 
@@ -4123,10 +4410,6 @@ document.getElementById('compToggle').addEventListener('click',e=>{ const b=e.ta
 document.querySelectorAll('.view-tab').forEach(t=>t.addEventListener('click',()=>{
   state.view=t.dataset.view;
   document.querySelectorAll('.view-tab').forEach(x=>x.classList.toggle('active',x===t));
-  document.getElementById('view-exec').classList.toggle('active',state.view==='exec');
-  document.getElementById('view-rap').classList.toggle('active',state.view==='rap');
-  document.getElementById('view-comp').classList.toggle('active',state.view==='comp');
-  document.getElementById('yearGroup').style.display = state.view==='exec'?'':'none';
   refresh();
 }));
 
@@ -4196,8 +4479,9 @@ const CRED = (function(){
   function renderTopOms(vf){
     const m=state.credMetric;
     const by={}; vf.forEach(r=>{ const k=r.om; if(!by[k]) by[k]={om:r.om,nom:r.nomenclatura,v:0}; by[k].v+=(r[m]||0); });
-    const arr=Object.values(by).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,12);
-    const max=arr.length?arr[0].v:1;
+    const s=getSort('credoms','v','desc'); setSortArrow('credoms', s.dir);
+    const arr=topSort(Object.values(by).filter(x=>x.v>0), 'v', s.dir, 12);
+    const max=arr.length?Math.max(...arr.map(x=>x.v),1):1;
     const cls=m==='disponivel'?'alt':(m==='recebido'?'green':'');
     document.getElementById('credOmChart').innerHTML = arr.length? arr.map(x=>`
       <div class="bar-row clickable" data-credom="${x.om.replace(/"/g,'&quot;')}" title="${x.nom||x.om}">
@@ -4302,17 +4586,260 @@ const CRED = (function(){
   });
 
   return {
-    render(){ const vf=getV(); renderCascata(); renderKpis(vf); renderTopOms(vf); renderStacked(vf); renderModulos(getC(vf)); renderTable(vf); }
+    render(){ const vf=getV(); renderTopOms(vf); renderModulos(getC(vf)); renderTable(vf); }
   };
 })();
 
+// ---------- Planejado × Executado (2026) e Necessário × Recebido ----------
+function planRows(){
+  return CREDDATA.verba.filter(r=>{
+    if(state.om.size && !(state.om.has(r.om)||state.om.has(r.nomenclatura))) return false;
+    if(state.ods.size && !state.ods.has(r.ods)) return false;
+    if(state.guarnicao.size && !state.guarnicao.has(r.guarnicao)) return false;
+    return true;
+  });
+}
+function renderLiberar2026(){
+  const V=planRows();
+  const apr=V.reduce((s,r)=>s+(r.aprovado||0),0);
+  const ex=filterRows(execRows('2026'));
+  const disp=ex.reduce((a,r)=>a+(r.disponivel||0),0);
+  const blq=ex.reduce((a,r)=>a+(r.bloqueado||0),0);
+  const eal=ex.reduce((a,r)=>a+(r.emp_a_liquidar||0),0);
+  const liberado=disp+blq+eal;
+  const funnel=(stages,base)=>stages.map(s=>{ const w=Math.max(2,(s.v/base)*100); const pct=base>0?fmtPct(s.v/base*100,1):'—';
+    const drill=s.k?` data-drill="sit" data-key="${s.k}" title="Clique para ver as OMs"`:'';
+    return `<div class="funnel-row"${drill}><div class="funnel-head"><span>${s.l}</span><span class="pct">R$ ${fmtBRL0(s.v)} · ${pct}</span></div><div class="funnel-track"><div class="funnel-fill" style="width:${w}%;background:${s.c}">${w>16?'R$ '+fmtBRLc(s.v):''}</div></div></div>`;}).join('');
+  document.getElementById('liberarFunnel').innerHTML = funnel([
+    {l:'Aprovado (descentralizado p/ o ano)',v:apr,c:'var(--fab-blue)'},
+    {l:'Liberado · na OM',v:liberado,c:'var(--fab-blue-light)'},
+    {l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)'}
+  ], Math.max(apr,1));
+  document.getElementById('liberarStatus').innerHTML = funnel([
+    {l:'Crédito Disponível',v:disp,c:'var(--fab-blue)',k:'disponivel'},
+    {l:'Crédito Bloqueado',v:blq,c:'var(--gray-400)',k:'bloqueado'},
+    {l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'}
+  ], Math.max(disp,blq,eal,1));
+}
+function isDirefUGE(name){
+  const s=String(name==null?'':name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+  return /DIRETORIA DE ECON/.test(s) || /\bDIREF\b/.test(s);
+}
+function ugeDisplay(raw){
+  if(isDirefUGE(raw)) return 'DIREF';
+  const s=String(raw==null?'':raw).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
+  const m=s.match(/^GRUPAMENTO DE APOIO (?:DE |DO |DOS |DA |D')?(.+)$/);
+  if(m){
+    const loc=m[1].trim();
+    const map={'SAO PAULO':'SP','AFONSOS':'AF','RECIFE':'RF','S J CAMPOS':'SJ','SAO JOSE DOS CAMPOS':'SJ','LAGOA SANTA':'LS','GALEAO':'GL','RIO DE JANEIRO':'RJ','CANOAS':'CO','BELEM':'BE','BRASILIA':'BR','DISTRITO FED':'DF','DISTRITO FEDERAL':'DF'};
+    return 'GAP-'+(map[loc]||loc);
+  }
+  return String(raw==null?'':raw).trim();
+}
+function renderDisponivelUGE(){
+  const host=document.getElementById('ugeList'); const res=document.getElementById('ugeResumo');
+  if(!host||!res) return;
+  const raw=(DATA.execUGE && DATA.execUGE['2026'])||[];
+  if(!raw.length){
+    res.innerHTML='';
+    const pu=document.getElementById('ugePorUge'); if(pu) pu.innerHTML='';
+    const po=document.getElementById('ugePorOds'); if(po) po.innerHTML='';
+    host.innerHTML='<div style="padding:18px;color:var(--gray-500);font-size:13px;line-height:1.55;">Sem detalhamento por UGE nos dados carregados. Faça o upload da planilha semanal (formato <strong>Acompanhamento SISI</strong>) pelo painel Admin — o detalhamento por UGE passa a ser gravado a partir do próximo upload.</div>';
+    return;
+  }
+  const rows=raw.filter(r=>{
+    if(state.om.size && !state.om.has(r.om)) return false;
+    if(state.natureza.size && !state.natureza.has(r.nd)) return false;
+    if(state.ods.size && !state.ods.has(odsOf(r.om))) return false;
+    return (r.disponivel||0) > 0;
+  });
+  const g={};
+  rows.forEach(r=>{ const o=g[r.om]||(g[r.om]={om:r.om, total:0, uges:{}});
+    o.total+=r.disponivel; const uk=r.uge||'(UGE não informada)';
+    const u=o.uges[uk]||(o.uges[uk]={uge:uk, v:0, diref:isDirefUGE(uk)});
+    u.v+=r.disponivel; });
+  const sg=getSort('ugelist','total','desc'); setSortArrow('ugelist', sg.dir);
+  const groups=sortByDir(Object.values(g).filter(x=>x.total>0), 'total', sg.dir);
+  let totDiref=0, totOutra=0, nDiref=0, nOutra=0, nMisto=0;
+  groups.forEach(x=>{ const d=Object.values(x.uges).reduce((s,u)=>s+(u.diref?u.v:0),0);
+    const o=x.total-d; totDiref+=d; totOutra+=o;
+    if(o<=0.005) nDiref++; else if(d<=0.005) nOutra++; else nMisto++; });
+  const tot=totDiref+totOutra;
+  const bar=(l,v,c,n)=>{ const w=tot>0?Math.max(2,v/tot*100):0;
+    return `<div class="funnel-row"><div class="funnel-head"><span>${l}</span><span class="pct">R$ ${fmtBRL0(v)} · ${tot>0?fmtPct(v/tot*100,1):'—'} · ${n} UGR(s)</span></div><div class="funnel-track"><div class="funnel-fill" style="width:${w}%;background:${c}">${w>16?'R$ '+fmtBRLc(v):''}</div></div></div>`; };
+  res.innerHTML = bar('Na UGE DIREF', totDiref, 'var(--fab-blue)', nDiref)
+    + bar('Em outra UGE (não-DIREF)', totOutra, 'var(--orange)', nOutra)
+    + (nMisto? `<div style="font-size:11.5px;color:var(--gray-500);margin-top:4px;">${nMisto} UGR(s) com disponível na DIREF e em outra UGE ao mesmo tempo.</div>`:'');
+  // --- Gráfico 1: disponível por UGE executora ---
+  const ugeAgg={}, odsAgg={};
+  rows.forEach(r=>{ const uk=r.uge||'(UGE não informada)';
+    const ua=ugeAgg[uk]||(ugeAgg[uk]={uge:uk, v:0, diref:isDirefUGE(uk)}); ua.v+=r.disponivel;
+    const od=odsOf(r.om); const oa=odsAgg[od]||(odsAgg[od]={ods:od, d:0, o:0});
+    if(isDirefUGE(uk)) oa.d+=r.disponivel; else oa.o+=r.disponivel; });
+  const puEl=document.getElementById('ugePorUge');
+  if(puEl){ const sqU=getSort('poruge','v','desc'); setSortArrow('poruge', sqU.dir); const ugeArr=sortByDir(Object.values(ugeAgg), 'v', sqU.dir); const uMax=Math.max(1,...ugeArr.map(x=>x.v));
+    puEl.innerHTML = ugeArr.map(x=>{ const w=Math.max(2,x.v/uMax*100); const col=x.diref?'var(--fab-blue)':'var(--orange)'; const pct=tot>0?fmtPct(x.v/tot*100,1):'—';
+      return `<div data-drill="uge" data-key="${String(x.uge).replace(/"/g,'&quot;')}" title="Clique para ver as UGRs desta UGE" style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:11.5px;margin-bottom:3px;"><span style="color:var(--gray-700);font-weight:${x.diref?'600':'500'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${x.uge}">${ugeDisplay(x.uge)}</span><span style="font-family:'Roboto Mono',monospace;color:var(--gray-500);white-space:nowrap;">R$ ${fmtBRL0(x.v)} · ${pct}</span></div><div style="height:12px;background:var(--gray-100);border-radius:3px;overflow:hidden;"><div style="width:${w}%;height:100%;background:${col};border-radius:3px;"></div></div></div>`;
+    }).join('') || '<div style="padding:12px;color:var(--gray-500);font-size:12px;">Sem dados nos filtros atuais.</div>'; }
+  // --- Gráfico 2: disponível por ODS, empilhado DIREF × outra UGE ---
+  const poEl=document.getElementById('ugePorOds');
+  if(poEl){ const sqO=getSort('porods','total','desc'); setSortArrow('porods', sqO.dir); const odsArr=sortByDir(Object.values(odsAgg).map(x=>({...x,total:x.d+x.o})).filter(x=>x.total>0), 'total', sqO.dir); const oMax=Math.max(1,...odsArr.map(x=>x.total));
+    poEl.innerHTML = odsArr.map(x=>{ const wd=x.d/oMax*100, wo=x.o/oMax*100; const pd=x.total>0?fmtPct(x.d/x.total*100,0):'—';
+      return `<div data-drill="ods" data-key="${String(x.ods).replace(/"/g,'&quot;')}" title="Clique para ver as OMs deste ODS" style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:11.5px;margin-bottom:3px;"><span style="color:var(--gray-700);font-weight:600;">${x.ods}</span><span style="font-family:'Roboto Mono',monospace;color:var(--gray-500);white-space:nowrap;">R$ ${fmtBRL0(x.total)} · DIREF ${pd}</span></div><div style="display:flex;height:14px;background:var(--gray-100);border-radius:3px;overflow:hidden;"><div style="width:${wd}%;background:var(--fab-blue);" title="DIREF R$ ${fmtBRL0(x.d)}"></div><div style="width:${wo}%;background:var(--orange);" title="outra UGE R$ ${fmtBRL0(x.o)}"></div></div></div>`;
+    }).join('') || '<div style="padding:12px;color:var(--gray-500);font-size:12px;">Sem dados nos filtros atuais.</div>'; }
+  if(!groups.length){ host.innerHTML='<div style="padding:16px;color:var(--gray-500);font-size:13px;">Nenhuma UGR com crédito disponível nos filtros atuais.</div>'; return; }
+  const item=x=>{
+    const uges=Object.values(x.uges).sort((a,b)=>b.v-a.v);
+    const sub=uges.map(u=>{
+      const col=u.diref?'var(--fab-blue)':'var(--orange)';
+      return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;">
+        <span style="flex:0 0 9px;height:9px;border-radius:50%;background:${col};display:inline-block;"></span>
+        <span style="flex:1;min-width:0;font-size:12px;color:var(--gray-700);font-weight:${u.diref?'600':'500'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.uge}">${ugeDisplay(u.uge)}</span>
+        <span style="flex:0 0 100px;text-align:right;font-family:'Roboto Mono',monospace;font-size:11.5px;color:var(--gray-700);">R$ ${fmtBRL0(u.v)}</span>
+      </div>`;
+    }).join('');
+    return `<div style="padding:9px 0;border-bottom:1px solid var(--gray-100);">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px;">
+        <span style="font-weight:600;font-size:13px;color:var(--fab-blue);">${x.om}</span>
+        <span style="font-size:11.5px;color:var(--gray-500);white-space:nowrap;">disponível <strong style="color:var(--gray-700);">R$ ${fmtBRL0(x.total)}</strong></span>
+      </div>${sub}</div>`;
+  };
+  host.innerHTML = groups.map(item).join('');
+}
+// ---------- Drawer (slider) de detalhamento ao clicar nos gráficos ----------
+function openDrawer(title, subtitle, bodyHtml){
+  const d=document.getElementById('drillDrawer'), b=document.getElementById('drillBackdrop');
+  if(!d) return;
+  const t=document.getElementById('drillTitle'); if(t) t.textContent=title||'Detalhamento';
+  const s=document.getElementById('drillSub'); if(s) s.textContent=subtitle||'';
+  const bd=document.getElementById('drillBody'); if(bd) bd.innerHTML=bodyHtml||'';
+  d.classList.add('open'); if(b) b.classList.add('open');
+}
+function closeDrawer(){ const d=document.getElementById('drillDrawer'), b=document.getElementById('drillBackdrop'); if(d)d.classList.remove('open'); if(b)b.classList.remove('open'); }
+function drawerListHtml(items, unitLabel){
+  const arr=(items||[]).filter(x=>Math.abs(x.value)>0.005).sort((a,b)=>b.value-a.value);
+  if(!arr.length) return '<div style="padding:24px 4px;color:var(--gray-500);font-size:13px;">Nenhum registro para os filtros atuais.</div>';
+  const tot=arr.reduce((s,x)=>s+x.value,0); const max=Math.max(1,...arr.map(x=>x.value));
+  const head=`<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--gray-500);margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--gray-100);"><span>${arr.length} ${unitLabel||'itens'}</span><span>Total R$ ${fmtBRL0(tot)}</span></div>`;
+  const rows=arr.map(x=>{ const w=Math.max(2,x.value/max*100);
+    return `<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:3px;"><span style="color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${String(x.label).replace(/"/g,'&quot;')}">${x.label}</span><span style="font-family:'Roboto Mono',monospace;color:var(--gray-700);white-space:nowrap;">R$ ${fmtBRL0(x.value)}${x.sub?`<span style="color:var(--gray-500);"> · ${x.sub}</span>`:''}</span></div><div style="height:11px;background:var(--gray-100);border-radius:3px;overflow:hidden;"><div style="width:${w}%;height:100%;background:${x.color||'var(--fab-blue)'};border-radius:3px;"></div></div></div>`;
+  }).join('');
+  return head+rows;
+}
+function ugeFilteredRows(){
+  const raw=(DATA.execUGE&&DATA.execUGE['2026'])||[];
+  return raw.filter(r=> (!state.om.size||state.om.has(r.om)) && (!state.natureza.size||state.natureza.has(r.nd)) && (!state.ods.size||state.ods.has(odsOf(r.om))) && (r.disponivel||0)>0 );
+}
+function openDrill(kind, key){
+  if(kind==='sit'){
+    const lbl={disponivel:'Crédito Disponível',bloqueado:'Crédito Bloqueado',emp_a_liquidar:'Empenhos a Liquidar'}[key]||key;
+    const byOm={}; filterRows(execRows('2026')).forEach(r=>{ byOm[r.om]=(byOm[r.om]||0)+(r[key]||0); });
+    const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v}));
+    openDrawer(lbl+' · 2026', 'OMs com '+lbl.toLowerCase()+' (filtros aplicados)', drawerListHtml(items,'OM(s)'));
+  } else if(kind==='uge'){
+    const rows=ugeFilteredRows().filter(r=>String(r.uge||'')===String(key));
+    const byOm={}; rows.forEach(r=>byOm[r.om]=(byOm[r.om]||0)+r.disponivel);
+    const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v,color:isDirefUGE(key)?'var(--fab-blue)':'var(--orange)'}));
+    openDrawer('UGE: '+ugeDisplay(key), 'UGRs com crédito disponível nesta UGE', drawerListHtml(items,'UGR(s)'));
+  } else if(kind==='ods'){
+    const rows=ugeFilteredRows().filter(r=>odsOf(r.om)===String(key));
+    const byOm={}; rows.forEach(r=>{ const o=byOm[r.om]||(byOm[r.om]={d:0,o:0}); if(isDirefUGE(r.uge)) o.d+=r.disponivel; else o.o+=r.disponivel; });
+    const items=Object.entries(byOm).map(([om,x])=>({label:om,value:x.d+x.o,sub:`DIREF ${fmtBRL0(x.d)} / outra ${fmtBRL0(x.o)}`}));
+    openDrawer('ODS: '+key, 'OMs com disponível neste ODS (DIREF × outra UGE)', drawerListHtml(items,'OM(s)'));
+  } else if(kind==='efom'){
+    const rows=filterRows(execRows(state.ano)).filter(r=>r.om===String(key) && (r.recebido||0)>0.005);
+    const items=rows.map(r=>{ const pct=r.recebido>0?fmtPct((r.liquidado||0)/r.recebido*100,0):'—';
+      return {label:'ND '+r.nd, value:(r.recebido||0), sub:`liq. ${fmtBRL0(r.liquidado||0)} · dev. ${fmtBRL0(r.devolvido||0)} · ${pct}`}; });
+    openDrawer('Eficiência · '+key, `Por natureza de despesa · exercício ${state.ano} · barra = recebido bruto`, drawerListHtml(items,'ND(s)'));
+  } else if(kind==='rapom'){
+    const rows=rapRows().filter(r=>r.om===String(key));
+    const items=rows.map(r=>{ const base=(r.rap_nproc_inscritos||0)+(r.rap_nproc_reinscritos||0)-(r.rap_nproc_cancelados||0);
+      return {label:'ND '+r.nd, value:(r.rap_nproc_liquidados||0), sub:`base ${fmtBRL0(base)} · a liq. ${fmtBRL0(r.rap_nproc_a_liquidar||0)}`, color:'var(--green)'}; });
+    openDrawer('RaP liquidado · '+key, 'Por natureza de despesa (não-processados)', drawerListHtml(items,'ND(s)'));
+  }
+}
+function drillDelegate(e){
+  if((e.target.closest && e.target.closest('#drillClose')) || e.target.id==='drillBackdrop'){ closeDrawer(); return; }
+  const el=e.target.closest && e.target.closest('[data-drill]');
+  if(!el) return;
+  openDrill(el.getAttribute('data-drill'), el.getAttribute('data-key')||'');
+}
+document.addEventListener('click', drillDelegate);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); });
+// ---------- Ordenação clicável de gráficos de ranking ----------
+const sortState = {};
+function getSort(id, defKey, defDir){ if(!sortState[id]) sortState[id]={key:defKey||'v', dir:defDir||'desc'}; return sortState[id]; }
+function sortByDir(arr, key, dir){ const a=[...arr]; a.sort((x,y)=>{ const d=(y[key]||0)-(x[key]||0); return dir==='asc'?-d:d; }); return a; }
+function topSort(arr, key, dir, n){ const byMag=[...arr].sort((a,b)=>(b[key]||0)-(a[key]||0)).slice(0,n||12); return sortByDir(byMag,key,dir); }
+function sortArrow(dir){ return dir==='asc'?'↑':'↓'; }
+function setSortArrow(id, dir){ const el=document.getElementById('sa-'+id); if(el) el.textContent=' '+sortArrow(dir); }
+function toggleSort(id, key){ const s=sortState[id] || (sortState[id]={key:key||'v',dir:'desc'}); if(s.key===(key||'v')){ s.dir = s.dir==='desc'?'asc':'desc'; } else { s.key=key||'v'; s.dir='desc'; } refresh(); }
+function sortDelegate(e){
+  const t=e.target;
+  if(t.closest && t.closest('.info-ico')) return;
+  const el=t.closest && t.closest('[data-sort]'); if(!el) return;
+  toggleSort(el.getAttribute('data-sort'), el.getAttribute('data-sortkey')||'v');
+}
+document.addEventListener('click', sortDelegate);
+function recebidoPorAno(){
+  return {
+    '2023':filterRows(execRows('2023')).reduce((a,r)=>a+(r.saldo||0),0),
+    '2024':filterRows(execRows('2024')).reduce((a,r)=>a+(r.saldo||0),0),
+    '2025':filterRows(execRows('2025')).reduce((a,r)=>a+(r.saldo||0),0),
+    '2026':filterRows(execRows('2026')).reduce((a,r)=>a+(r.bloqueado||0),0)
+  };
+}
+function renderNecRec(){
+  const V=planRows();
+  const necFwd=V.reduce((s,r)=>s+(r.necessario||0),0);   // necessário a partir de 2026 (planejamento)
+  const apr=V.reduce((s,r)=>s+(r.aprovado||0),0);
+  const rec=recebidoPorAno();
+  const rec2325=(rec['2023']||0)+(rec['2024']||0)+(rec['2025']||0);
+  const necTotal=necFwd+rec2325;                          // total necessário do projeto DESDE 2023
+  const totalRec=Object.values(rec).reduce((a,b)=>a+b,0);
+  const cob=necTotal>0?totalRec/necTotal*100:0;
+  const falta=Math.max(0,necTotal-totalRec);
+  document.getElementById('necrec-kpis').innerHTML =
+    kpi('kpi-nec','Total Necessário (desde 2023)',necTotal,'R$ 45M (a partir de 2026) + recebido 23–25','Total necessário do Projeto SISI contado desde 2023: o necessário a partir de 2026 (planejamento, ~45 mi) somado ao que já foi recebido em 2023–2025.') +
+    kpi('kpi-rec','Recebido Acumulado',totalRec,`${fmtPct(cob,1)} do necessário`,'Soma do recebido em todos os exercícios (2023–2025 = destaque recebido; 2026 = crédito bloqueado para controle interno).') +
+    kpi('kpi-apr','Aprovado 2026',apr, necFwd>0?`${fmtPct(apr/necFwd*100,1)} do necessário 2026`:'—','Crédito aprovado (descentralizado) para o exercício de 2026.') +
+    kpi('kpi-warn','Ainda Falta',falta,'p/ cobrir o necessário','Quanto ainda falta receber para cobrir o total necessário do projeto desde 2023.');
+  const years=['2023','2024','2025','2026'];
+  const maxY=Math.max(1,...years.map(y=>rec[y]));
+  document.getElementById('necrecChart').innerHTML = years.map(y=>`
+    <div class="bar-row"><div class="bar-label"><span class="code-tag">${y}</span></div>
+      <div class="bar-value">R$ ${fmtBRL0(rec[y])}</div>
+      <div class="bar-track"><div class="bar-fill ${y==='2026'?'alt':''}" style="width:${(rec[y]/maxY)*100}%"></div></div></div>`).join('');
+  document.getElementById('necrecCum').innerHTML = `
+    <div class="compare-bar"><div class="cb-head">
+      <div class="cb-titles"><span class="cb-pretitle">Recebido acumulado</span><span class="cb-value"><span class="cur">R$</span>${fmtBRL0(totalRec)}</span></div>
+      <div class="cb-titles right"><span class="cb-pretitle">Total Necessário · desde 2023</span><span class="cb-value alt"><span class="cur">R$</span>${fmtBRL0(necTotal)}</span></div></div>
+      <div class="cb-track"><div class="cb-fill" style="width:${Math.min(100,cob)}%;background:linear-gradient(90deg,var(--fab-blue) 0%,var(--fab-blue-light) 100%);"></div>
+      ${cob>=12?`<span class="cb-pct-inner" style="color:#fff;">${fmtPct(cob,1)}</span>`:`<span class="cb-pct-outer">${fmtPct(cob,1)}</span>`}
+      <div class="cb-rest-label" style="left:${Math.min(92,cob+(100-cob)/2)}%;">Falta: <strong>R$ ${fmtBRL0(falta)}</strong></div></div>
+    </div>`;
+}
+
 // ---------- Refresh ----------
 function refresh(){
-  document.getElementById('header-ano').textContent =
-    state.view==='exec' ? state.ano : (state.view==='comp' ? '2023–2025' : 'JUN/2026');
-  if(state.view==='exec'){ renderExec(); CRED.render(); }
-  else if(state.view==='comp') renderComp();
-  else renderRap();
+  const v=state.view;
+  if(v==='corrente') state.ano='2026';
+  else if(v==='hist' && state.ano==='2026') state.ano='2025';
+  const A=id=>document.getElementById(id);
+  A('view-exec').classList.toggle('active', v==='hist'||v==='corrente');
+  A('view-comp').classList.toggle('active', v==='hist');
+  A('sec-liberar').classList.toggle('active', v==='corrente');
+  A('sec-uge').classList.toggle('active', v==='corrente');
+  A('view-rap').classList.toggle('active', v==='rap');
+  A('sec-necrec').classList.toggle('active', v==='plan');
+  A('sec-modulos').classList.toggle('active', v==='plan');
+  A('yearGroup').style.display = (v==='hist') ? '' : 'none';
+  A('header-ano').textContent = v==='hist' ? state.ano : (v==='corrente' ? '2026' : (v==='rap' ? 'Restos a Pagar · 2026' : 'Necessário × Recebido'));
+  document.querySelectorAll('#yearSeg .year-btn').forEach(x=>x.classList.toggle('active', x.dataset.ano===state.ano));
+  if(v==='hist'){ renderExec(); renderComp(); }
+  else if(v==='corrente'){ renderExec(); CRED.render(); renderLiberar2026(); renderDisponivelUGE(); }
+  else if(v==='rap'){ renderRap(); }
+  else { renderNecRec(); CRED.render(); }
   updateStatus();
 }
 
@@ -4322,7 +4849,7 @@ function refresh(){
   const LS_KEY = 'sisi_exec_2026_v1';
   const MONTHS = {JAN:1,FEV:2,MAR:3,ABR:4,MAI:5,JUN:6,JUL:7,AGO:8,SET:9,OUT:10,NOV:11,DEZ:12};
   const $ = id=>document.getElementById(id);
-  let wb=null, fileName='', pendingRows=null, pendingSheet='';
+  let wb=null, fileName='', pendingRows=null, pendingSheet='', pendingUGE=null;
 
   function alog(msg,type='info'){ const el=$('adminLog'); if(!el) return;
     const e0=el.querySelector('.admin-log-empty'); if(e0) el.innerHTML='';
@@ -4342,43 +4869,74 @@ function refresh(){
   function parseSheet(ws){
     const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:null});
     const HX = s => String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
-    // localiza a linha de cabeçalho principal (a que contém DESTAQUE) e a sub-linha (NATUREZA)
+    // cabeçalho principal: linha que contém "CREDITO DISPONIVEL" ou "DESTAQUE" (vale p/ todos os layouts)
     let hMain=-1;
-    for(let i=0;i<Math.min(aoa.length,15);i++){ const row=aoa[i]||[]; if(row.some(c=>/DESTAQUE/.test(HX(c)))){ hMain=i; break; } }
+    for(let i=0;i<Math.min(aoa.length,15);i++){ const row=aoa[i]||[]; if(row.some(c=>{const h=HX(c);return /CREDITO DISPON/.test(h)||/DESTAQUE/.test(h);})){ hMain=i; break; } }
     if(hMain<0){ parseSheet._lastCols=null; return []; }
     const b0=aoa[hMain]||[], b1=aoa[hMain+1]||[];
     const ncol=Math.max(b0.length, b1.length);
     const comb=[]; for(let c=0;c<ncol;c++){ comb[c]=(HX(b0[c])+' '+HX(b1[c])).trim(); }
     const find = test => { for(let c=0;c<ncol;c++){ if(test(comb[c])) return c; } return -1; };
-    let omCol = find(h=>/UG RESPONS/.test(h));
-    if(omCol<0) omCol = find(h=>(/\bUG\/?OM\b/.test(h)||/UNIDADE GESTORA/.test(h)||h==='OM'||/\bUG\b/.test(h))&&!/EXECUTOR/.test(h));
+    // OM: coluna "UG Responsável". Em alguns layouts ela traz o CÓDIGO e o NOME fica na coluna seguinte (cabeçalho vazio).
+    let omLab = find(h=>/UG RESPONS/.test(h));
+    if(omLab<0) omLab = find(h=>(/\bUG\/?OM\b/.test(h)||/UNIDADE GESTORA/.test(h)||h==='OM'||/\bUG\b/.test(h))&&!/EXECUTOR/.test(h));
+    let omCol = omLab;
+    if(omLab>=0){
+      const isCode = v => { const s=String(v==null?'':v).trim(); return s!=='' && /^\d+$/.test(s); };
+      const hasName = v => /[A-Za-zÀ-ÿ]/.test(String(v==null?'':v));
+      let codes=0, names=0, namesNext=0, smp=0;
+      for(let i=hMain+2;i<aoa.length && smp<12;i++){ const r=aoa[i]||[]; const v=r[omLab]; if(v==null||String(v).trim()==='') continue; smp++;
+        if(isCode(v)) codes++; if(hasName(v)) names++; if(hasName(r[omLab+1])) namesNext++; }
+      if(smp>0 && codes>=smp*0.6 && namesNext>=smp*0.6 && names<smp*0.4) omCol = omLab+1; // usa a coluna do NOME
+    }
+    // UG Executora: mesma lógica (código -> nome na coluna seguinte)
+    let ugeLab = find(h=>/UG EXECUTOR/.test(h));
+    let ugeCol = ugeLab;
+    if(ugeLab>=0){
+      const isCodeE = v => { const s=String(v==null?'':v).trim(); return s!=='' && /^\d+$/.test(s); };
+      const hasNameE = v => /[A-Za-zÀ-ÿ]/.test(String(v==null?'':v));
+      let cE=0,nE=0,nNext=0,sE=0;
+      for(let i=hMain+2;i<aoa.length && sE<12;i++){ const r=aoa[i]||[]; const v=r[ugeLab]; if(v==null||String(v).trim()==='') continue; sE++;
+        if(isCodeE(v)) cE++; if(hasNameE(v)) nE++; if(hasNameE(r[ugeLab+1])) nNext++; }
+      if(sE>0 && cE>=sE*0.6 && nNext>=sE*0.6 && nE<sE*0.4) ugeCol = ugeLab+1;
+    }
     const ndCol   = find(h=>/NATUREZA/.test(h));
     const dCol    = find(h=>/DESTAQUE/.test(h));
     const dispCol = find(h=>/CREDITO DISPON/.test(h));
-    const eCol    = find(h=>/EMPENH/.test(h));
+    const blqCol  = find(h=>/CREDITO BLOQUEAD/.test(h));
+    const ealCol  = find(h=>/EMPENHOS A LIQUIDAR/.test(h));
+    const eCol    = find(h=>/DESPESAS EMPENH/.test(h));
     const liqCol  = find(h=>/LIQUIDAD/.test(h) && !/A PAGAR/.test(h));
     const lpCol   = find(h=>/A PAGAR/.test(h));
     const rpCol   = find(h=>/INSCRIT/.test(h));
     const pCol    = find(h=>/\bPAGAS\b/.test(h));
-    parseSheet._lastCols = { om:omCol, nd:ndCol, destaque:dCol, disponivel:dispCol, empenhado:eCol, liquidado:liqCol, liq_a_pagar:lpCol, inscrito_rp:rpCol, pago:pCol, headerRow:hMain };
+    parseSheet._lastCols = { om:omCol, nd:ndCol, destaque:dCol, disponivel:dispCol, bloqueado:blqCol, emp_a_liquidar:ealCol, empenhado:eCol, liquidado:liqCol, liq_a_pagar:lpCol, inscrito_rp:rpCol, pago:pCol, headerRow:hMain };
     // agrega por (OM, ND) — soma múltiplas UG Executoras da mesma OM
-    const map={};
+    const map={}, ugeMap={};
     for(let i=hMain+2;i<aoa.length;i++){
       const r=aoa[i]||[];
       const om = omCol>=0 ? String(r[omCol]==null?'':r[omCol]).trim() : '';
       const nd = ndCol>=0 ? String(r[ndCol]==null?'':r[ndCol]).trim() : '';
       if(!om || !nd) continue;
       if(/^total/i.test(om) || /^total/i.test(nd)) continue;
+      const uge = ugeCol>=0 ? String(r[ugeCol]==null?'':r[ugeCol]).trim() : '';
       const k=om+'|'+nd;
-      const o = map[k] || (map[k]={ om, nd, destaque_recebido:0, credito_disponivel:0, empenhadas:0, liquidadas:0, liquidadas_a_pagar:0, inscritas_rp:0, pagas:0 });
-      o.destaque_recebido += dCol>=0?n(r[dCol]):0;
-      o.credito_disponivel+= dispCol>=0?n(r[dispCol]):0;
-      o.empenhadas        += eCol>=0?n(r[eCol]):0;
-      o.liquidadas        += liqCol>=0?n(r[liqCol]):0;
-      o.liquidadas_a_pagar+= lpCol>=0?n(r[lpCol]):0;
-      o.inscritas_rp      += rpCol>=0?n(r[rpCol]):0;
-      o.pagas             += pCol>=0?n(r[pCol]):0;
+      const o = map[k] || (map[k]={ om, nd, destaque_recebido:0, credito_disponivel:0, credito_bloqueado:0, empenhos_a_liquidar:0, empenhadas:0, liquidadas:0, liquidadas_a_pagar:0, inscritas_rp:0, pagas:0 });
+      o.destaque_recebido  += dCol>=0?n(r[dCol]):0;
+      o.credito_disponivel += dispCol>=0?n(r[dispCol]):0;
+      o.credito_bloqueado  += blqCol>=0?n(r[blqCol]):0;
+      o.empenhos_a_liquidar+= ealCol>=0?n(r[ealCol]):0;
+      o.empenhadas         += eCol>=0?n(r[eCol]):0;
+      o.liquidadas         += liqCol>=0?n(r[liqCol]):0;
+      o.liquidadas_a_pagar += lpCol>=0?n(r[lpCol]):0;
+      o.inscritas_rp       += rpCol>=0?n(r[rpCol]):0;
+      o.pagas              += pCol>=0?n(r[pCol]):0;
+      if(uge){ const uk=om+'|'+uge+'|'+nd; const uo=ugeMap[uk]||(ugeMap[uk]={ om, uge, nd, disponivel:0, bloqueado:0, emp_a_liquidar:0 });
+        uo.disponivel   += dispCol>=0?n(r[dispCol]):0;
+        uo.bloqueado    += blqCol>=0?n(r[blqCol]):0;
+        uo.emp_a_liquidar+= ealCol>=0?n(r[ealCol]):0; }
     }
+    parseSheet._lastUGE = Object.values(ugeMap);
     return Object.values(map);
   }
 
@@ -4400,12 +4958,15 @@ function refresh(){
   function buildPreview(sheetName){
     if(!wb) return;
     const ws=wb.Sheets[sheetName]; if(!ws){ alog('Aba não encontrada: '+sheetName,'err'); return; }
-    const rows=parseSheet(ws); pendingRows=rows; pendingSheet=sheetName;
+    const rows=parseSheet(ws); pendingRows=rows; pendingSheet=sheetName; pendingUGE=parseSheet._lastUGE||[];
     $('adminPreviewBox').classList.remove('hidden');
     $('adminPreviewOrigin').textContent=`Arquivo: ${fileName} · Aba: ${sheetName} · ${rows.length} linha(s) OM×ND`;
     const sum=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
     const cur=DATA.execution['2026']||[]; const curSum=k=>cur.reduce((a,r)=>a+(r[k]||0),0);
-    const cards=[['Destaque Recebido','destaque_recebido'],['Crédito Disponível','credito_disponivel'],['Empenhado','empenhadas'],['Liquidado','liquidadas'],['Pago','pagas']];
+    const creditFmt = sum('destaque_recebido')===0 && (sum('credito_bloqueado')!==0 || sum('empenhos_a_liquidar')!==0 || sum('credito_disponivel')!==0);
+    const cards = creditFmt
+      ? [['Crédito Disponível','credito_disponivel'],['Crédito Bloqueado','credito_bloqueado'],['Empenhos a Liquidar','empenhos_a_liquidar']]
+      : [['Destaque Recebido','destaque_recebido'],['Crédito Disponível','credito_disponivel'],['Empenhado','empenhadas'],['Liquidado','liquidadas'],['Pago','pagas']];
     $('adminPreviewCards').innerHTML=cards.map(([lbl,k])=>{
       const nv=sum(k); let delta='';
       if(cur.length){ const d=nv-curSum(k); const cls=d>0?'up':(d<0?'down':'same'); const sig=d>0?'+':''; delta=`<div class="delta ${cls}">${sig}R$ ${fmtBRL0(d)} vs. atual</div>`; }
@@ -4420,7 +4981,7 @@ function refresh(){
       msgs.push(['info',`OMs: ${new Set(rows.map(r=>r.om)).size} · Naturezas: ${nds.join(', ')||'—'} · ${rows.length} linha(s) OM×ND (agregadas por OM e ND).`]);
     }
     if(lc){
-      const want=[['om','OM'],['nd','Natureza'],['destaque','Destaque'],['disponivel','Disponível'],['empenhado','Empenhado'],['liquidado','Liquidado'],['liq_a_pagar','Liq. a Pagar'],['inscrito_rp','Inscrito RP'],['pago','Pago']];
+      const want=[['om','OM'],['nd','Natureza'],['destaque','Destaque'],['disponivel','Disponível'],['bloqueado','Bloqueado'],['emp_a_liquidar','Empenhos a Liquidar'],['empenhado','Empenhado'],['liquidado','Liquidado'],['liq_a_pagar','Liq. a Pagar'],['inscrito_rp','Inscrito RP'],['pago','Pago']];
       const ok=want.filter(([k])=>lc[k]>=0).map(([,l])=>l);
       const miss=want.filter(([k])=>lc[k]<0).map(([,l])=>l);
       msgs.push(['info',`Colunas reconhecidas: ${ok.join(', ')||'—'}.`]);
@@ -4433,19 +4994,14 @@ function refresh(){
 
   function applyImport(){
     if(!pendingRows||!pendingRows.length){ alog('Não há dados válidos para aplicar.','err'); return; }
-    DATA.execution['2026']=pendingRows; DATA.movim['2026']=[];
-    try{ localStorage.setItem(LS_KEY, JSON.stringify({rows:pendingRows, sheet:pendingSheet, file:fileName, savedAt:new Date().toISOString()})); }
+    DATA.execution['2026']=pendingRows; DATA.movim['2026']=[]; DATA.execUGE['2026']=pendingUGE||[];
+    try{ localStorage.setItem(LS_KEY, JSON.stringify({rows:pendingRows, uge:(pendingUGE||[]), sheet:pendingSheet, file:fileName, savedAt:new Date().toISOString()})); }
     catch(e){ alog('Aviso: não foi possível salvar no navegador ('+e.message+'). Os dados valem só para esta sessão.','err'); }
     rebuildOmFilter(); rebuildOdsFilter(); update2026Status();
     alog(`Dados de 2026 aplicados e salvos (aba ${pendingSheet}, ${pendingRows.length} linhas).`,'ok');
     $('adminPreviewBox').classList.add('hidden');
-    state.ano='2026'; state.view='exec';
-    document.querySelectorAll('#yearSeg .year-btn').forEach(x=>x.classList.toggle('active',x.dataset.ano==='2026'));
-    document.querySelectorAll('.view-tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='exec'));
-    document.getElementById('view-exec').classList.add('active');
-    document.getElementById('view-rap').classList.remove('active');
-    document.getElementById('view-comp').classList.remove('active');
-    document.getElementById('yearGroup').style.display='';
+    state.view='corrente'; state.ano='2026';
+    document.querySelectorAll('.view-tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='corrente'));
     refresh();
     $('adminModalBackdrop').classList.remove('open');
   }
@@ -4460,7 +5016,7 @@ function refresh(){
     el.textContent=`Carregado · aba ${meta.sheet||'?'} · ${cur.length} linhas · Destaque R$ ${fmtBRL0(sum('destaque_recebido'))} · Disponível R$ ${fmtBRL0(sum('credito_disponivel'))} · atualizado em ${meta.savedAt?new Date(meta.savedAt).toLocaleString('pt-BR'):'—'}`;
   }
   function clear2026(){
-    delete DATA.execution['2026']; delete DATA.movim['2026'];
+    delete DATA.execution['2026']; delete DATA.movim['2026']; if(DATA.execUGE) delete DATA.execUGE['2026'];
     try{ localStorage.removeItem(LS_KEY); }catch(e){}
     rebuildOmFilter(); rebuildOdsFilter(); update2026Status(); alog('Dados de 2026 removidos.','ok');
     if(state.ano==='2026'){ state.ano='2025';
@@ -4666,14 +5222,9 @@ function refresh(){
     const parts=[]; if(pending.verba) parts.push(`${pending.verba.length} linha(s) de verba`); if(pending.categorias) parts.push(`${pending.categorias.length} item(ns)`);
     alog(`Planejamento aplicado e salvo (${parts.join(' + ')}).`,'ok');
     $('adminPlanPreviewBox').classList.add('hidden'); pending=null;
-    // mostra o planejamento (aba Execução, ano 2026)
-    state.ano='2026'; state.view='exec';
-    document.querySelectorAll('#yearSeg .year-btn').forEach(x=>x.classList.toggle('active',x.dataset.ano==='2026'));
-    document.querySelectorAll('.view-tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='exec'));
-    document.getElementById('view-exec').classList.add('active');
-    document.getElementById('view-rap').classList.remove('active');
-    document.getElementById('view-comp').classList.remove('active');
-    const yg=document.getElementById('yearGroup'); if(yg) yg.style.display='';
+    // mostra a análise do planejamento (aba Necessário × Recebido / Módulos)
+    state.view='plan';
+    document.querySelectorAll('.view-tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='plan'));
     refresh();
     $('adminModalBackdrop').classList.remove('open');
   }
@@ -4702,5 +5253,33 @@ function refresh(){
 
 refresh();
 </script>
+<style>
+  .drill-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;visibility:hidden;transition:opacity .25s;z-index:900;}
+  .drill-backdrop.open{opacity:1;visibility:visible;}
+  .drill-drawer{position:fixed;top:0;right:0;height:100%;width:430px;max-width:92vw;background:var(--white);box-shadow:-10px 0 30px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .28s ease;z-index:901;display:flex;flex-direction:column;}
+  .drill-drawer.open{transform:translateX(0);}
+  .drill-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:18px 20px;background:var(--fab-blue);color:#fff;}
+  .drill-title{font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:16px;line-height:1.2;}
+  .drill-sub{font-size:11.5px;opacity:.85;margin-top:3px;}
+  .drill-close{background:transparent;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0 2px;}
+  .drill-body{padding:18px 20px;overflow-y:auto;flex:1;}
+  [data-drill]{cursor:pointer;}
+  [data-drill]:hover{filter:brightness(1.06);}
+  h3.sortable{cursor:pointer;}
+  h3.sortable:hover{color:var(--fab-blue-mid);}
+  .sort-arrow{font-size:12px;color:var(--fab-blue-mid);font-weight:700;}
+  .sort-ctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11px;color:var(--gray-500);margin:2px 0 10px;}
+  .sort-lbl{cursor:pointer;padding:2px 10px;border:1px solid var(--gray-200);border-radius:12px;color:var(--gray-500);white-space:nowrap;}
+  .sort-lbl:hover{border-color:var(--fab-blue-light);color:var(--fab-blue-mid);}
+  .sort-lbl.active{background:var(--fab-blue);color:#fff;border-color:var(--fab-blue);}
+</style>
+<div id="drillBackdrop" class="drill-backdrop"></div>
+<aside id="drillDrawer" class="drill-drawer" role="dialog" aria-modal="true" aria-labelledby="drillTitle">
+  <div class="drill-head">
+    <div><div id="drillTitle" class="drill-title">Detalhamento</div><div id="drillSub" class="drill-sub"></div></div>
+    <button id="drillClose" class="drill-close" aria-label="Fechar">&#215;</button>
+  </div>
+  <div id="drillBody" class="drill-body"></div>
+</aside>
 </body>
 </html>
