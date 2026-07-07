@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Acompanhamento SISI — Execução & Restos a Pagar</title>
+<title>Acompanhamento da Execução do Projeto SISI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1712,6 +1712,16 @@
     color: var(--fab-blue);
     font-weight: 600;
   }
+  .admin-config-row input, .admin-config-row select {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--gray-300);
+    border-radius: 3px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    background: var(--white);
+  }
+  .admin-config-row input:focus, .admin-config-row select:focus { outline: 2px solid var(--fab-blue-light); }
   .admin-config-row input {
     border: 1px solid var(--gray-300);
     background: var(--white);
@@ -2138,6 +2148,10 @@
   .mfin.apr { border-color: var(--fab-yellow); }
   .mfin.rec { border-color: var(--green); }
   .mfin.disp { border-color: var(--fab-blue-mid); }
+  /* Tabelas dentro do modal: sem largura mínima global (evita rolagem horizontal e colunas espaçadas demais) */
+  .modal-body table { min-width: 0; width: 100%; }
+  .modal-body td { white-space: normal; }
+  .modal-body td.num, .modal-body th { white-space: nowrap; }
   .mfin-lbl {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 10px;
@@ -3076,7 +3090,7 @@
       </div>
       <div class="brand-text">
         <div class="pretitle">Comando da Aeronáutica · Força Aérea Brasileira</div>
-        <h1>Acompanhamento SISI — Execução &amp; RaP</h1>
+        <h1>Acompanhamento da Execução do Projeto SISI</h1>
         <div class="subtitle">Execução do Exercício · Movimento de Crédito · Restos a Pagar</div>
       </div>
     </div>
@@ -3529,7 +3543,7 @@
     <h2 class="section-title"><span>Análise por Módulo SISI</span><span class="count" id="cred-mod-count"></span></h2>
     <section class="charts-row r-2">
       <div class="chart-card">
-        <h3>Necessidades por Módulo<span class="info-ico" tabindex="0" data-tip="Participação de cada módulo do SISI (Infraestrutura, Vigilância Operacional, Controle de Acesso, Equipe de Reação) no total solicitado pelas OMs filtradas.">i</span></h3>
+        <h3>Necessidades por Módulo<span class="info-ico" tabindex="0" data-tip="Participação de cada módulo do SISI (Infraestrutura, Vigilância Operacional, Controle de Acesso, Equipe de Reação) no total solicitado pelas OMs filtradas. Clique numa fatia ou item da legenda para ver as OMs e quanto cada uma precisa daquele módulo.">i</span></h3>
         <div class="chart-sub">Valor solicitado por módulo</div>
         <div class="donut-wrap">
           <svg class="donut-svg" viewBox="0 0 200 200" id="cred-donut-modulo"></svg>
@@ -3537,7 +3551,7 @@
         </div>
       </div>
       <div class="chart-card">
-        <h3>Top Categorias<span class="info-ico" tabindex="0" data-tip="Categorias de segurança (barreiras, câmeras, rádios, etc.) com maior valor solicitado nas OMs filtradas.">i</span></h3>
+        <h3>Top Categorias<span class="info-ico" tabindex="0" data-tip="Categorias de segurança (barreiras, câmeras, rádios, etc.) com maior valor solicitado nas OMs filtradas. Clique numa barra para ver as OMs e quanto cada uma precisa daquela categoria.">i</span></h3>
         <div class="chart-sub">Maiores valores solicitados por categoria</div>
         <div class="bar-chart" id="credCatChart"></div>
       </div>
@@ -3562,9 +3576,9 @@
 </div>
 
 <footer>
-  <span>Acompanhamento SISI &#183; Execução &amp; Restos a Pagar</span>
+  <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.2 &#183; 02/07/2026</span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.4 &#183; 07/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -3650,6 +3664,30 @@
           <div class="admin-config-status" id="adminPlanStatus">Usando o planejamento embutido no arquivo (nenhum upload aplicado).</div>
           <div class="admin-preview-actions" style="border-top:none;padding-top:8px;">
             <button class="admin-btn admin-btn-secondary" id="adminClearPlanBtn" type="button">Restaurar planejamento embutido</button>
+          </div>
+        </div>
+        <div class="admin-section">
+          <h3>Compartilhamento · JSONBin</h3>
+          <p>Sincroniza os dados de <strong>2026</strong> (execução semanal + planejamento) com um bin no <strong>jsonbin.io</strong>, para que outras pessoas que abrirem este arquivo vejam os mesmos dados sem precisar fazer upload. Ao abrir, o dashboard tenta carregar do JSONBin em segundo plano; se estiver indisponível, usa os dados locais/embutidos. A chave fica salva <strong>apenas neste navegador</strong> e nunca é gravada no arquivo. Compatível com o bin do dashboard anterior (formato verba/categorias é reconhecido como planejamento).</p>
+          <div class="admin-config-row">
+            <label><span>Bin ID</span>
+              <input type="text" id="adminBinIdInput" placeholder="ID do bin do SISI no jsonbin.io" autocomplete="off">
+            </label>
+            <label><span>Tipo da chave</span>
+              <select id="adminBinKeyType"><option value="access">Access Key (X-Access-Key)</option><option value="master">Master Key (X-Master-Key)</option></select>
+            </label>
+          </div>
+          <div class="admin-config-row" style="grid-template-columns:1fr;">
+            <label><span>Chave</span>
+              <input type="password" id="adminBinKeyInput" placeholder="Cole aqui a Access Key ou Master Key" autocomplete="off">
+            </label>
+          </div>
+          <div class="admin-config-status" id="adminJsonbinStatus">Sem configuração do JSONBin neste navegador. O dashboard usa apenas dados locais.</div>
+          <div class="admin-preview-actions" style="border-top:none;padding-top:8px;flex-wrap:wrap;">
+            <button class="admin-btn admin-btn-secondary" id="adminBinSaveBtn" type="button">Salvar configuração</button>
+            <button class="admin-btn admin-btn-secondary" id="adminBinTestBtn" type="button">Testar conexão</button>
+            <button class="admin-btn admin-btn-secondary" id="adminBinReloadBtn" type="button">Recarregar do JSONBin</button>
+            <button class="admin-btn admin-btn-success" id="adminBinPublishBtn" type="button">Enviar dados ao JSONBin</button>
           </div>
         </div>
         <div class="admin-section">
@@ -4179,20 +4217,21 @@ function renderComp(){
 }
 
 // ---------- Donut genérico ----------
-function renderDonut(svgId, legId, items, centerLabel){
+function renderDonut(svgId, legId, items, centerLabel, drillType){
   const svg=document.getElementById(svgId), leg=document.getElementById(legId);
   const arr=items.filter(x=>x.val>0);
   const total=arr.reduce((s,n)=>s+n.val,0);
   if(!total){ svg.innerHTML='<circle cx="100" cy="100" r="70" fill="none" stroke="#E8EAED" stroke-width="22"/>';
     leg.innerHTML='<div class="empty-state" style="padding:20px"><p>Sem dados</p></div>'; return; }
   const cx=100,cy=100,r=70; let cum=-Math.PI/2;
+  const dk=n=> drillType?` data-drill="${drillType}" data-key="${String(n.k).replace(/"/g,'&quot;')}"`:'';
   svg.innerHTML = arr.map(n=>{ const frac=n.val/total, ang=frac*2*Math.PI, sa=cum, ea=cum+ang; cum=ea;
     const x1=cx+r*Math.cos(sa),y1=cy+r*Math.sin(sa),x2=cx+r*Math.cos(ea),y2=cy+r*Math.sin(ea), large=ang>Math.PI?1:0;
-    if(arr.length===1) return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${n.color}" stroke-width="22"/>`;
-    return `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}" fill="none" stroke="${n.color}" stroke-width="22"/>`;
+    if(arr.length===1) return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${n.color}" stroke-width="22"${dk(n)}/>`;
+    return `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}" fill="none" stroke="${n.color}" stroke-width="22"${dk(n)}/>`;
   }).join('') + `<text x="100" y="93" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="9" fill="#6B7280" letter-spacing="2">${centerLabel}</text>
     <text x="100" y="113" text-anchor="middle" font-family="Roboto Condensed, sans-serif" font-size="16" font-weight="700" fill="#002B5C">R$ ${fmtBRLc(total)}</text>`;
-  leg.innerHTML = arr.map(n=>`<div class="legend-item">
+  leg.innerHTML = arr.map(n=>`<div class="legend-item"${dk(n)}${drillType?' title="Clique para ver as OMs"':''}>
     <span class="legend-swatch" style="background:${n.color}"></span>
     <span class="legend-text"><span class="lt-name">${n.label}</span><span class="lt-meta">${ndLabel[n.k]?ndLabel[n.k].split('— ')[1]:''}</span></span>
     <span class="legend-value">R$ ${fmtBRL0(n.val)}<span class="pct">${fmtPct(n.val/total*100,1)}</span></span></div>`).join('');
@@ -4513,14 +4552,14 @@ const CRED = (function(){
   function renderModulos(cf){
     const byMod={}; cf.forEach(c=>{ if(!c.modulo) return; byMod[c.modulo]=(byMod[c.modulo]||0)+(c.valor||0); });
     const items=Object.keys(byMod).map(k=>({k,label:k,val:byMod[k],color:moduloColor[k]||'#888'}));
-    renderDonut('cred-donut-modulo','cred-legend-modulo', items, 'MÓDULOS');
+    renderDonut('cred-donut-modulo','cred-legend-modulo', items, 'MÓDULOS', 'modmod');
     document.getElementById('cred-mod-count').textContent = `${cf.length} solicitação(ões) · ${new Set(cf.map(c=>c.om)).size} OM(s)`;
     // top categorias
     const byCat={}; cf.forEach(c=>{ if(!c.categoria) return; byCat[c.categoria]=(byCat[c.categoria]||0)+(c.valor||0); });
     const arr=Object.entries(byCat).map(([k,v])=>({k,v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,12);
     const max=arr.length?arr[0].v:1;
     document.getElementById('credCatChart').innerHTML = arr.length? arr.map(x=>`
-      <div class="bar-row"><div class="bar-label"><span class="code-tag">${x.k}</span></div>
+      <div class="bar-row" data-drill="modcat" data-key="${x.k.replace(/"/g,'&quot;')}" title="Clique para ver as OMs e quanto cada uma precisa"><div class="bar-label"><span class="code-tag">${x.k}</span></div>
         <div class="bar-value">R$ ${fmtBRL0(x.v)}</div>
         <div class="bar-track"><div class="bar-fill alt" style="width:${(x.v/max)*100}%"></div></div></div>`).join('')
       : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
@@ -4586,7 +4625,8 @@ const CRED = (function(){
   });
 
   return {
-    render(){ const vf=getV(); renderTopOms(vf); renderModulos(getC(vf)); renderTable(vf); }
+    render(){ const vf=getV(); renderTopOms(vf); renderModulos(getC(vf)); renderTable(vf); },
+    catRows(){ return getC(getV()); }
   };
 })();
 
@@ -4751,6 +4791,17 @@ function openDrill(kind, key){
     const items=rows.map(r=>{ const pct=r.recebido>0?fmtPct((r.liquidado||0)/r.recebido*100,0):'—';
       return {label:'ND '+r.nd, value:(r.recebido||0), sub:`liq. ${fmtBRL0(r.liquidado||0)} · dev. ${fmtBRL0(r.devolvido||0)} · ${pct}`}; });
     openDrawer('Eficiência · '+key, `Por natureza de despesa · exercício ${state.ano} · barra = recebido bruto`, drawerListHtml(items,'ND(s)'));
+  } else if(kind==='modmod'){
+    const rows=CRED.catRows().filter(c=>String(c.modulo||'')===String(key) && (c.valor||0)>0);
+    const byOm={}; rows.forEach(c=>byOm[c.om]=(byOm[c.om]||0)+(c.valor||0));
+    const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v}));
+    openDrawer('Módulo: '+key, `Quanto cada OM precisa deste módulo · ${rows.length} solicitação(ões) · planejamento 2026 (filtros aplicados)`, drawerListHtml(items,'OM(s)'));
+  } else if(kind==='modcat'){
+    const rows=CRED.catRows().filter(c=>String(c.categoria||'')===String(key) && (c.valor||0)>0);
+    const modRef=rows.length?(rows[0].modulo||'—'):'—';
+    const byOm={}; rows.forEach(c=>byOm[c.om]=(byOm[c.om]||0)+(c.valor||0));
+    const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v}));
+    openDrawer('Categoria: '+key, `Módulo ${modRef} · quanto cada OM precisa desta categoria · planejamento 2026 (filtros aplicados)`, drawerListHtml(items,'OM(s)'));
   } else if(kind==='rapom'){
     const rows=rapRows().filter(r=>r.om===String(key));
     const items=rows.map(r=>{ const base=(r.rap_nproc_inscritos||0)+(r.rap_nproc_reinscritos||0)-(r.rap_nproc_cancelados||0);
@@ -5252,6 +5303,203 @@ function refresh(){
 })();
 
 refresh();
+
+// ==================== COMPARTILHAMENTO · JSONBIN ====================
+// Sincroniza exec 2026 + planejamento com um bin no jsonbin.io.
+// Para que LEITORES (sem configuração) carreguem automaticamente, preencha
+// as duas constantes abaixo diretamente neste HTML antes de distribuir:
+//   binId: ID do bin do SISI (só identifica o bin);
+//   accessKey: uma Access Key SOMENTE-LEITURA (fica visível a quem abrir o arquivo)
+//              — deixe '' se o bin for público para leitura.
+const JSONBIN_BUILTIN = { binId: '', accessKey: '' };
+
+(function jsonbinInit(){
+  const KS = { binId:'sisi_jsonbin_bin_id', key:'sisi_jsonbin_key', keyType:'sisi_jsonbin_key_type' };
+  const $ = id=>document.getElementById(id);
+
+  function blog(msg,type){ const el=$('adminLog'); if(!el) return;
+    const e0=el.querySelector('.admin-log-empty'); if(e0) el.innerHTML='';
+    const d=document.createElement('div'); d.className='admin-log-entry '+(type==='err'?'err':(type==='ok'?'ok':'info'));
+    d.innerHTML=`<span class="ts">${new Date().toLocaleTimeString('pt-BR')}</span><span class="msg"></span>`;
+    d.querySelector('.msg').textContent='[JSONBin] '+msg; el.prepend(d); }
+
+  function getCfg(){
+    return {
+      binId: (localStorage.getItem(KS.binId)||'').trim() || JSONBIN_BUILTIN.binId,
+      key: (localStorage.getItem(KS.key)||'').trim() || JSONBIN_BUILTIN.accessKey,
+      keyType: localStorage.getItem(KS.keyType) || 'access'
+    };
+  }
+  function keyHeader(cfg){
+    if(!cfg.key) return {};
+    return cfg.keyType==='master' ? {'X-Master-Key':cfg.key} : {'X-Access-Key':cfg.key};
+  }
+  function setBinStatus(cls,msg){ const el=$('adminJsonbinStatus'); if(!el) return; el.className='admin-config-status'+(cls?' '+cls:''); el.textContent=msg; }
+  function setSourceTag(text){ const el=$('dataSourceTag'); if(el) el.textContent=text||''; }
+
+  function readLS(k){ try{ const o=JSON.parse(localStorage.getItem(k)); return o||null; }catch(e){ return null; } }
+  function remoteIsNewer(remote, lsKey){
+    const local=readLS(lsKey);
+    if(!local || !local.savedAt || !remote || !remote.savedAt) return true;
+    try{ return new Date(remote.savedAt).getTime() >= new Date(local.savedAt).getTime(); }catch(e){ return true; }
+  }
+
+  // Aplica dados vindos do bin. Aceita o formato novo {exec2026, plan2026}
+  // e o formato do dashboard anterior {verba, categorias} (vira planejamento).
+  function applyRemote(data, origem){
+    const out={exec:false, plan:false, skipped:[]};
+    if(!data || typeof data!=='object') return out;
+    const exec = (data.exec2026 && Array.isArray(data.exec2026.rows) && data.exec2026.rows.length) ? data.exec2026 : null;
+    let plan = (data.plan2026 && (Array.isArray(data.plan2026.verba)||Array.isArray(data.plan2026.categorias))) ? data.plan2026 : null;
+    if(!plan && Array.isArray(data.verba) && Array.isArray(data.categorias)){
+      plan = { verba:data.verba, categorias:data.categorias, file:'(bin no formato do dashboard anterior)',
+               savedAt:(data.meta && (data.meta.ultima_atualizacao||data.meta.atualizado_em)) || null };
+    }
+    if(exec){
+      if(remoteIsNewer(exec,'sisi_exec_2026_v1')){
+        DATA.execution['2026']=exec.rows; DATA.movim['2026']=[];
+        DATA.execUGE=DATA.execUGE||{}; DATA.execUGE['2026']=Array.isArray(exec.uge)?exec.uge:[];
+        try{ localStorage.setItem('sisi_exec_2026_v1', JSON.stringify(exec)); }catch(e){}
+        out.exec=true;
+      } else out.skipped.push('execução 2026 (dados locais mais recentes que o bin)');
+    }
+    if(plan){
+      if(remoteIsNewer(plan,'sisi_plan_2026_v1')){
+        applyPlanData(plan);
+        try{ localStorage.setItem('sisi_plan_2026_v1', JSON.stringify(plan)); }catch(e){}
+        out.plan=true;
+      } else out.skipped.push('planejamento (dados locais mais recentes que o bin)');
+    }
+    if(out.exec || out.plan){
+      OM_ODS = buildOmOds();
+      try{ rebuildOmFilter(); rebuildOdsFilter(); rebuildGuarnFilter(); }catch(e){}
+      refresh();
+      const parts=[]; if(out.exec) parts.push('execução 2026'); if(out.plan) parts.push('planejamento');
+      setSourceTag('dados via JSONBin ('+parts.join(' + ')+')');
+      blog('Aplicado do bin: '+parts.join(' + ')+(origem?' · '+origem:'')+'.','ok');
+    }
+    out.skipped.forEach(sk=>blog('Ignorado: '+sk+'.','info'));
+    return out;
+  }
+
+  async function loadFromBin(silent){
+    const cfg=getCfg();
+    if(!cfg.binId){ if(!silent){ setBinStatus('warn','Informe o Bin ID para carregar.'); } return null; }
+    try{
+      const resp=await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(cfg.binId)}/latest`,
+        { method:'GET', cache:'no-store', headers: Object.assign({}, keyHeader(cfg)) });
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+      const json=await resp.json();
+      const data=json.record||json;
+      const r=applyRemote(data,'carregamento');
+      if(!silent){
+        if(r.exec||r.plan) setBinStatus('ok','Dados carregados do bin agora ('+new Date().toLocaleTimeString('pt-BR')+').');
+        else setBinStatus('warn','Bin acessível, mas nada novo foi aplicado (dados locais iguais ou mais recentes, ou estrutura não reconhecida).');
+      }
+      return r;
+    }catch(err){
+      blog('Falha ao carregar do bin: '+err.message,'err');
+      if(!silent) setBinStatus('err','Falha ao carregar: '+err.message);
+      else setSourceTag('');
+      return null;
+    }
+  }
+
+  async function testConnection(){
+    const cfg=getCfg();
+    if(!cfg.binId){ setBinStatus('warn','Informe o Bin ID antes de testar.'); return; }
+    setBinStatus('','Testando conexão…');
+    try{
+      const resp=await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(cfg.binId)}/latest`,
+        { method:'GET', cache:'no-store', headers: Object.assign({}, keyHeader(cfg)) });
+      if(!resp.ok){
+        if(resp.status===401) throw new Error('HTTP 401 — chave ausente/inválida (bin privado exige X-Access-Key ou X-Master-Key).');
+        if(resp.status===404) throw new Error('HTTP 404 — Bin ID não encontrado.');
+        throw new Error('HTTP '+resp.status);
+      }
+      const json=await resp.json(); const data=json.record||json;
+      const bits=[];
+      if(data && data.exec2026 && Array.isArray(data.exec2026.rows)) bits.push(`execução 2026: ${data.exec2026.rows.length} linha(s)`);
+      if(data && data.plan2026 && Array.isArray(data.plan2026.verba)) bits.push(`planejamento: ${data.plan2026.verba.length} OM(s)`);
+      if(!bits.length && data && Array.isArray(data.verba)) bits.push(`formato do dashboard anterior: ${data.verba.length} OM(s), ${(data.categorias||[]).length} categoria(s)`);
+      setBinStatus('ok','Conexão OK. Conteúdo do bin — '+(bits.length?bits.join(' · '):'estrutura não reconhecida (será sobrescrita no próximo envio).'));
+      blog('Teste de conexão OK.','ok');
+    }catch(err){ setBinStatus('err','Teste falhou: '+err.message); blog('Teste falhou: '+err.message,'err'); }
+  }
+
+  function currentExecPayload(){
+    const ls=readLS('sisi_exec_2026_v1'); if(ls && Array.isArray(ls.rows) && ls.rows.length) return ls;
+    const rows=DATA.execution['2026']; if(!rows||!rows.length) return null;
+    return { rows, uge:(DATA.execUGE&&DATA.execUGE['2026'])||[], sheet:'', file:'(memória da sessão)', savedAt:new Date().toISOString() };
+  }
+  function currentPlanPayload(){
+    const ls=readLS('sisi_plan_2026_v1'); if(ls && (Array.isArray(ls.verba)||Array.isArray(ls.categorias))) return ls;
+    return { verba:CREDDATA.verba, categorias:CREDDATA.categorias, file:'(planejamento embutido no HTML)', savedAt:new Date().toISOString() };
+  }
+
+  async function publish(){
+    const cfg=getCfg();
+    const btn=$('adminBinPublishBtn');
+    if(!cfg.binId || !cfg.key){ setBinStatus('warn','Para enviar é preciso Bin ID e uma chave com permissão de escrita.'); return; }
+    const exec=currentExecPayload();
+    const plan=currentPlanPayload();
+    if(!exec) blog('Aviso: não há dados de execução 2026 carregados; o bin será atualizado sem execução.','info');
+    const payload={
+      meta:{ projeto:'Acompanhamento da Execução do Projeto SISI', schema:2,
+             atualizado_em:new Date().toISOString(), origem:(exec&&exec.file)||'' },
+      exec2026: exec, plan2026: plan
+    };
+    if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
+    try{
+      const resp=await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(cfg.binId)}`,
+        { method:'PUT', headers: Object.assign({'Content-Type':'application/json'}, keyHeader(cfg)), body: JSON.stringify(payload) });
+      if(!resp.ok){ const t=await resp.text(); throw new Error('HTTP '+resp.status+': '+String(t).slice(0,180)); }
+      const bits=[]; if(exec) bits.push(`execução 2026 (${exec.rows.length} linhas)`); if(plan&&plan.verba) bits.push(`planejamento (${plan.verba.length} OMs)`);
+      setBinStatus('ok','Enviado ao bin: '+bits.join(' + ')+' · '+new Date().toLocaleTimeString('pt-BR')+'.');
+      blog('Dados enviados ao bin: '+bits.join(' + ')+'.','ok');
+      if(btn) btn.textContent='✓ Enviado!';
+    }catch(err){
+      setBinStatus('err','Falha ao enviar: '+err.message);
+      blog('Falha ao enviar: '+err.message,'err');
+      if(btn) btn.textContent='Enviar dados ao JSONBin';
+    }finally{
+      if(btn){ btn.disabled=false; setTimeout(()=>{ btn.textContent='Enviar dados ao JSONBin'; },1800); }
+    }
+  }
+
+  function fillInputs(){
+    const cfg=getCfg();
+    const bi=$('adminBinIdInput'), bk=$('adminBinKeyInput'), bt=$('adminBinKeyType');
+    if(bi) bi.value=localStorage.getItem(KS.binId)||JSONBIN_BUILTIN.binId||'';
+    if(bk) bk.value=localStorage.getItem(KS.key)||'';
+    if(bt) bt.value=cfg.keyType;
+    if(cfg.binId && cfg.key) setBinStatus('ok',`Configurado neste navegador. Bin: ${cfg.binId.slice(0,12)}… · chave ${cfg.keyType==='master'?'Master':'Access'} salva.`);
+    else if(cfg.binId) setBinStatus('warn','Bin ID definido, sem chave: leitura funciona apenas se o bin for público; envio indisponível.');
+    else setBinStatus('','Sem configuração do JSONBin neste navegador. O dashboard usa apenas dados locais.');
+  }
+  function saveCfg(){
+    const bi=($('adminBinIdInput')&&$('adminBinIdInput').value.trim())||'';
+    const bk=($('adminBinKeyInput')&&$('adminBinKeyInput').value.trim())||'';
+    const bt=($('adminBinKeyType')&&$('adminBinKeyType').value)||'access';
+    try{
+      if(bi) localStorage.setItem(KS.binId,bi); else localStorage.removeItem(KS.binId);
+      if(bk) localStorage.setItem(KS.key,bk); else localStorage.removeItem(KS.key);
+      localStorage.setItem(KS.keyType,bt);
+    }catch(e){ setBinStatus('err','Não foi possível salvar no navegador: '+e.message); return; }
+    blog('Configuração salva neste navegador.','ok');
+    fillInputs();
+  }
+
+  const sb=$('adminBinSaveBtn'); if(sb) sb.addEventListener('click',saveCfg);
+  const tb=$('adminBinTestBtn'); if(tb) tb.addEventListener('click',testConnection);
+  const rb=$('adminBinReloadBtn'); if(rb) rb.addEventListener('click',()=>loadFromBin(false));
+  const pb=$('adminBinPublishBtn'); if(pb) pb.addEventListener('click',publish);
+  const fb=$('adminFooterBtn'); if(fb) fb.addEventListener('click',fillInputs);
+  fillInputs();
+
+  // Carga automática em segundo plano ao abrir o dashboard (não bloqueia a interface)
+  if(typeof fetch!=='undefined' && getCfg().binId){ loadFromBin(true); }
+})();
 </script>
 <style>
   .drill-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;visibility:hidden;transition:opacity .25s;z-index:900;}
