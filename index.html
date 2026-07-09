@@ -2164,6 +2164,16 @@
   .st-badge.aten { color:#8C6D00; border-color:var(--fab-yellow-dark); background:#FFFBE8; }
   .st-badge.okp  { color:var(--green); border-color:var(--green); background:#EFFAF4; }
   .st-badge.sreg { color:var(--gray-500); border-color:var(--gray-300); background:var(--gray-50); }
+  .pz-fil { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin:12px 0 4px; }
+  .pz-fil label { display:flex; flex-direction:column; gap:4px; font-family:'Roboto Condensed',sans-serif;
+    font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--fab-blue); font-weight:600; }
+  .pz-fil select, .pz-fil input { padding:7px 10px; border:1px solid var(--gray-300); border-radius:3px;
+    font-family:'Roboto Mono',monospace; font-size:12px; background:var(--white); min-width:180px; }
+  .pz-fil select:focus, .pz-fil input:focus { outline:2px solid var(--fab-blue-light); }
+  .pz-fil .pz-limpar { padding:8px 14px; }
+  .pz-th { cursor:pointer; user-select:none; }
+  .pz-th:hover { background: var(--fab-blue-mid); }
+  .pz-th .sort-arrow { color: var(--fab-yellow); font-size:11px; }
   .mfin-lbl {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 10px;
@@ -3408,6 +3418,12 @@
       <div class="chart-card">
         <h3>Empenhos por prazo de liquidação<span class="info-ico" tabindex="0" data-tip="Prazos previstos para liquidação, contados da data de emissão do empenho: 60 dias para as ND 33.90.30 e 44.90.52 e 90 dias para a ND 33.90.39. Situações: Vencido (prazo expirado), Crítico (vence em até 15 dias), Atenção (vence em 16 a 30 dias) e No prazo (mais de 30 dias). Empenhos de ND sem regra definida aparecem marcados como 'sem regra'. Fonte: planilha Acompanhamento SISI_3_Prazos, enviada pela Área Admin.">i</span></h3>
         <div class="chart-sub" id="prazosSub">envie a planilha de prazos pela Área Admin para ativar este acompanhamento</div>
+        <div class="pz-fil" id="prazosFiltros">
+          <label><span>OM (UGR)</span><select id="pzFilOm"><option value="">Todas</option></select></label>
+          <label><span>Natureza de Despesa</span><select id="pzFilNd"><option value="">Todas</option></select></label>
+          <label><span>Buscar empenho</span><input type="text" id="pzFilBusca" placeholder="nº do empenho, ND detalhada..." autocomplete="off"></label>
+          <button class="admin-btn admin-btn-secondary pz-limpar" id="pzFilLimpar" type="button">Limpar filtros</button>
+        </div>
         <div class="sort-ctl" id="prazosStatusCtl">mostrar:
           <span class="sort-lbl active" data-pstatus="todos">Todos</span>
           <span class="sort-lbl" data-pstatus="vencido">Vencidos</span>
@@ -3418,9 +3434,9 @@
         <div class="table-wrap" style="max-height:520px;">
           <table style="min-width:900px;">
             <thead><tr>
-              <th>OM (UGR)</th><th>Empenho</th><th>ND</th><th>Emiss&#227;o</th>
-              <th class="num">Prazo</th><th>Vence em</th><th class="num">Dias</th>
-              <th class="num">Saldo a Liquidar</th><th>Situa&#231;&#227;o</th>
+              <th class="pz-th" data-sort="prazos" data-sortkey="om" title="Clique para ordenar">OM (UGR)<span class="sort-arrow" id="sa-pz-om"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="ne" title="Clique para ordenar">Empenho<span class="sort-arrow" id="sa-pz-ne"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="nd" title="Clique para ordenar">ND<span class="sort-arrow" id="sa-pz-nd"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="emissao" title="Clique para ordenar">Emiss&#227;o<span class="sort-arrow" id="sa-pz-emissao"></span></th>
+              <th class="pz-th num" data-sort="prazos" data-sortkey="prazo" title="Clique para ordenar">Prazo<span class="sort-arrow" id="sa-pz-prazo"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="vence" title="Clique para ordenar">Vence em<span class="sort-arrow" id="sa-pz-vence"></span></th><th class="pz-th num" data-sort="prazos" data-sortkey="dias" title="Clique para ordenar">Dias<span class="sort-arrow" id="sa-pz-dias"></span></th>
+              <th class="pz-th num" data-sort="prazos" data-sortkey="saldo" title="Clique para ordenar">Saldo a Liquidar<span class="sort-arrow" id="sa-pz-saldo"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="status" title="Clique para ordenar">Situa&#231;&#227;o<span class="sort-arrow" id="sa-pz-status"></span></th>
             </tr></thead>
             <tbody id="prazosTbody"></tbody>
             <tfoot><tr>
@@ -3621,7 +3637,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.5 &#183; 09/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.7 &#183; 09/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -3925,6 +3941,18 @@ function computePrazos(rows, hoje){
 }
 
 let prazoFiltro='todos';
+let pzFil={ om:'', nd:'', q:'' };
+function pzFillSelect(id, values, current, fmt){
+  const el=document.getElementById(id); if(!el) return current;
+  const key=values.join('|');
+  if(el.dataset.optkey!==key){
+    el.innerHTML='<option value="">Todas</option>'+values.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">${fmt?fmt(v):v}</option>`).join('');
+    el.dataset.optkey=key;
+  }
+  if(current && !values.includes(current)) current='';
+  el.value=current;
+  return current;
+}
 function renderPrazos(){
   const tb=document.getElementById('prazosTbody'); if(!tb) return;
   const kip=document.getElementById('prazosKpis');
@@ -3943,9 +3971,19 @@ function renderPrazos(){
     if(state.ods.size && !state.ods.has(odsOf(r.om))) return false;
     return true;
   });
-  // KPIs por situação
+  // filtros locais da tabela (aplicados sobre os filtros globais)
+  pzFil.om = pzFillSelect('pzFilOm', [...new Set(all.map(r=>r.om))].sort((x,y)=>x.localeCompare(y,'pt-BR')), pzFil.om);
+  pzFil.nd = pzFillSelect('pzFilNd', [...new Set(all.map(r=>r.nd))].sort(), pzFil.nd);
+  const q = pzFil.q.trim().toUpperCase();
+  const loc = all.filter(r=>{
+    if(pzFil.om && r.om!==pzFil.om) return false;
+    if(pzFil.nd && r.nd!==pzFil.nd) return false;
+    if(q && !(r.ne.toUpperCase().includes(q) || r.nd_det.includes(q) || (r.nd_desc||'').toUpperCase().includes(q) || r.om.includes(q))) return false;
+    return true;
+  });
+  // KPIs por situação (refletem os filtros locais)
   const buck={vencido:{v:0,n:0},critico:{v:0,n:0},atencao:{v:0,n:0},ok:{v:0,n:0},semregra:{v:0,n:0}};
-  all.forEach(r=>{ buck[r.status].v+=r.saldo; buck[r.status].n++; });
+  loc.forEach(r=>{ buck[r.status].v+=r.saldo; buck[r.status].n++; });
   if(kip) kip.innerHTML =
     kpi('kpi-venc','Vencidos',buck.vencido.v,`${buck.vencido.n} empenho(s) com prazo expirado`,'Empenhos cujo prazo de liquidação (60/90 dias da emissão) já venceu. Valor = saldo ainda a liquidar.') +
     kpi('kpi-crit','Vence em até 15 dias',buck.critico.v,`${buck.critico.n} empenho(s)`,'Empenhos que vencem nos próximos 15 dias — prioridade de cobrança.') +
@@ -3956,8 +3994,24 @@ function renderPrazos(){
   const meta=DATA.prazos2026||{};
   const sub=document.getElementById('prazosSub');
   if(sub) sub.textContent=`referência: hoje, ${new Date().toLocaleDateString('pt-BR')} · 60 dias p/ ND 339030 e 449052 · 90 dias p/ ND 339039 · arquivo: ${meta.file||'—'}${buck.semregra.n?` · ${buck.semregra.n} empenho(s) de ND sem regra de prazo`:''}`;
-  const show=all.filter(r=>prazoFiltro==='todos'?true:r.status===prazoFiltro)
-    .sort((a,b)=>{ const ax=a.dias==null?1e9:a.dias, bx=b.dias==null?1e9:b.dias; return ax-bx || b.saldo-a.saldo; });
+  const rs=getSort('prazos','dias','asc');
+  const sev={vencido:0,critico:1,atencao:2,ok:3,semregra:4};
+  const pzCmp=(a,b)=>{
+    const k=rs.key; let d=0;
+    if(k==='om'||k==='ne'||k==='nd') d=String(a[k]).localeCompare(String(b[k]),'pt-BR');
+    else if(k==='emissao') d=a.data_emissao<b.data_emissao?-1:(a.data_emissao>b.data_emissao?1:0);
+    else if(k==='vence'||k==='dias'){ const ax=a.dias==null?1e9:a.dias, bx=b.dias==null?1e9:b.dias; d=ax-bx; }
+    else if(k==='prazo'){ const ax=a.prazo==null?1e9:a.prazo, bx=b.prazo==null?1e9:b.prazo; d=ax-bx; }
+    else if(k==='saldo') d=a.saldo-b.saldo;
+    else if(k==='status') d=sev[a.status]-sev[b.status];
+    if(rs.dir==='desc') d=-d;
+    if(d) return d;
+    const ax=a.dias==null?1e9:a.dias, bx=b.dias==null?1e9:b.dias;
+    return (ax-bx) || (b.saldo-a.saldo);
+  };
+  ['om','ne','nd','emissao','prazo','vence','dias','saldo','status'].forEach(k=>{
+    const el=document.getElementById('sa-pz-'+k); if(el) el.textContent = rs.key===k ? ' '+sortArrow(rs.dir) : ''; });
+  const show=loc.filter(r=>prazoFiltro==='todos'?true:r.status===prazoFiltro).sort(pzCmp);
   if(cnt) cnt.textContent=`${show.length} de ${all.length} empenho(s)`;
   const stLbl={vencido:['venc','Vencido'],critico:['crit','Crítico'],atencao:['aten','Atenção'],ok:['okp','No prazo'],semregra:['sreg','Sem regra']};
   const neCurto=ne=>{ const m=String(ne).match(/(\d{6})(\d{5})(\d{4})(NE\d+)/); return m?`${m[4]}/${m[3]}`:ne; };
@@ -3981,6 +4035,15 @@ document.addEventListener('click',e=>{
   const p=e.target.closest('#prazosStatusCtl .sort-lbl'); if(!p) return;
   prazoFiltro=p.dataset.pstatus||'todos'; renderPrazos();
 });
+(function pzFilInit(){
+  const om=document.getElementById('pzFilOm'), nd=document.getElementById('pzFilNd'),
+        bu=document.getElementById('pzFilBusca'), lp=document.getElementById('pzFilLimpar');
+  if(om) om.addEventListener('change',()=>{ pzFil.om=om.value; renderPrazos(); });
+  if(nd) nd.addEventListener('change',()=>{ pzFil.nd=nd.value; renderPrazos(); });
+  if(bu) bu.addEventListener('input',()=>{ pzFil.q=bu.value; renderPrazos(); });
+  if(lp) lp.addEventListener('click',()=>{ pzFil={om:'',nd:'',q:''}; prazoFiltro='todos';
+    if(om) om.value=''; if(nd) nd.value=''; if(bu) bu.value=''; renderPrazos(); });
+})();
 
 
 // ---------- Listas ----------
