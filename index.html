@@ -3637,7 +3637,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.10 &#183; 10/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.11 &#183; 10/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -3753,7 +3753,7 @@
         </div>
         <div class="admin-section">
           <h3>Compartilhamento · JSONBin</h3>
-          <p>Sincroniza os dados de <strong>2026</strong> (execução semanal + planejamento) com um bin no <strong>jsonbin.io</strong>, para que outras pessoas que abrirem este arquivo vejam os mesmos dados sem precisar fazer upload. Ao abrir, o dashboard tenta carregar do JSONBin em segundo plano; se estiver indisponível, usa os dados locais/embutidos. A chave fica salva <strong>apenas neste navegador</strong> e nunca é gravada no arquivo. Compatível com o bin do dashboard anterior (formato verba/categorias é reconhecido como planejamento). <strong>O planejamento embutido no HTML não é enviado ao bin</strong> (todos já o recebem com o arquivo publicado no GitHub Pages) — apenas execução, prazos e planejamentos de upload próprio são sincronizados, mantendo o envio abaixo dos 100&nbsp;KB do plano gratuito.</p>
+          <p>Sincroniza os dados de <strong>2026</strong> (execução semanal + planejamento) com um bin no <strong>jsonbin.io</strong>, para que outras pessoas que abrirem este arquivo vejam os mesmos dados sem precisar fazer upload. Ao abrir, o dashboard tenta carregar do JSONBin em segundo plano; se estiver indisponível, usa os dados locais/embutidos. A chave fica salva <strong>apenas neste navegador</strong> e nunca é gravada no arquivo. Compatível com o bin do dashboard anterior (formato verba/categorias é reconhecido como planejamento). <strong>O planejamento embutido no HTML não é enviado ao bin</strong> (todos já o recebem com o arquivo publicado no GitHub Pages) — apenas execução, prazos e planejamentos de upload próprio são sincronizados. Planejamentos de upload são <strong>comprimidos automaticamente</strong> (gzip nativo do navegador, ~96&nbsp;KB → ~20&nbsp;KB), mantendo o envio abaixo dos 100&nbsp;KB do plano gratuito.</p>
           <div class="admin-config-row">
             <label><span>Bin ID</span>
               <input type="text" id="adminBinIdInput" placeholder="ID do bin do SISI no jsonbin.io" autocomplete="off">
@@ -5711,6 +5711,23 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
   function setSourceTag(text){ const el=$('dataSourceTag'); if(el) el.textContent=text||''; }
 
   function readLS(k){ try{ const o=JSON.parse(localStorage.getItem(k)); return o||null; }catch(e){ return null; } }
+  async function gzipJson(obj){
+    if(typeof CompressionStream==='undefined') return null;
+    const bytes=new TextEncoder().encode(JSON.stringify(obj));
+    const stream=new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'));
+    const buf=await new Response(stream).arrayBuffer();
+    const u8=new Uint8Array(buf); let bin='';
+    for(let i=0;i<u8.length;i+=0x8000) bin+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));
+    return btoa(bin);
+  }
+  async function gunzipJson(b64){
+    if(typeof DecompressionStream==='undefined') return null;
+    const bin=atob(b64); const u8=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+    const stream=new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const txt=await new Response(stream).text();
+    return JSON.parse(txt);
+  }
   function remoteIsNewer(remote, lsKey){
     const local=readLS(lsKey);
     if(!local || !local.savedAt || !remote || !remote.savedAt) return true;
@@ -5719,11 +5736,18 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
 
   // Aplica dados vindos do bin. Aceita o formato novo {exec2026, plan2026}
   // e o formato do dashboard anterior {verba, categorias} (vira planejamento).
-  function applyRemote(data, origem){
+  async function applyRemote(data, origem){
     const out={exec:false, plan:false, prazos:false, skipped:[]};
     if(!data || typeof data!=='object') return out;
     const exec = (data.exec2026 && Array.isArray(data.exec2026.rows) && data.exec2026.rows.length) ? data.exec2026 : null;
-    const plan = (data.plan2026 && (Array.isArray(data.plan2026.verba)||Array.isArray(data.plan2026.categorias))) ? data.plan2026 : null;
+    let plan = (data.plan2026 && (Array.isArray(data.plan2026.verba)||Array.isArray(data.plan2026.categorias))) ? data.plan2026 : null;
+    if(!plan && typeof data.plan2026_gz==='string' && data.plan2026_gz){
+      try{
+        const p=await gunzipJson(data.plan2026_gz);
+        if(p && (Array.isArray(p.verba)||Array.isArray(p.categorias))) plan=p;
+        else if(p===null) blog('O bin traz planejamento comprimido, mas este navegador não suporta descompressão nativa — o planejamento embutido no HTML será usado.','info');
+      }catch(e){ blog('Falha ao descomprimir o planejamento do bin: '+e.message,'err'); }
+    }
     if(!plan && Array.isArray(data.verba) && Array.isArray(data.categorias)){
       // Bin ainda no formato do dashboard anterior (verba/categorias na raiz):
       // não aplica nem persiste — o planejamento embutido no HTML é a referência.
@@ -5774,7 +5798,7 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
       if(!resp.ok) throw new Error('HTTP '+resp.status);
       const json=await resp.json();
       const data=json.record||json;
-      const r=applyRemote(data,'carregamento');
+      const r=await applyRemote(data,'carregamento');
       if(!silent){
         if(r.exec||r.plan||r.prazos) setBinStatus('ok','Dados carregados do bin agora ('+new Date().toLocaleTimeString('pt-BR')+').');
         else setBinStatus('warn','Bin acessível, mas nada novo foi aplicado (dados locais iguais ou mais recentes, ou estrutura não reconhecida).');
@@ -5805,6 +5829,7 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
       if(data && data.exec2026 && Array.isArray(data.exec2026.rows)) bits.push(`execução 2026: ${data.exec2026.rows.length} linha(s)`);
       if(data && data.plan2026 && Array.isArray(data.plan2026.verba)) bits.push(`planejamento: ${data.plan2026.verba.length} OM(s)`);
       if(data && data.prazos2026 && Array.isArray(data.prazos2026.rows)) bits.push(`prazos: ${data.prazos2026.rows.length} empenho(s)`);
+      if(data && typeof data.plan2026_gz==='string' && data.plan2026_gz) bits.push(`planejamento comprimido (${Math.round(data.plan2026_gz.length/1024)} KB)`);
       if(!bits.length && data && Array.isArray(data.verba)) bits.push(`formato do dashboard anterior: ${data.verba.length} OM(s), ${(data.categorias||[]).length} categoria(s)`);
       setBinStatus('ok','Conexão OK. Conteúdo do bin — '+(bits.length?bits.join(' · '):'estrutura não reconhecida (será sobrescrita no próximo envio).'));
       blog('Teste de conexão OK.','ok');
@@ -5842,12 +5867,18 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
     if(!prazos) blog('Aviso: não há dados de prazos carregados; o bin será atualizado sem prazos.','info');
     if(!plan) blog('Planejamento embutido não é enviado ao bin (já está no HTML publicado); só uploads próprios de planejamento são sincronizados.','info');
     const kb=x=>Math.round(JSON.stringify(x||null).length/1024);
-    const totalKB=kb({exec2026:exec,plan2026:plan,prazos2026:prazos});
-    blog(`Tamanho do envio: ~${totalKB} KB (execução ${kb(exec)} KB · planejamento ${kb(plan)} KB · prazos ${kb(prazos)} KB). Limite do plano gratuito: 100 KB.`, totalKB>100?'err':'info');
+    let planGz=null;
+    if(plan){
+      planGz=await gzipJson(plan);
+      if(planGz) blog(`Planejamento comprimido para envio: ${kb(plan)} KB → ${Math.round(planGz.length/1024)} KB (gzip).`,'info');
+      else blog('Este navegador não suporta compressão nativa (CompressionStream); o planejamento seguirá sem compressão e pode exceder o limite.','err');
+    }
+    const totalKB=kb({exec2026:exec,plan2026:planGz?null:plan,plan2026_gz:planGz,prazos2026:prazos});
+    blog(`Tamanho do envio: ~${totalKB} KB (execução ${kb(exec)} KB · planejamento ${planGz?Math.round(planGz.length/1024)+' KB comprimido':kb(plan)+' KB'} · prazos ${kb(prazos)} KB). Limite do plano gratuito: 100 KB.`, totalKB>100?'err':'info');
     const payload={
-      meta:{ projeto:'Acompanhamento da Execução do Projeto SISI', schema:2,
+      meta:{ projeto:'Acompanhamento da Execução do Projeto SISI', schema:3,
              atualizado_em:new Date().toISOString(), origem:(exec&&exec.file)||'' },
-      exec2026: exec, plan2026: plan, prazos2026: prazos
+      exec2026: exec, plan2026: planGz?null:plan, plan2026_gz: planGz, prazos2026: prazos
     };
     if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
     try{
@@ -5856,7 +5887,7 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
       if(!resp.ok){ const t=await resp.text();
         if(resp.status===403 && /100\s*kb/i.test(t)) throw new Error(`HTTP 403 — o envio (~${totalKB} KB) excede os 100 KB do plano gratuito do JSONBin. Partes: execução ${kb(exec)} KB, planejamento ${kb(plan)} KB, prazos ${kb(prazos)} KB. Se houver planejamento de upload aplicado, use "Restaurar planejamento embutido" antes de enviar, ou me avise para dividir o envio em dois bins.`);
         throw new Error('HTTP '+resp.status+': '+String(t).slice(0,180)); }
-      const bits=[]; if(exec) bits.push(`execução 2026 (${exec.rows.length} linhas)`); if(plan&&plan.verba) bits.push(`planejamento (${plan.verba.length} OMs)`); if(prazos) bits.push(`prazos (${prazos.rows.length} empenhos)`);
+      const bits=[]; if(exec) bits.push(`execução 2026 (${exec.rows.length} linhas)`); if(plan&&plan.verba) bits.push(`planejamento (${plan.verba.length} OMs${planGz?', comprimido':''})`); if(prazos) bits.push(`prazos (${prazos.rows.length} empenhos)`);
       setBinStatus('ok','Enviado ao bin: '+bits.join(' + ')+' · '+new Date().toLocaleTimeString('pt-BR')+'.');
       blog('Dados enviados ao bin: '+bits.join(' + ')+'.','ok');
       if(btn) btn.textContent='✓ Enviado!';
