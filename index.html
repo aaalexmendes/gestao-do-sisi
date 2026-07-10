@@ -3637,7 +3637,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.7 &#183; 09/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.8 &#183; 09/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -3753,7 +3753,7 @@
         </div>
         <div class="admin-section">
           <h3>Compartilhamento · JSONBin</h3>
-          <p>Sincroniza os dados de <strong>2026</strong> (execução semanal + planejamento) com um bin no <strong>jsonbin.io</strong>, para que outras pessoas que abrirem este arquivo vejam os mesmos dados sem precisar fazer upload. Ao abrir, o dashboard tenta carregar do JSONBin em segundo plano; se estiver indisponível, usa os dados locais/embutidos. A chave fica salva <strong>apenas neste navegador</strong> e nunca é gravada no arquivo. Compatível com o bin do dashboard anterior (formato verba/categorias é reconhecido como planejamento).</p>
+          <p>Sincroniza os dados de <strong>2026</strong> (execução semanal + planejamento) com um bin no <strong>jsonbin.io</strong>, para que outras pessoas que abrirem este arquivo vejam os mesmos dados sem precisar fazer upload. Ao abrir, o dashboard tenta carregar do JSONBin em segundo plano; se estiver indisponível, usa os dados locais/embutidos. A chave fica salva <strong>apenas neste navegador</strong> e nunca é gravada no arquivo. Compatível com o bin do dashboard anterior (formato verba/categorias é reconhecido como planejamento). <strong>O planejamento embutido no HTML não é enviado ao bin</strong> (todos já o recebem com o arquivo publicado no GitHub Pages) — apenas execução, prazos e planejamentos de upload próprio são sincronizados, mantendo o envio abaixo dos 100&nbsp;KB do plano gratuito.</p>
           <div class="admin-config-row">
             <label><span>Bin ID</span>
               <input type="text" id="adminBinIdInput" placeholder="ID do bin do SISI no jsonbin.io" autocomplete="off">
@@ -5672,7 +5672,7 @@ refresh();
 //   binId: ID do bin do SISI (só identifica o bin);
 //   accessKey: uma Access Key SOMENTE-LEITURA (fica visível a quem abrir o arquivo)
 //              — deixe '' se o bin for público para leitura.
-const JSONBIN_BUILTIN = { binId: '', accessKey: '' };
+const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
 
 (function jsonbinInit(){
   const KS = { binId:'sisi_jsonbin_bin_id', key:'sisi_jsonbin_key', keyType:'sisi_jsonbin_key_type' };
@@ -5803,8 +5803,11 @@ const JSONBIN_BUILTIN = { binId: '', accessKey: '' };
     return { rows, uge:(DATA.execUGE&&DATA.execUGE['2026'])||[], sheet:'', file:'(memória da sessão)', savedAt:new Date().toISOString() };
   }
   function currentPlanPayload(){
+    // Só envia planejamento ao bin quando houver upload próprio: o planejamento
+    // embutido já está dentro do HTML que todos baixam — reenviá-lo (~89 KB)
+    // estourava o limite de 100 KB do plano gratuito do JSONBin.
     const ls=readLS('sisi_plan_2026_v1'); if(ls && (Array.isArray(ls.verba)||Array.isArray(ls.categorias))) return ls;
-    return { verba:CREDDATA.verba, categorias:CREDDATA.categorias, file:'(planejamento embutido no HTML)', savedAt:new Date().toISOString() };
+    return null;
   }
   function currentPrazosPayload(){
     const ls=readLS('sisi_prazos_2026_v1'); if(ls && Array.isArray(ls.rows) && ls.rows.length) return ls;
@@ -5821,6 +5824,10 @@ const JSONBIN_BUILTIN = { binId: '', accessKey: '' };
     const prazos=currentPrazosPayload();
     if(!exec) blog('Aviso: não há dados de execução 2026 carregados; o bin será atualizado sem execução.','info');
     if(!prazos) blog('Aviso: não há dados de prazos carregados; o bin será atualizado sem prazos.','info');
+    if(!plan) blog('Planejamento embutido não é enviado ao bin (já está no HTML publicado); só uploads próprios de planejamento são sincronizados.','info');
+    const kb=x=>Math.round(JSON.stringify(x||null).length/1024);
+    const totalKB=kb({exec2026:exec,plan2026:plan,prazos2026:prazos});
+    blog(`Tamanho do envio: ~${totalKB} KB (execução ${kb(exec)} KB · planejamento ${kb(plan)} KB · prazos ${kb(prazos)} KB). Limite do plano gratuito: 100 KB.`, totalKB>100?'err':'info');
     const payload={
       meta:{ projeto:'Acompanhamento da Execução do Projeto SISI', schema:2,
              atualizado_em:new Date().toISOString(), origem:(exec&&exec.file)||'' },
@@ -5830,7 +5837,9 @@ const JSONBIN_BUILTIN = { binId: '', accessKey: '' };
     try{
       const resp=await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(cfg.binId)}`,
         { method:'PUT', headers: Object.assign({'Content-Type':'application/json'}, keyHeader(cfg)), body: JSON.stringify(payload) });
-      if(!resp.ok){ const t=await resp.text(); throw new Error('HTTP '+resp.status+': '+String(t).slice(0,180)); }
+      if(!resp.ok){ const t=await resp.text();
+        if(resp.status===403 && /100\s*kb/i.test(t)) throw new Error(`HTTP 403 — o envio (~${totalKB} KB) excede os 100 KB do plano gratuito do JSONBin. Partes: execução ${kb(exec)} KB, planejamento ${kb(plan)} KB, prazos ${kb(prazos)} KB. Se houver planejamento de upload aplicado, use "Restaurar planejamento embutido" antes de enviar, ou me avise para dividir o envio em dois bins.`);
+        throw new Error('HTTP '+resp.status+': '+String(t).slice(0,180)); }
       const bits=[]; if(exec) bits.push(`execução 2026 (${exec.rows.length} linhas)`); if(plan&&plan.verba) bits.push(`planejamento (${plan.verba.length} OMs)`); if(prazos) bits.push(`prazos (${prazos.rows.length} empenhos)`);
       setBinStatus('ok','Enviado ao bin: '+bits.join(' + ')+' · '+new Date().toLocaleTimeString('pt-BR')+'.');
       blog('Dados enviados ao bin: '+bits.join(' + ')+'.','ok');
