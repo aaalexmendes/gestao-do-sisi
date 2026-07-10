@@ -3637,7 +3637,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.8 &#183; 09/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.10 &#183; 10/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -3818,7 +3818,14 @@ function applyPlanData(plan){
 (function loadPlan2026(){
   try{
     const raw = localStorage.getItem('sisi_plan_2026_v1');
-    if(raw){ const o=JSON.parse(raw); if(o && (Array.isArray(o.verba)||Array.isArray(o.categorias))) applyPlanData(o); }
+    if(raw){
+      const o=JSON.parse(raw);
+      // Migração: versões anteriores salvavam o conteúdo do bin em formato antigo
+      // como se fosse um upload de planejamento, inflando o envio ao JSONBin.
+      // Esse registro é descartado — o planejamento embutido no HTML é a referência.
+      if(o && o.file==='(bin no formato do dashboard anterior)'){ localStorage.removeItem('sisi_plan_2026_v1'); return; }
+      if(o && (Array.isArray(o.verba)||Array.isArray(o.categorias))) applyPlanData(o);
+    }
   }catch(e){ /* ignora */ }
 })();
 
@@ -4136,14 +4143,19 @@ function dispUGESplit(){
   raw.forEach(r=>{ if(state.om.size&&!state.om.has(r.om))return; if(state.natureza.size&&!state.natureza.has(r.nd))return; if(state.ods.size&&!state.ods.has(odsOf(r.om)))return; if(!(r.disponivel>0))return; if(isDirefUGE(r.uge)) d+=r.disponivel; else o+=r.disponivel; });
   return {hasUGE:true, diref:d, outra:o};
 }
+function aprovadoAno(){
+  const semFiltro = !state.om.size && !state.ods.size && !state.guarnicao.size;
+  if(semFiltro && CREDDATA.teto>0) return CREDDATA.teto;
+  return planRows().reduce((s,r)=>s+(r.aprovado||0),0);
+}
 function renderExec2026(rows){
   const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
   const disp=T.disponivel||0, blq=T.bloqueado||0, eal=T.emp_a_liquidar||0;
-  const apr=planRows().reduce((s,r)=>s+(r.aprovado||0),0);
+  const apr=aprovadoAno();
   const liberado=disp+blq+eal;
   const sp=dispUGESplit();
   document.getElementById('exec-kpis').innerHTML =
-    kpi('kpi-apr','Aprovado · 2026',apr,'descentralizado para o ano','Crédito aprovado (descentralizado) para o exercício de 2026, conforme o planejamento.') +
+    kpi('kpi-apr','Aprovado · 2026',apr,'descentralizado para o ano','Crédito aprovado para o exercício de 2026: R$ 3.400.000 (valor fixado no planejamento do ano). Com filtros de OM/ODS ativos, mostra a soma do aprovado das OMs filtradas.') +
     kpi('kpi-disp','Disponível na OM · p/ uso', sp.hasUGE?sp.outra:disp, sp.hasUGE?'em UGE que não é a DIREF':'total — envie a planilha p/ separar','Crédito disponível que está em UGE diferente da DIREF: efetivamente na OM/executora, pronto para uso pela UGR.') +
     kpi('kpi-rec','Disponível na DIREF · a descentralizar', sp.hasUGE?sp.diref:0, sp.hasUGE?'descentralizar antes do uso':'requer upload da planilha','Crédito disponível retido na UGE DIREF: precisa ser descentralizado para a UGR antes de poder ser utilizado.') +
     kpi('kpi-warn','Crédito Bloqueado',blq,'controle interno','Crédito bloqueado para controle interno — indisponível para empenho no momento.') +
@@ -4917,7 +4929,7 @@ function planRows(){
 }
 function renderLiberar2026(){
   const V=planRows();
-  const apr=V.reduce((s,r)=>s+(r.aprovado||0),0);
+  const apr=aprovadoAno();
   const ex=filterRows(execRows('2026'));
   const disp=ex.reduce((a,r)=>a+(r.disponivel||0),0);
   const blq=ex.reduce((a,r)=>a+(r.bloqueado||0),0);
@@ -5711,10 +5723,12 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
     const out={exec:false, plan:false, prazos:false, skipped:[]};
     if(!data || typeof data!=='object') return out;
     const exec = (data.exec2026 && Array.isArray(data.exec2026.rows) && data.exec2026.rows.length) ? data.exec2026 : null;
-    let plan = (data.plan2026 && (Array.isArray(data.plan2026.verba)||Array.isArray(data.plan2026.categorias))) ? data.plan2026 : null;
+    const plan = (data.plan2026 && (Array.isArray(data.plan2026.verba)||Array.isArray(data.plan2026.categorias))) ? data.plan2026 : null;
     if(!plan && Array.isArray(data.verba) && Array.isArray(data.categorias)){
-      plan = { verba:data.verba, categorias:data.categorias, file:'(bin no formato do dashboard anterior)',
-               savedAt:(data.meta && (data.meta.ultima_atualizacao||data.meta.atualizado_em)) || null };
+      // Bin ainda no formato do dashboard anterior (verba/categorias na raiz):
+      // não aplica nem persiste — o planejamento embutido no HTML é a referência.
+      // O bin será convertido ao formato novo no próximo "Enviar dados ao JSONBin".
+      blog('Bin em formato antigo detectado: ignorado (o planejamento embutido no HTML é usado). O próximo envio converte o bin ao formato novo.','info');
     }
     if(exec){
       if(remoteIsNewer(exec,'sisi_exec_2026_v1')){
@@ -5806,7 +5820,9 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
     // Só envia planejamento ao bin quando houver upload próprio: o planejamento
     // embutido já está dentro do HTML que todos baixam — reenviá-lo (~89 KB)
     // estourava o limite de 100 KB do plano gratuito do JSONBin.
-    const ls=readLS('sisi_plan_2026_v1'); if(ls && (Array.isArray(ls.verba)||Array.isArray(ls.categorias))) return ls;
+    const ls=readLS('sisi_plan_2026_v1');
+    if(ls && ls.file==='(bin no formato do dashboard anterior)') return null;
+    if(ls && (Array.isArray(ls.verba)||Array.isArray(ls.categorias))) return ls;
     return null;
   }
   function currentPrazosPayload(){
