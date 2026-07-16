@@ -2164,6 +2164,17 @@
   .st-badge.aten { color:#8C6D00; border-color:var(--fab-yellow-dark); background:#FFFBE8; }
   .st-badge.okp  { color:var(--green); border-color:var(--green); background:#EFFAF4; }
   .st-badge.sreg { color:var(--gray-500); border-color:var(--gray-300); background:var(--gray-50); }
+  .modal-header-actions { display:flex; align-items:center; gap:10px; }
+  .modal-save-img { background:transparent; color:var(--fab-yellow); border:1px solid var(--fab-yellow);
+    border-radius:3px; padding:7px 12px; cursor:pointer; font-family:'Roboto Condensed',sans-serif;
+    font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; white-space:nowrap; }
+  .modal-save-img:hover { background:rgba(255,204,0,0.15); }
+  .modal-save-img:disabled { opacity:0.6; cursor:wait; }
+  .modal-capture-stamp { display:none; background:var(--off-white); color:var(--gray-500);
+    font-family:'Roboto Mono',monospace; font-size:10px; letter-spacing:0.08em;
+    padding:8px 28px; border-bottom:1px solid var(--gray-100); }
+  .modal-panel.capturing .modal-save-img, .modal-panel.capturing .modal-close { display:none; }
+  .modal-panel.capturing .modal-capture-stamp { display:block; }
   .pz-fil { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin:12px 0 4px; }
   .pz-fil label { display:flex; flex-direction:column; gap:4px; font-family:'Roboto Condensed',sans-serif;
     font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--fab-blue); font-weight:600; }
@@ -3628,8 +3639,12 @@
         <h2 class="modal-title" id="modal-title">&#8212;</h2>
         <div class="modal-subtitle" id="modal-subtitle">&#8212;</div>
       </div>
-      <button class="modal-close" id="modal-close" aria-label="Fechar">&times;</button>
+      <div class="modal-header-actions">
+        <button class="modal-save-img" id="modalSaveImgBtn" type="button" title="Salvar esta vis&#227;o como imagem PNG para enviar &#224; OM">&#128247; Salvar imagem</button>
+        <button class="modal-close" id="modal-close" aria-label="Fechar">&times;</button>
+      </div>
     </header>
+    <div class="modal-capture-stamp" id="modalCaptureStamp"></div>
     <div class="modal-body" id="modal-body"></div>
   </div>
 </div>
@@ -3637,7 +3652,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.11 &#183; 10/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.12 &#183; 16/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4557,6 +4572,19 @@ function showOm(om){
         rp2.map(r=>`<tr><td><span class="badge">${r.nd}</span></td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.rap_nproc_inscritos)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.rap_nproc_a_liquidar)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.rap_nproc_liquidados)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.rap_nproc_pagos)}</td></tr>`).join('')+
         `</tbody></table></div>`;
     }
+    if(DATA.prazos2026 && Array.isArray(DATA.prazos2026.rows)){
+      const pz=computePrazos(DATA.prazos2026.rows.filter(r=>r.om===om))
+        .sort((a,b)=>{ const ax=a.dias==null?1e9:a.dias, bx=b.dias==null?1e9:b.dias; return ax-bx || b.saldo-a.saldo; });
+      if(pz.length){
+        const stLbl={vencido:['venc','Vencido'],critico:['crit','Crítico'],atencao:['aten','Atenção'],ok:['okp','No prazo'],semregra:['sreg','Sem regra']};
+        const neC=ne=>{ const m=String(ne).match(/(\d{6})(\d{5})(\d{4})(NE\d+)/); return m?`${m[4]}/${m[3]}`:ne; };
+        body+=`<div class="modal-solicitacoes-head" style="margin-top:20px"><h3>Prazos de Liquidação dos Empenhos</h3><span class="count">${pz.length} empenho(s)</span></div>`;
+        body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>Empenho</th><th>ND</th><th>Emissão</th><th>Vence em</th><th class="num">Dias</th><th class="num">Saldo a Liquidar</th><th>Situação</th></tr></thead><tbody>`+
+          pz.map(r=>{ const st=stLbl[r.status]; const dias=r.dias==null?'—':(r.dias<0?`<span style="color:var(--red);font-weight:600">${r.dias}</span>`:String(r.dias));
+            return `<tr><td style="font-family:'Roboto Mono',monospace;font-size:11px" title="${r.ne}">${neC(r.ne)}</td><td><span class="badge" title="${r.nd_det}">${r.nd}</span></td><td style="font-family:'Roboto Mono',monospace;font-size:11px">${new Date(r.data_emissao+'T00:00:00').toLocaleDateString('pt-BR')}</td><td style="font-family:'Roboto Mono',monospace;font-size:11px">${r.vence?r.vence.toLocaleDateString('pt-BR'):'—'}</td><td class="num">${dias}</td><td class="num ${r.saldo?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(r.saldo)}</td><td><span class="st-badge ${st[0]}">${st[1]}</span></td></tr>`; }).join('')+
+          `</tbody></table></div>`;
+      }
+    }
     document.getElementById('modal-body').innerHTML=body;
     document.getElementById('modal-body').scrollTop=0; openModal(); return;
   }
@@ -4585,6 +4613,56 @@ function showOm(om){
   document.getElementById('modal-body').scrollTop=0;
   openModal();
 }
+
+// ---------- Salvar painel da OM como imagem ----------
+let _h2cLoading=null;
+function ensureHtml2Canvas(){
+  if(typeof html2canvas!=='undefined') return Promise.resolve();
+  if(_h2cLoading) return _h2cLoading;
+  _h2cLoading=new Promise((res,rej)=>{
+    const sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    sc.onload=()=>res();
+    sc.onerror=()=>{ _h2cLoading=null; rej(new Error('não foi possível carregar o gerador de imagem — verifique o acesso à internet e tente novamente')); };
+    document.body.appendChild(sc);
+  });
+  return _h2cLoading;
+}
+async function saveModalAsImage(){
+  const btn=document.getElementById('modalSaveImgBtn');
+  const panel=document.querySelector('#modal .modal-panel');
+  const mbody=document.getElementById('modal-body');
+  if(!panel||!mbody) return;
+  const oldPanel={h:panel.style.height||'', mh:panel.style.maxHeight||'', ov:panel.style.overflow||''};
+  const oldBody={ov:mbody.style.overflow||'', ovy:mbody.style.overflowY||''};
+  try{
+    if(btn){ btn.disabled=true; btn.textContent='Gerando…'; }
+    await ensureHtml2Canvas();
+    const stamp=document.getElementById('modalCaptureStamp');
+    if(stamp) stamp.textContent=`Acompanhamento da Execução do Projeto SISI · situação em ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+    panel.classList.add('capturing');
+    panel.style.height='auto'; panel.style.maxHeight='none'; panel.style.overflow='visible';
+    mbody.style.overflow='visible'; mbody.style.overflowY='visible';
+    const canvas=await html2canvas(panel,{scale:2, backgroundColor:'#FFFFFF', useCORS:true});
+    const om=(document.getElementById('modal-title').textContent||'OM').trim()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+    const d=new Date(); const dt=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const a=document.createElement('a');
+    a.download=`SISI_${om}_${state.ano}_${dt}.png`;
+    a.href=canvas.toDataURL('image/png');
+    a.click();
+    if(btn) btn.textContent='✓ Imagem salva';
+  }catch(err){
+    alert('Falha ao gerar a imagem: '+err.message);
+    if(btn) btn.textContent='📷 Salvar imagem';
+  }finally{
+    panel.classList.remove('capturing');
+    panel.style.height=oldPanel.h; panel.style.maxHeight=oldPanel.mh; panel.style.overflow=oldPanel.ov;
+    mbody.style.overflow=oldBody.ov; mbody.style.overflowY=oldBody.ovy;
+    if(btn){ btn.disabled=false; setTimeout(()=>{ btn.textContent='📷 Salvar imagem'; },2000); }
+  }
+}
+document.getElementById('modalSaveImgBtn').addEventListener('click',saveModalAsImage);
 
 // ---------- Export CSV ----------
 function downloadCSV(filename, headerArr, rows){
