@@ -2185,6 +2185,8 @@
   .pz-th { cursor:pointer; user-select:none; }
   .pz-th:hover { background: var(--fab-blue-mid); }
   .pz-th .sort-arrow { color: var(--fab-yellow); font-size:11px; }
+  #prazosTbody tr[data-om] { cursor:pointer; }
+  #prazosTbody tr[data-om]:hover td { background: var(--gray-50); }
   .mfin-lbl {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 10px;
@@ -3652,7 +3654,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.12 &#183; 16/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.14 &#183; 16/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4040,7 +4042,7 @@ function renderPrazos(){
   tb.innerHTML = show.length ? show.map(r=>{
     const [cls,lbl]=stLbl[r.status];
     const diasTxt = r.dias==null?'—':(r.dias<0?`<span style="color:var(--red);font-weight:600">${r.dias}</span>`:String(r.dias));
-    return `<tr>
+    return `<tr data-om="${r.om.replace(/"/g,'&quot;')}" title="Clique para abrir o painel da OM">
       <td class="code">${r.om}</td>
       <td style="font-family:'Roboto Mono',monospace;font-size:11px" title="${r.ne}">${neCurto(r.ne)}</td>
       <td><span class="badge" title="${r.nd_det}${r.nd_desc?' — '+r.nd_desc:''}">${r.nd}</span></td>
@@ -4550,7 +4552,8 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&modal.classList.co
 
 function showOm(om){
   const rows=execRows(state.ano).filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
-  if(!rows.length) return;
+  const temPrazos = state.ano==='2026' && DATA.prazos2026 && Array.isArray(DATA.prazos2026.rows) && DATA.prazos2026.rows.some(r=>r.om===om);
+  if(!rows.length && !temPrazos) return;
   const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
   document.getElementById('modal-eyebrow').textContent=`OM · EXERCÍCIO ${state.ano}`;
   document.getElementById('modal-title').textContent=om;
@@ -4562,9 +4565,11 @@ function showOm(om){
       <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.emp_a_liquidar||0)}</div></div>
     </div>`;
     let body=fin+`<div class="modal-solicitacoes-head"><h3>Por Natureza de Despesa</h3><span class="count">${rows.length} ND</span></div>`;
-    body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">Empenhos a Liquidar</th></tr></thead><tbody>`+
-      rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.bloqueado)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td></tr>`).join('')+
-      `</tbody></table></div>`;
+    body+= rows.length
+      ? `<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">Empenhos a Liquidar</th></tr></thead><tbody>`+
+        rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.bloqueado)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td></tr>`).join('')+
+        `</tbody></table></div>`
+      : `<div class="empty-state" style="padding:14px"><p>Sem linhas de crédito para esta OM na planilha semanal atual.</p></div>`;
     const rp2=DATA.rap.filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
     if(rp2.length){
       body+=`<div class="modal-solicitacoes-head" style="margin-top:20px"><h3>Restos a Pagar 2026</h3><span class="count">${rp2.length} ND</span></div>`;
@@ -4631,34 +4636,45 @@ function ensureHtml2Canvas(){
 async function saveModalAsImage(){
   const btn=document.getElementById('modalSaveImgBtn');
   const panel=document.querySelector('#modal .modal-panel');
-  const mbody=document.getElementById('modal-body');
-  if(!panel||!mbody) return;
-  const oldPanel={h:panel.style.height||'', mh:panel.style.maxHeight||'', ov:panel.style.overflow||''};
-  const oldBody={ov:mbody.style.overflow||'', ovy:mbody.style.overflowY||''};
+  if(!panel) return;
+  let wrap=null;
   try{
     if(btn){ btn.disabled=true; btn.textContent='Gerando…'; }
     await ensureHtml2Canvas();
-    const stamp=document.getElementById('modalCaptureStamp');
+    // O painel vive num overlay position:fixed limitado à altura da janela; capturá-lo
+    // diretamente corta o conteúdo rolado. Estratégia: CLONAR o painel para fora do
+    // overlay, em fluxo normal do documento, onde ele cresce até a altura total.
+    const width=Math.max(panel.offsetWidth||0, 680);
+    wrap=document.createElement('div');
+    wrap.style.cssText=`position:absolute; left:0; top:${(window.pageYOffset||document.documentElement.scrollTop||0)}px; width:${width}px; z-index:-1000; background:#FFFFFF; pointer-events:none;`;
+    const clone=panel.cloneNode(true);
+    clone.classList.add('capturing');
+    clone.style.height='auto'; clone.style.maxHeight='none'; clone.style.overflow='visible';
+    clone.style.width=width+'px'; clone.style.animation='none'; clone.style.boxShadow='none';
+    const cb=clone.querySelector('.modal-body');
+    if(cb){ cb.style.overflow='visible'; cb.style.overflowY='visible'; cb.style.maxHeight='none'; cb.style.height='auto'; cb.style.flex='none'; }
+    // dentro do clone, liberar rolagens internas de tabelas
+    clone.querySelectorAll('.table-wrap').forEach(tw=>{ tw.style.maxHeight='none'; tw.style.overflow='visible'; });
+    const stamp=clone.querySelector('.modal-capture-stamp');
     if(stamp) stamp.textContent=`Acompanhamento da Execução do Projeto SISI · situação em ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
-    panel.classList.add('capturing');
-    panel.style.height='auto'; panel.style.maxHeight='none'; panel.style.overflow='visible';
-    mbody.style.overflow='visible'; mbody.style.overflowY='visible';
-    const canvas=await html2canvas(panel,{scale:2, backgroundColor:'#FFFFFF', useCORS:true});
+    wrap.appendChild(clone);
+    document.body.appendChild(wrap);
+    const h=Math.max(clone.scrollHeight||0, clone.offsetHeight||0, 400);
+    const canvas=await html2canvas(clone,{scale:2, backgroundColor:'#FFFFFF', useCORS:true,
+      windowWidth: width+60, windowHeight: h+60, scrollX:0, scrollY:0});
     const om=(document.getElementById('modal-title').textContent||'OM').trim()
       .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
     const d=new Date(); const dt=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const a=document.createElement('a');
-    a.download=`SISI_${om}_${state.ano}_${dt}.png`;
-    a.href=canvas.toDataURL('image/png');
+    a.download=`SISI_${om}_${state.ano}_${dt}.jpg`;
+    a.href=canvas.toDataURL('image/jpeg', 0.92);
     a.click();
     if(btn) btn.textContent='✓ Imagem salva';
   }catch(err){
     alert('Falha ao gerar a imagem: '+err.message);
     if(btn) btn.textContent='📷 Salvar imagem';
   }finally{
-    panel.classList.remove('capturing');
-    panel.style.height=oldPanel.h; panel.style.maxHeight=oldPanel.mh; panel.style.overflow=oldPanel.ov;
-    mbody.style.overflow=oldBody.ov; mbody.style.overflowY=oldBody.ovy;
+    if(wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
     if(btn){ btn.disabled=false; setTimeout(()=>{ btn.textContent='📷 Salvar imagem'; },2000); }
   }
 }
@@ -4823,7 +4839,7 @@ document.getElementById('clearBtn').addEventListener('click',()=>{ state.om.clea
 
 // Clique em linha/barra -> modal
 document.addEventListener('click',e=>{
-  const row=e.target.closest('#execTbody tr[data-om], #omChart .bar-row[data-om]');
+  const row=e.target.closest('#execTbody tr[data-om], #omChart .bar-row[data-om], #prazosTbody tr[data-om]');
   if(row && row.dataset.om){ showOm(row.dataset.om); }
 });
 
