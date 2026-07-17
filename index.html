@@ -2195,6 +2195,7 @@
   .ods-report table { min-width:0 !important; width:100%; }
   .ods-report td { white-space:normal; }
   .ods-report td.num, .ods-report th { white-space:nowrap; }
+  .ods-report .info-ico { display:none; }
   .ods-report .rep-foot { padding:10px 24px 16px; font-family:'Roboto Mono',monospace; font-size:9px; letter-spacing:.08em; color:var(--gray-500); }
   #prazosTbody tr[data-om] { cursor:pointer; }
   #prazosTbody tr[data-om]:hover td { background: var(--gray-50); }
@@ -3454,6 +3455,10 @@
           <label><span>Natureza de Despesa</span><select id="pzFilNd"><option value="">Todas</option></select></label>
           <label><span>Buscar empenho</span><input type="text" id="pzFilBusca" placeholder="nº do empenho, ND detalhada..." autocomplete="off"></label>
           <button class="admin-btn admin-btn-secondary pz-limpar" id="pzFilLimpar" type="button">Limpar filtros</button>
+          <button class="export-btn" id="exportPrazosPdfBtn" type="button" style="margin-left:auto;" title="Gera um PDF com o resumo por situa&#231;&#227;o e a tabela exatamente como exibida (filtros e ordena&#231;&#227;o atuais)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>Exportar PDF</span>
+          </button>
         </div>
         <div class="sort-ctl" id="prazosStatusCtl">mostrar:
           <span class="sort-lbl active" data-pstatus="todos">Todos</span>
@@ -3463,7 +3468,7 @@
           <span class="sort-lbl" data-pstatus="ok">No prazo</span>
         </div>
         <div class="table-wrap" style="max-height:520px;">
-          <table style="min-width:900px;">
+          <table style="min-width:900px;" id="prazosTable">
             <thead><tr>
               <th class="pz-th" data-sort="prazos" data-sortkey="om" title="Clique para ordenar">OM (UGR)<span class="sort-arrow" id="sa-pz-om"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="ne" title="Clique para ordenar">Empenho<span class="sort-arrow" id="sa-pz-ne"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="nd" title="Clique para ordenar">ND<span class="sort-arrow" id="sa-pz-nd"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="emissao" title="Clique para ordenar">Emiss&#227;o<span class="sort-arrow" id="sa-pz-emissao"></span></th>
               <th class="pz-th num" data-sort="prazos" data-sortkey="prazo" title="Clique para ordenar">Prazo<span class="sort-arrow" id="sa-pz-prazo"></span></th><th class="pz-th" data-sort="prazos" data-sortkey="vence" title="Clique para ordenar">Vence em<span class="sort-arrow" id="sa-pz-vence"></span></th><th class="pz-th num" data-sort="prazos" data-sortkey="dias" title="Clique para ordenar">Dias<span class="sort-arrow" id="sa-pz-dias"></span></th>
@@ -3672,7 +3677,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.16 &#183; 17/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.17 &#183; 17/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4810,6 +4815,53 @@ async function exportExecTablePdf(){
   finally{ if(host&&host.parentNode) host.parentNode.removeChild(host); if(btn) btn.disabled=false; }
 }
 document.getElementById('exportExecPdfBtn').addEventListener('click',exportExecTablePdf);
+
+// ---------- Exportar Prazos de Liquidação em PDF ----------
+async function exportPrazosPdf(){
+  const btn=document.getElementById('exportPrazosPdfBtn');
+  const raw=(DATA.prazos2026 && DATA.prazos2026.rows)||[];
+  if(!raw.length){ alert('Não há dados de prazos carregados. Envie a planilha de prazos pela Área Admin.'); return; }
+  let host=null;
+  try{
+    if(btn) btn.disabled=true;
+    await ensureHtml2Canvas(); await ensureJsPDF();
+    const width=1160;
+    host=document.createElement('div');
+    host.className='ods-report';
+    host.style.cssText=`position:absolute;left:0;top:${(window.pageYOffset||0)}px;width:${width}px;z-index:-1000;background:#fff;pointer-events:none;`;
+    const stLblTxt={todos:'Todas',vencido:'Vencidos',critico:'Vence em até 15 dias',atencao:'Vence em 16 a 30 dias',ok:'No prazo (>30 dias)',semregra:'Sem regra'};
+    const filtros=[];
+    if(pzFil.om) filtros.push(`OM: ${pzFil.om}`);
+    if(pzFil.nd) filtros.push(`ND: ${pzFil.nd}`);
+    if(pzFil.q.trim()) filtros.push(`Busca: "${pzFil.q.trim()}"`);
+    if(prazoFiltro!=='todos') filtros.push(`Situação: ${stLblTxt[prazoFiltro]||prazoFiltro}`);
+    if(state.om.size) filtros.push(`Filtro global OM: ${[...state.om].join(', ')}`);
+    if(state.natureza.size) filtros.push(`Filtro global ND: ${[...state.natureza].join(', ')}`);
+    if(state.ods.size) filtros.push(`Filtro global ODS: ${[...state.ods].join(', ')}`);
+    const meta=DATA.prazos2026||{};
+    host.innerHTML=`<div class="rep-head"><div class="rep-eyebrow">Comando da Aeronáutica · Força Aérea Brasileira</div>
+      <div class="rep-title">Prazos de Liquidação dos Empenhos · 2026</div>
+      <div class="rep-sub">Referência: ${new Date().toLocaleDateString('pt-BR')} · 60 dias p/ ND 339030 e 449052 · 90 dias p/ ND 339039 (contados da emissão) · arquivo: ${meta.file||'—'}</div>
+      <div class="rep-sub">${filtros.length?('Filtros: '+filtros.join(' · ')):'Sem filtros aplicados — todos os empenhos'}</div></div>
+      <div class="rep-body"></div>
+      <div class="rep-foot">${_stampTxt()}</div>`;
+    const rb=host.querySelector('.rep-body');
+    const kpis=document.getElementById('prazosKpis').cloneNode(true);
+    kpis.style.marginBottom='16px';
+    rb.appendChild(kpis);
+    const tbl=document.getElementById('prazosTable').cloneNode(true);
+    tbl.style.minWidth='0'; tbl.style.width='100%';
+    rb.appendChild(tbl);
+    document.body.appendChild(host);
+    const canvas=await html2canvas(host,{scale:2, backgroundColor:'#FFFFFF', useCORS:true,
+      windowWidth:width+40, windowHeight:(host.scrollHeight||1200)+40, scrollX:0, scrollY:0});
+    const pdf=new window.jspdf.jsPDF({orientation:'l', unit:'mm', format:'a4'});
+    pdfAddCanvasPaged(pdf, canvas, {orientation:'l'});
+    pdf.save(`SISI_Prazos_Liquidacao_${_hoje()}.pdf`);
+  }catch(err){ alert('Falha ao gerar o PDF: '+err.message); }
+  finally{ if(host&&host.parentNode) host.parentNode.removeChild(host); if(btn) btn.disabled=false; }
+}
+document.getElementById('exportPrazosPdfBtn').addEventListener('click',exportPrazosPdf);
 
 // ---------- Relatório do ODS (PDF multi-página) ----------
 async function gerarRelatorioODS(){
