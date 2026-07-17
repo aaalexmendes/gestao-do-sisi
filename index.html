@@ -2185,6 +2185,17 @@
   .pz-th { cursor:pointer; user-select:none; }
   .pz-th:hover { background: var(--fab-blue-mid); }
   .pz-th .sort-arrow { color: var(--fab-yellow); font-size:11px; }
+  /* Relatório por ODS (blocos renderizados fora da tela p/ PDF) */
+  .ods-report { background:#fff; width:100%; }
+  .ods-report .rep-head { background:linear-gradient(135deg,var(--fab-blue-dark),var(--fab-blue)); color:#fff; padding:18px 24px; border-bottom:3px solid var(--fab-yellow); }
+  .ods-report .rep-eyebrow { font-family:'Roboto Mono',monospace; font-size:9px; letter-spacing:.2em; color:var(--fab-yellow); text-transform:uppercase; }
+  .ods-report .rep-title { font-family:'Roboto Condensed',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-top:2px; }
+  .ods-report .rep-sub { font-size:11px; color:rgba(255,255,255,.85); font-family:'Roboto Mono',monospace; margin-top:5px; }
+  .ods-report .rep-body { padding:18px 24px 8px; }
+  .ods-report table { min-width:0 !important; width:100%; }
+  .ods-report td { white-space:normal; }
+  .ods-report td.num, .ods-report th { white-space:nowrap; }
+  .ods-report .rep-foot { padding:10px 24px 16px; font-family:'Roboto Mono',monospace; font-size:9px; letter-spacing:.08em; color:var(--gray-500); }
   #prazosTbody tr[data-om] { cursor:pointer; }
   #prazosTbody tr[data-om]:hover td { background: var(--gray-50); }
   .mfin-lbl {
@@ -3199,6 +3210,9 @@
   <!-- ============ VIEW: EXECUÇÃO ============ -->
   <!-- ============ ABA: 2023–2025 (HISTÓRICO) ============ -->
   <div class="view-section active" id="view-exec">
+    <div id="odsReportBar" style="display:none;justify-content:flex-end;margin:0 0 14px;">
+      <button class="export-btn" id="btnRelOds" type="button" title="Gera um PDF com a situa&#231;&#227;o de todas as OMs do ODS selecionado no filtro: capa com resumo consolidado e uma p&#225;gina por OM (cr&#233;dito, ND, Restos a Pagar e prazos). Selecione exatamente 1 ODS no filtro.">&#128196; Relat&#243;rio do ODS (PDF)</button>
+    </div>
     <div class="kpi-grid" id="exec-kpis"></div>
 
     <h2 class="section-title"><span>Movimento e Execução do Crédito</span><span class="count" id="exec-sub-count"></span></h2>
@@ -3263,6 +3277,10 @@
         <button class="export-btn" id="exportExecBtn" title="Exportar para CSV">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>Exportar CSV</span>
+        </button>
+        <button class="export-btn" id="exportExecPdfBtn" title="Exportar a tabela (com filtros e ordena&#231;&#227;o atuais) em PDF">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          <span>Exportar PDF</span>
         </button>
       </span>
     </h2>
@@ -3654,7 +3672,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.14 &#183; 16/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.16 &#183; 17/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -3857,6 +3875,11 @@ function buildOmOds(){
     }
   });
   m[_normOm('COMANDO DE PREPARO')] = 'COMPREP'; // override seguro: COMPREP = Comando de Preparo
+  // Overrides confirmados pelo gestor (17/07/2026):
+  // - Tesouro grafa "HOSPITAL DE AERONAUTICA DE RECIFE"; no planejamento consta "DA AERONAUTICA" — sem o override, ficava SEM ODS.
+  m[_normOm('HOSPITAL DE AERONAUTICA DE RECIFE')] = 'COMGEP';
+  // - Parque do Galeão não consta no planejamento (só PAMA-SP e PAMB-RJ).
+  m[_normOm('PARQUE DE MATERIAL AERONAUTICO DO GALEAO')] = 'COMGAP';
   return m;
 }
 let OM_ODS = buildOmOds();
@@ -4125,6 +4148,7 @@ let _execChrome='';
 function setExecChrome(mode){ if(_execChrome===mode) return; _execChrome=mode; (mode==='2026'?setExecChrome2026:setExecChromeLegacy)(); }
 function setExecChromeLegacy(){
   { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display=''; }
+  { const rb=document.getElementById('odsReportBar'); if(rb) rb.style.display='none'; }
   document.getElementById('execCard1H3').innerHTML='Funil de Execução'+ICO('Conversão do crédito ao longo das fases da despesa: do destaque líquido recebido até o pagamento, com o percentual de cada etapa sobre o destaque.');
   document.getElementById('execCard1Sub').innerHTML='Destaque líquido &#8594; Empenhado &#8594; Liquidado &#8594; Pago';
   document.getElementById('execCard2H3').innerHTML='Destaque Líquido por Natureza'+ICO('Participação de cada ND no total de destaque líquido recebido no período filtrado.');
@@ -4140,6 +4164,7 @@ function setExecChromeLegacy(){
 }
 function setExecChrome2026(){
   { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display='none'; }
+  { const rb=document.getElementById('odsReportBar'); if(rb) rb.style.display='flex'; }
   document.getElementById('execCard1H3').innerHTML='Situação do Crédito · 2026'+ICO('No exercício corrente, a planilha semanal traz a situação do crédito: disponível, bloqueado para controle interno e empenhos ainda a liquidar.');
   document.getElementById('execCard1Sub').innerHTML='Crédito Disponível · Bloqueado · Empenhos a Liquidar';
   document.getElementById('execCard2H3').innerHTML='Crédito Disponível por Natureza'+ICO('Participação de cada ND no total de crédito disponível no período filtrado.');
@@ -4550,16 +4575,13 @@ document.getElementById('modal-close').addEventListener('click',closeModal);
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&modal.classList.contains('show')) closeModal(); });
 
-function showOm(om){
-  const rows=execRows(state.ano).filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
-  const temPrazos = state.ano==='2026' && DATA.prazos2026 && Array.isArray(DATA.prazos2026.rows) && DATA.prazos2026.rows.some(r=>r.om===om);
-  if(!rows.length && !temPrazos) return;
+// Monta o conteúdo (subtítulo + corpo) do painel de uma OM no exercício 2026.
+// Reutilizado pelo painel lateral (showOm) e pelo Relatório do ODS em PDF.
+function omPanel2026Data(om){
+  const rows=execRows('2026').filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
   const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
-  document.getElementById('modal-eyebrow').textContent=`OM · EXERCÍCIO ${state.ano}`;
-  document.getElementById('modal-title').textContent=om;
-  if(state.ano==='2026'){
-    document.getElementById('modal-subtitle').textContent=`Crédito disponível R$ ${fmtBRL0(T.disponivel||0)} · bloqueado R$ ${fmtBRL0(T.bloqueado||0)} · ${rows.length} ND`;
-    const fin=`<div class="modal-finance">
+  const sub=`Crédito disponível R$ ${fmtBRL0(T.disponivel||0)} · bloqueado R$ ${fmtBRL0(T.bloqueado||0)} · ${rows.length} ND`;
+  const fin=`<div class="modal-finance">
       <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.disponivel||0)}</div></div>
       <div class="mfin"><div class="mfin-lbl">Crédito Bloqueado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.bloqueado||0)}</div></div>
       <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.emp_a_liquidar||0)}</div></div>
@@ -4590,7 +4612,20 @@ function showOm(om){
           `</tbody></table></div>`;
       }
     }
-    document.getElementById('modal-body').innerHTML=body;
+  return { rows, T, sub, body };
+}
+
+function showOm(om){
+  const rows=execRows(state.ano).filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
+  const temPrazos = state.ano==='2026' && DATA.prazos2026 && Array.isArray(DATA.prazos2026.rows) && DATA.prazos2026.rows.some(r=>r.om===om);
+  if(!rows.length && !temPrazos) return;
+  const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
+  document.getElementById('modal-eyebrow').textContent=`OM · EXERCÍCIO ${state.ano}`;
+  document.getElementById('modal-title').textContent=om;
+  if(state.ano==='2026'){
+    const p=omPanel2026Data(om);
+    document.getElementById('modal-subtitle').textContent=p.sub;
+    document.getElementById('modal-body').innerHTML=p.body;
     document.getElementById('modal-body').scrollTop=0; openModal(); return;
   }
   document.getElementById('modal-subtitle').textContent=`Destaque recebido R$ ${fmtBRL0(T.saldo||0)} · mov. devedor acum. R$ ${fmtBRL0(T.recebido||0)} · ${rows.length} ND`;
@@ -4679,6 +4714,182 @@ async function saveModalAsImage(){
   }
 }
 document.getElementById('modalSaveImgBtn').addEventListener('click',saveModalAsImage);
+
+// ---------- Infra PDF (jsPDF sob demanda + paginação de canvas) ----------
+let _jspdfLoading=null;
+function ensureJsPDF(){
+  if(window.jspdf && window.jspdf.jsPDF) return Promise.resolve();
+  if(_jspdfLoading) return _jspdfLoading;
+  _jspdfLoading=new Promise((res,rej)=>{
+    const sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+    sc.onload=()=>res();
+    sc.onerror=()=>{ _jspdfLoading=null; rej(new Error('não foi possível carregar o gerador de PDF — verifique o acesso à internet e tente novamente')); };
+    document.body.appendChild(sc);
+  });
+  return _jspdfLoading;
+}
+// Adiciona um canvas ao PDF fatiando em páginas. newPage=true inicia numa página nova.
+function pdfAddCanvasPaged(pdf, canvas, opts){
+  const o=opts||{}; const land=o.orientation==='l';
+  const pw=land?297:210, ph=land?210:297;
+  const w=canvas.width, h=canvas.height;
+  const chunkPx=Math.max(1, Math.floor(w*ph/pw));
+  let y=0, first=true;
+  while(y<h){
+    const sh=Math.min(chunkPx, h-y);
+    const c=document.createElement('canvas'); c.width=w; c.height=sh;
+    const ctx=c.getContext('2d'); ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,w,sh);
+    ctx.drawImage(canvas,0,y,w,sh,0,0,w,sh);
+    if(!first || o.newPage) pdf.addPage([pw,ph], land?'l':'p');
+    pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,pw,sh*pw/w);
+    first=false; y+=sh;
+  }
+}
+function _sanit(x){ return String(x||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,60); }
+function _hoje(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function _stampTxt(){ return `Acompanhamento da Execução do Projeto SISI · situação em ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`; }
+
+// ---------- Salvar gráfico individual em JPG ----------
+async function saveCardAsJpg(card){
+  try{
+    await ensureHtml2Canvas();
+    document.body.classList.add('capturing');
+    const canvas=await html2canvas(card,{scale:2, backgroundColor:'#FFFFFF', useCORS:true});
+    const h3=card.querySelector('h3');
+    const nome=_sanit(h3?h3.textContent.replace(/\s*i\s*$/,''):'grafico')||'grafico';
+    const a=document.createElement('a');
+    a.download=`SISI_${nome}_${_hoje()}.jpg`;
+    a.href=canvas.toDataURL('image/jpeg',0.92);
+    a.click();
+  }catch(err){ alert('Falha ao gerar a imagem: '+err.message); }
+  finally{ document.body.classList.remove('capturing'); }
+}
+(function initCardSnaps(){
+  document.querySelectorAll('.chart-card').forEach(card=>{
+    if(card.querySelector('.card-btn-group')) return;
+    const g=document.createElement('div'); g.className='card-btn-group';
+    const b=document.createElement('button'); b.type='button'; b.className='img-card-btn';
+    b.title='Salvar este gráfico em JPG';
+    b.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
+    b.addEventListener('click',()=>saveCardAsJpg(card));
+    g.appendChild(b); card.appendChild(g);
+  });
+})();
+
+// ---------- Exportar tabela Detalhamento por OM em PDF ----------
+async function exportExecTablePdf(){
+  const btn=document.getElementById('exportExecPdfBtn');
+  let host=null;
+  try{
+    if(btn) btn.disabled=true;
+    await ensureHtml2Canvas(); await ensureJsPDF();
+    const width=1160;
+    host=document.createElement('div');
+    host.style.cssText=`position:absolute;left:0;top:${(window.pageYOffset||0)}px;width:${width}px;z-index:-1000;background:#fff;pointer-events:none;`;
+    host.className='ods-report';
+    const chrome2026 = state.ano==='2026';
+    const filtros=[];
+    if(state.om.size) filtros.push(`OM: ${[...state.om].join(', ')}`);
+    if(state.natureza.size) filtros.push(`ND: ${[...state.natureza].join(', ')}`);
+    if(state.ods.size) filtros.push(`ODS: ${[...state.ods].join(', ')}`);
+    host.innerHTML=`<div class="rep-head"><div class="rep-eyebrow">Comando da Aeronáutica · Força Aérea Brasileira</div>
+      <div class="rep-title">Detalhamento por OM e Natureza · ${state.ano}</div>
+      <div class="rep-sub">${filtros.length?('Filtros: '+filtros.join(' · ')):'Sem filtros aplicados'} · gerado em ${new Date().toLocaleDateString('pt-BR')}</div></div>
+      <div class="rep-body"></div><div class="rep-foot">${_stampTxt()}</div>`;
+    const tbl=document.getElementById('execTable').cloneNode(true);
+    tbl.style.minWidth='0'; tbl.style.width='100%';
+    host.querySelector('.rep-body').appendChild(tbl);
+    document.body.appendChild(host);
+    const canvas=await html2canvas(host,{scale:2, backgroundColor:'#FFFFFF', useCORS:true,
+      windowWidth:width+40, windowHeight:(host.scrollHeight||1200)+40, scrollX:0, scrollY:0});
+    const pdf=new window.jspdf.jsPDF({orientation:'l', unit:'mm', format:'a4'});
+    pdfAddCanvasPaged(pdf, canvas, {orientation:'l'});
+    pdf.save(`SISI_Detalhamento_OM_${state.ano}_${_hoje()}.pdf`);
+  }catch(err){ alert('Falha ao gerar o PDF: '+err.message); }
+  finally{ if(host&&host.parentNode) host.parentNode.removeChild(host); if(btn) btn.disabled=false; }
+}
+document.getElementById('exportExecPdfBtn').addEventListener('click',exportExecTablePdf);
+
+// ---------- Relatório do ODS (PDF multi-página) ----------
+async function gerarRelatorioODS(){
+  const btn=document.getElementById('btnRelOds');
+  const sel=[...state.ods];
+  if(sel.length!==1){ alert('Para gerar o relatório, selecione exatamente UM ODS no filtro "ODS" da barra superior.'); return; }
+  const ods=sel[0];
+  const omSet=new Set();
+  execRows('2026').forEach(r=>{ if(odsOf(r.om)===ods) omSet.add(r.om); });
+  if(DATA.prazos2026 && Array.isArray(DATA.prazos2026.rows)) DATA.prazos2026.rows.forEach(r=>{ if(odsOf(r.om)===ods) omSet.add(r.om); });
+  DATA.rap.forEach(r=>{ if(odsOf(r.om)===ods) omSet.add(r.om); });
+  const oms=[...omSet].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  if(!oms.length){ alert(`Nenhuma OM do ODS ${ods} possui dados de 2026 (execução, RaP ou prazos).`); return; }
+  let host=null;
+  try{
+    if(btn){ btn.disabled=true; btn.textContent='Gerando relatório…'; }
+    await ensureHtml2Canvas(); await ensureJsPDF();
+    const width=794;
+    host=document.createElement('div');
+    host.style.cssText=`position:absolute;left:0;top:${(window.pageYOffset||0)}px;width:${width}px;z-index:-1000;background:#fff;pointer-events:none;`;
+    document.body.appendChild(host);
+    const pdf=new window.jspdf.jsPDF({orientation:'p', unit:'mm', format:'a4'});
+
+    // ---- capa: resumo consolidado do ODS ----
+    const agg={disp:0,blq:0,eal:0,rapLiq:0,pzVenc:0,pzVencV:0};
+    const porOm={};
+    oms.forEach(om=>{ porOm[om]={disp:0,blq:0,eal:0,rapLiq:0,pzV:0}; });
+    execRows('2026').forEach(r=>{ if(!porOm[r.om]) return;
+      porOm[r.om].disp+=r.disponivel||0; porOm[r.om].blq+=r.bloqueado||0; porOm[r.om].eal+=r.emp_a_liquidar||0;
+      agg.disp+=r.disponivel||0; agg.blq+=r.bloqueado||0; agg.eal+=r.emp_a_liquidar||0; });
+    DATA.rap.forEach(r=>{ if(!porOm[r.om]) return; porOm[r.om].rapLiq+=r.rap_nproc_a_liquidar||0; agg.rapLiq+=r.rap_nproc_a_liquidar||0; });
+    if(DATA.prazos2026 && Array.isArray(DATA.prazos2026.rows)){
+      computePrazos(DATA.prazos2026.rows.filter(r=>porOm[r.om])).forEach(r=>{
+        if(r.status==='vencido'){ porOm[r.om].pzV++; agg.pzVenc++; agg.pzVencV+=r.saldo||0; } });
+    }
+    const capa=document.createElement('div'); capa.className='ods-report';
+    capa.innerHTML=`<div class="rep-head"><div class="rep-eyebrow">Comando da Aeronáutica · Força Aérea Brasileira</div>
+      <div class="rep-title">Projeto SISI · Relatório do ODS</div>
+      <div class="rep-sub">${ods} · ${oms.length} OM(s) com dados de 2026 · gerado em ${new Date().toLocaleDateString('pt-BR')}</div></div>
+      <div class="rep-body">
+      <div class="modal-finance">
+        <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.disp)}</div></div>
+        <div class="mfin"><div class="mfin-lbl">Crédito Bloqueado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.blq)}</div></div>
+        <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar (exercício)</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.eal)}</div></div>
+        <div class="mfin"><div class="mfin-lbl">RaP a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.rapLiq)}</div></div>
+      </div>
+      <div class="modal-solicitacoes-head" style="margin-top:16px"><h3>Resumo por OM</h3><span class="count">${oms.length} OM(s)</span></div>
+      <div class="table-wrap" style="border:none"><table style="font-size:11px"><thead><tr><th>OM (UGR)</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">Emp. a Liquidar</th><th class="num">RaP a Liquidar</th><th class="num">Prazos Vencidos</th></tr></thead><tbody>${
+        oms.map(om=>{ const x=porOm[om]; return `<tr><td class="code">${om}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.disp)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.blq)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.eal)}</td><td class="num ${x.rapLiq?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(x.rapLiq)}</td><td class="num" style="${x.pzV?'color:var(--red);font-weight:600':''}">${x.pzV||0}</td></tr>`; }).join('')
+      }</tbody></table></div>
+      ${agg.pzVenc?`<p style="font-size:11px;color:var(--red);margin-top:10px;font-weight:500">⚠ ${agg.pzVenc} empenho(s) com prazo de liquidação vencido no ODS, somando R$ ${fmtBRL0(agg.pzVencV)} a liquidar. Detalhamento nas páginas seguintes, por OM.</p>`:''}
+      </div><div class="rep-foot">${_stampTxt()} · página de resumo — detalhamento por OM nas páginas seguintes</div>`;
+    host.appendChild(capa);
+    let canvas=await html2canvas(capa,{scale:2, backgroundColor:'#FFFFFF', useCORS:true, windowWidth:width+40, windowHeight:(capa.scrollHeight||1000)+40, scrollX:0, scrollY:0});
+    pdfAddCanvasPaged(pdf, canvas, {orientation:'p'});
+    host.removeChild(capa);
+
+    // ---- uma seção por OM (cada uma inicia em página nova) ----
+    for(const om of oms){
+      const p=omPanel2026Data(om);
+      const bloco=document.createElement('div'); bloco.className='ods-report';
+      bloco.innerHTML=`<div class="rep-head"><div class="rep-eyebrow">${ods} · Exercício 2026</div>
+        <div class="rep-title">${om}</div>
+        <div class="rep-sub">${p.sub}</div></div>
+        <div class="rep-body">${p.body}</div>
+        <div class="rep-foot">${_stampTxt()}</div>`;
+      host.appendChild(bloco);
+      canvas=await html2canvas(bloco,{scale:2, backgroundColor:'#FFFFFF', useCORS:true, windowWidth:width+40, windowHeight:(bloco.scrollHeight||800)+40, scrollX:0, scrollY:0});
+      pdfAddCanvasPaged(pdf, canvas, {orientation:'p', newPage:true});
+      host.removeChild(bloco);
+    }
+    pdf.save(`SISI_Relatorio_${_sanit(ods)}_${_hoje()}.pdf`);
+    if(btn) btn.textContent='✓ Relatório gerado';
+  }catch(err){ alert('Falha ao gerar o relatório: '+err.message); if(btn) btn.textContent='📄 Relatório do ODS (PDF)'; }
+  finally{
+    if(host&&host.parentNode) host.parentNode.removeChild(host);
+    if(btn){ btn.disabled=false; setTimeout(()=>{ btn.textContent='📄 Relatório do ODS (PDF)'; },2200); }
+  }
+}
+document.getElementById('btnRelOds').addEventListener('click',gerarRelatorioODS);
 
 // ---------- Export CSV ----------
 function downloadCSV(filename, headerArr, rows){
