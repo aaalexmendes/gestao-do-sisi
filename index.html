@@ -2199,6 +2199,14 @@
   .ods-report .rep-foot { padding:10px 24px 16px; font-family:'Roboto Mono',monospace; font-size:9px; letter-spacing:.08em; color:var(--gray-500); }
   #prazosTbody tr[data-om] { cursor:pointer; }
   #prazosTbody tr[data-om]:hover td { background: var(--gray-50); }
+  /* Evolução semanal */
+  .wk-delta { font-family:'Roboto Mono',monospace; font-size:11px; font-weight:600; white-space:nowrap; }
+  .wk-delta.up { color:var(--green); }
+  .wk-delta.down { color:var(--red); }
+  .wk-delta.flat, .wk-delta.novo { color:var(--gray-500); }
+  .kpi .kpi-sub .wk-delta { font-size:11px; }
+  td .wk-delta { font-size:11px; }
+  #evolSortCtl { margin-top:10px; }
   .mfin-lbl {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 10px;
@@ -3216,6 +3224,29 @@
     </div>
     <div class="kpi-grid" id="exec-kpis"></div>
 
+    <section class="charts-row r-1" id="secEvolucao" style="display:none;">
+      <div class="chart-card">
+        <h3>Evolução Semanal &#183; variação vs. semana anterior<span class="info-ico" tabindex="0" data-tip="Compara a semana atual (último upload) com a semana anterior, por OM. 'Δ Crédito Liberado' = variação do total descentralizado à OM (disponível + bloqueado + empenhos a liquidar) — quanto de crédito novo entrou. 'Δ Empenhos a Liquidar' = variação dos empenhos ainda não liquidados (aumenta com novos empenhos, diminui com liquidações). O percentual é sobre o valor da semana anterior. Respeita os filtros de OM/ND/ODS.">i</span></h3>
+        <div class="chart-sub" id="evolSub">envie duas semanas de execução (dois uploads) para ver a variação</div>
+        <div id="evolKpis" class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin:14px 0 4px;"></div>
+        <div class="sort-ctl" id="evolSortCtl" style="display:none;">ordenar por:
+          <span class="sort-lbl active" data-evolsort="libD">Δ Crédito Liberado</span>
+          <span class="sort-lbl" data-evolsort="ealD">Δ Empenhos a Liquidar</span>
+          <span class="sort-lbl" data-evolsort="om">OM</span>
+        </div>
+        <div class="table-wrap" id="evolTableWrap" style="max-height:520px;display:none;">
+          <table style="min-width:920px;" id="evolTable">
+            <thead><tr>
+              <th>OM (UGR)</th>
+              <th class="num">Liberado ant.</th><th class="num">Liberado atual</th><th class="num">&#916; Liberado</th>
+              <th class="num">Emp. Liq. ant.</th><th class="num">Emp. Liq. atual</th><th class="num">&#916; Emp. Liq.</th>
+            </tr></thead>
+            <tbody id="evolTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <h2 class="section-title"><span>Movimento e Execução do Crédito</span><span class="count" id="exec-sub-count"></span></h2>
     <section class="charts-row r-21">
       <div class="chart-card">
@@ -3677,7 +3708,7 @@
 <footer>
   <span>Acompanhamento da Execução do Projeto SISI</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.17 &#183; 17/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">v1.18 &#183; 18/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -3909,6 +3940,38 @@ DATA.execUGE = DATA.execUGE || {};
 
 // ---------- Prazos de liquidação dos empenhos (planilha Acompanhamento SISI_3_Prazos) ----------
 const PRAZOS_ND = { '339030':60, '449052':60, '339039':90 }; // dias, contados da emissão do empenho
+
+// ---------- Semana anterior (execução) p/ variação semanal ----------
+DATA.executionPrev = DATA.executionPrev || {};
+DATA.execMeta = DATA.execMeta || {};
+(function loadExecPrev2026(){
+  try{
+    const raw = localStorage.getItem('sisi_exec_2026_prev_v1');
+    if(raw){ const o=JSON.parse(raw); if(o && Array.isArray(o.rows)){ DATA.executionPrev['2026']=o.rows; DATA.execMeta.prev=o; } }
+    const rawc = localStorage.getItem('sisi_exec_2026_v1');
+    if(rawc){ const o=JSON.parse(rawc); DATA.execMeta.cur=o; }
+  }catch(e){ /* ignora */ }
+})();
+// Agrega uma lista bruta de execução 2026 por (OM,ND), no mesmo formato do execRows.
+function aggExecRaw(raw){
+  const map={};
+  (raw||[]).forEach(r=>{ const k=r.om+'|'+r.nd;
+    const o=map[k]||(map[k]={om:r.om,nd:r.nd,ods:odsOf(r.om),disponivel:0,bloqueado:0,emp_a_liquidar:0});
+    o.disponivel+=(r.credito_disponivel||0); o.bloqueado+=(r.credito_bloqueado||0); o.emp_a_liquidar+=(r.empenhos_a_liquidar||0); });
+  return Object.values(map);
+}
+function execRowsPrev2026(){ return filterRows(aggExecRaw(DATA.executionPrev['2026']||[])); }
+function hasPrevWeek(){ return Array.isArray(DATA.executionPrev['2026']) && DATA.executionPrev['2026'].length>0; }
+
+// Badge de variação: delta absoluto + % sobre a semana anterior (base=prev).
+function deltaBadge(delta, prev){
+  if(Math.abs(delta)<0.005) return '<span class="wk-delta flat">— sem variação</span>';
+  const up=delta>0, arrow=up?'▲':'▼', cls=up?'up':'down';
+  let pctTxt;
+  if(prev>0.005) pctTxt=fmtPct(Math.abs(delta)/prev*100,1);
+  else pctTxt='novo';
+  return `<span class="wk-delta ${cls}">${arrow} R$ ${fmtBRL0(Math.abs(delta))} · ${pctTxt}</span>`;
+}
 
 (function loadPrazos2026(){
   try{
@@ -4154,6 +4217,7 @@ function setExecChrome(mode){ if(_execChrome===mode) return; _execChrome=mode; (
 function setExecChromeLegacy(){
   { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display=''; }
   { const rb=document.getElementById('odsReportBar'); if(rb) rb.style.display='none'; }
+  { const se=document.getElementById('secEvolucao'); if(se) se.style.display='none'; }
   document.getElementById('execCard1H3').innerHTML='Funil de Execução'+ICO('Conversão do crédito ao longo das fases da despesa: do destaque líquido recebido até o pagamento, com o percentual de cada etapa sobre o destaque.');
   document.getElementById('execCard1Sub').innerHTML='Destaque líquido &#8594; Empenhado &#8594; Liquidado &#8594; Pago';
   document.getElementById('execCard2H3').innerHTML='Destaque Líquido por Natureza'+ICO('Participação de cada ND no total de destaque líquido recebido no período filtrado.');
@@ -4170,6 +4234,7 @@ function setExecChromeLegacy(){
 function setExecChrome2026(){
   { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display='none'; }
   { const rb=document.getElementById('odsReportBar'); if(rb) rb.style.display='flex'; }
+  { const se=document.getElementById('secEvolucao'); if(se) se.style.display=''; }
   document.getElementById('execCard1H3').innerHTML='Situação do Crédito · 2026'+ICO('No exercício corrente, a planilha semanal traz a situação do crédito: disponível, bloqueado para controle interno e empenhos ainda a liquidar.');
   document.getElementById('execCard1Sub').innerHTML='Crédito Disponível · Bloqueado · Empenhos a Liquidar';
   document.getElementById('execCard2H3').innerHTML='Crédito Disponível por Natureza'+ICO('Participação de cada ND no total de crédito disponível no período filtrado.');
@@ -4205,8 +4270,8 @@ function renderExec2026(rows){
     kpi('kpi-apr','Aprovado · 2026',apr,'descentralizado para o ano','Crédito aprovado para o exercício de 2026: R$ 3.400.000 (valor fixado no planejamento do ano). Com filtros de OM/ODS ativos, mostra a soma do aprovado das OMs filtradas.') +
     kpi('kpi-disp','Disponível na OM · p/ uso', sp.hasUGE?sp.outra:disp, sp.hasUGE?'em UGE que não é a DIREF':'total — envie a planilha p/ separar','Crédito disponível que está em UGE diferente da DIREF: efetivamente na OM/executora, pronto para uso pela UGR.') +
     kpi('kpi-rec','Disponível na DIREF · a descentralizar', sp.hasUGE?sp.diref:0, sp.hasUGE?'descentralizar antes do uso':'requer upload da planilha','Crédito disponível retido na UGE DIREF: precisa ser descentralizado para a UGR antes de poder ser utilizado.') +
-    kpi('kpi-warn','Crédito Bloqueado',blq,'controle interno','Crédito bloqueado para controle interno — indisponível para empenho no momento.') +
-    kpi('kpi-emp','Empenhos a Liquidar',eal,'obrigações pendentes','Empenhos já emitidos e ainda não liquidados — despesas a liquidar.');
+    kpi('kpi-warn','Crédito Bloqueado',blq, wkBlqSub(rows) || 'controle interno','Crédito bloqueado para controle interno — indisponível para empenho no momento. Quando há semana anterior, mostra a variação.') +
+    kpi('kpi-emp','Empenhos a Liquidar',eal, wkEalSub(rows) || 'obrigações pendentes','Empenhos já emitidos e ainda não liquidados. Quando há semana anterior, mostra a variação (aumenta com novos empenhos, diminui com liquidações).');
   document.getElementById('exec-sub-count').textContent=`${rows.length} combinação(ões) OM×ND · ${new Set(rows.map(r=>r.om)).size} OM(s)`;
   // "funil" reaproveitado como 3 barras de situação do crédito
   const stages=[{l:'Crédito Disponível',v:disp,c:'var(--fab-blue)',k:'disponivel'},{l:'Crédito Bloqueado',v:blq,c:'var(--gray-400)',k:'bloqueado'},{l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'}];
@@ -4226,6 +4291,7 @@ function renderExec2026(rows){
       <div class="nd-bar"><div class="nd-seg" style="width:${seg(x.disp)}%;background:var(--fab-blue)"></div><div class="nd-seg" style="width:${seg(x.blq)}%;background:var(--gray-400)"></div><div class="nd-seg" style="width:${seg(x.eal)}%;background:var(--fab-yellow-dark)"></div></div>
       <div class="nd-meta"><span>Disp.: R$ ${fmtBRL0(x.disp)}</span><span>Bloq.: R$ ${fmtBRL0(x.blq)}</span><span>A liquidar: R$ ${fmtBRL0(x.eal)}</span></div></div>`;
   }).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
+  renderEvolucao(rows);
   renderTopOms(rows);
   // tabela 2026
   const sorted=[...rows].sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
@@ -4330,6 +4396,92 @@ function renderEficiencia(rows){
       <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,(x[rs.key]/max)*100)}%;background:var(--green)"></div></div></div>`).join('')
     : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
 }
+
+function wkBlqSub(rows){
+  if(!hasPrevWeek()) return '';
+  const cur=rows.reduce((a,r)=>a+(r.bloqueado||0),0);
+  const prev=execRowsPrev2026().reduce((a,r)=>a+(r.bloqueado||0),0);
+  return 'vs. sem. ant.: '+deltaBadge(cur-prev, prev);
+}
+function wkEalSub(rows){
+  if(!hasPrevWeek()) return '';
+  const cur=rows.reduce((a,r)=>a+(r.emp_a_liquidar||0),0);
+  const prev=execRowsPrev2026().reduce((a,r)=>a+(r.emp_a_liquidar||0),0);
+  return 'vs. sem. ant.: '+deltaBadge(cur-prev, prev);
+}
+
+let evolSort={key:'libD',dir:'desc'};
+function renderEvolucao(rowsCur){
+  const sec=document.getElementById('secEvolucao'); if(!sec) return;
+  const sub=document.getElementById('evolSub');
+  const kdiv=document.getElementById('evolKpis');
+  const ctl=document.getElementById('evolSortCtl');
+  const twrap=document.getElementById('evolTableWrap');
+  const tb=document.getElementById('evolTbody');
+  if(!hasPrevWeek()){
+    if(kdiv) kdiv.innerHTML=''; if(ctl) ctl.style.display='none'; if(twrap) twrap.style.display='none';
+    if(sub) sub.textContent='Primeira semana carregada — a variação semanal aparece a partir do próximo upload da planilha de execução.';
+    return;
+  }
+  const prevRows=execRowsPrev2026();
+  const pMap={}; prevRows.forEach(r=>{ (pMap[r.om]=pMap[r.om]||{lib:0,eal:0,disp:0,blq:0});
+    pMap[r.om].lib+=(r.disponivel+r.bloqueado+r.emp_a_liquidar); pMap[r.om].eal+=r.emp_a_liquidar;
+    pMap[r.om].disp+=r.disponivel; pMap[r.om].blq+=r.bloqueado; });
+  const cMap={}; rowsCur.forEach(r=>{ (cMap[r.om]=cMap[r.om]||{lib:0,eal:0,disp:0,blq:0});
+    cMap[r.om].lib+=(r.disponivel+r.bloqueado+r.emp_a_liquidar); cMap[r.om].eal+=r.emp_a_liquidar;
+    cMap[r.om].disp+=r.disponivel; cMap[r.om].blq+=r.bloqueado; });
+  const oms=[...new Set([...Object.keys(pMap),...Object.keys(cMap)])];
+  const arr=oms.map(om=>{ const c=cMap[om]||{lib:0,eal:0,disp:0,blq:0}, p=pMap[om]||{lib:0,eal:0,disp:0,blq:0};
+    return {om, libCur:c.lib,libPrev:p.lib,libD:c.lib-p.lib, ealCur:c.eal,ealPrev:p.eal,ealD:c.eal-p.eal}; })
+    .filter(x=>Math.abs(x.libD)>=0.005 || Math.abs(x.ealD)>=0.005 || x.libCur>0.005 || x.libPrev>0.005);
+  // Totais
+  const tot=k=>arr.reduce((a,x)=>a+x[k],0);
+  const libC=tot('libCur'),libP=tot('libPrev'),ealC=tot('ealCur'),ealP=tot('ealPrev');
+  const dispC=rowsCur.reduce((a,r)=>a+r.disponivel,0), dispP=prevRows.reduce((a,r)=>a+r.disponivel,0);
+  if(kdiv) kdiv.innerHTML=
+    kpiDelta('Δ Crédito Liberado',libC-libP,libP,'total descentralizado') +
+    kpiDelta('Δ Disponível',dispC-dispP,dispP,'saldo disponível') +
+    kpiDelta('Δ Bloqueado',(libC-ealC-dispC)-(libP-ealP-dispP),(libP-ealP-dispP),'crédito bloqueado') +
+    kpiDelta('Δ Empenhos a Liquidar',ealC-ealP,ealP,'empenhos pendentes');
+  // meta de datas
+  const cm=DATA.execMeta&&DATA.execMeta.cur, pm=DATA.execMeta&&DATA.execMeta.prev;
+  const fdt=m=> m&&m.savedAt?new Date(m.savedAt).toLocaleDateString('pt-BR'):'—';
+  if(sub) sub.textContent=`Semana atual (${cm&&cm.sheet?cm.sheet+', ':''}${fdt(cm)}) vs. anterior (${pm&&pm.sheet?pm.sheet+', ':''}${fdt(pm)}) · ${arr.length} OM(s) com movimento`;
+  // ordenação + tabela
+  if(ctl) ctl.style.display='';
+  document.querySelectorAll('#evolSortCtl .sort-lbl').forEach(x=>x.classList.toggle('active', x.dataset.evolsort===evolSort.key));
+  const sorted=[...arr].sort((a,b)=>{ let d;
+    if(evolSort.key==='om') d=a.om.localeCompare(b.om,'pt-BR');
+    else d=Math.abs(b[evolSort.key])-Math.abs(a[evolSort.key]);
+    return evolSort.dir==='asc'?-d:d; });
+  const cell=(v)=>`<td class="num ${v?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(v)}</td>`;
+  const dcell=(d,p)=>`<td class="num">${deltaBadge(d,p)}</td>`;
+  if(twrap) twrap.style.display='';
+  if(tb) tb.innerHTML= sorted.length? sorted.map(x=>`<tr data-om="${x.om.replace(/"/g,'&quot;')}" title="Clique para abrir o painel da OM">
+    <td class="code">${x.om}</td>
+    ${cell(x.libPrev)}${cell(x.libCur)}${dcell(x.libD,x.libPrev)}
+    ${cell(x.ealPrev)}${cell(x.ealCur)}${dcell(x.ealD,x.ealPrev)}</tr>`).join('')
+    : `<tr><td colspan="7"><div class="empty-state" style="padding:14px"><p>Sem variação entre as duas semanas para os filtros atuais.</p></div></td></tr>`;
+}
+function kpiDelta(label, delta, prev, hint){
+  const up=Math.abs(delta)<0.005?null:delta>0;
+  const cls=up===null?'kpi-warn':(up?'kpi-rec':'kpi-emp');
+  const val=(delta>=0?'+':'−')+'R$ '+fmtBRL0(Math.abs(delta));
+  const pct=prev>0.005?` · ${up===null?'0%':fmtPct(Math.abs(delta)/prev*100,1)}`:(Math.abs(delta)>=0.005?' · novo':'');
+  return `<div class="kpi ${cls}"><div class="kpi-lbl">${label}</div>
+    <div class="kpi-val" style="font-size:22px">${val}</div>
+    <div class="kpi-sub">${hint}${pct}</div></div>`;
+}
+document.addEventListener('click',e=>{
+  const p=e.target.closest('#evolSortCtl .sort-lbl'); if(!p) return;
+  const k=p.dataset.evolsort;
+  if(evolSort.key===k) evolSort.dir=evolSort.dir==='desc'?'asc':'desc'; else { evolSort.key=k; evolSort.dir='desc'; }
+  renderEvolucao(filterRows(execRows('2026')));
+});
+// clique numa linha da evolução abre o painel da OM (reusa a delegação de prazos/exec)
+document.addEventListener('click',e=>{
+  const row=e.target.closest('#evolTbody tr[data-om]'); if(row && row.dataset.om) showOm(row.dataset.om);
+});
 
 function renderTopOms(rows){
   const m=state.omMetric;
@@ -4597,6 +4749,25 @@ function omPanel2026Data(om){
         rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.bloqueado)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td></tr>`).join('')+
         `</tbody></table></div>`
       : `<div class="empty-state" style="padding:14px"><p>Sem linhas de crédito para esta OM na planilha semanal atual.</p></div>`;
+    // Variação semanal por ND (só se houver semana anterior)
+    if(hasPrevWeek()){
+      const prevOm=aggExecRaw((DATA.executionPrev['2026']||[]).filter(r=>r.om===om));
+      const pMap={}; prevOm.forEach(r=>pMap[r.nd]=r);
+      const cMap={}; rows.forEach(r=>cMap[r.nd]=r);
+      const nds=[...new Set([...Object.keys(pMap),...Object.keys(cMap)])].sort((a,b)=>ndOrder(a,b));
+      const linhas=nds.map(nd=>{ const c=cMap[nd]||{disponivel:0,bloqueado:0,emp_a_liquidar:0}, p=pMap[nd]||{disponivel:0,bloqueado:0,emp_a_liquidar:0};
+        const libC=c.disponivel+c.bloqueado+c.emp_a_liquidar, libP=p.disponivel+p.bloqueado+p.emp_a_liquidar;
+        return {nd, libD:libC-libP, libP, ealD:c.emp_a_liquidar-p.emp_a_liquidar, ealP:p.emp_a_liquidar}; })
+        .filter(x=>Math.abs(x.libD)>=0.005 || Math.abs(x.ealD)>=0.005);
+      if(linhas.length){
+        const cm=DATA.execMeta&&DATA.execMeta.cur, pm=DATA.execMeta&&DATA.execMeta.prev;
+        const fdt=m=> m&&m.savedAt?new Date(m.savedAt).toLocaleDateString('pt-BR'):'—';
+        body+=`<div class="modal-solicitacoes-head" style="margin-top:20px"><h3>Variação vs. Semana Anterior</h3><span class="count">${fdt(pm)} → ${fdt(cm)}</span></div>`;
+        body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Δ Crédito Liberado</th><th class="num">Δ Empenhos a Liquidar</th></tr></thead><tbody>`+
+          linhas.map(x=>`<tr><td><span class="badge">${x.nd}</span></td><td class="num">${deltaBadge(x.libD,x.libP)}</td><td class="num">${deltaBadge(x.ealD,x.ealP)}</td></tr>`).join('')+
+          `</tbody></table></div>`;
+      }
+    }
     const rp2=DATA.rap.filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
     if(rp2.length){
       body+=`<div class="modal-solicitacoes-head" style="margin-top:20px"><h3>Restos a Pagar 2026</h3><span class="count">${rp2.length} ND</span></div>`;
@@ -5691,8 +5862,21 @@ function refresh(){
 
   function applyImport(){
     if(!pendingRows||!pendingRows.length){ alog('Não há dados válidos para aplicar.','err'); return; }
+    // ROLLOVER semanal: se já havia uma semana carregada e ela é DIFERENTE da nova,
+    // arquiva a atual como "semana anterior" para permitir a comparação de variação.
+    const novoJson=JSON.stringify(pendingRows);
+    const antigo=DATA.execution['2026'];
+    if(antigo && antigo.length && JSON.stringify(antigo)!==novoJson){
+      const prevMeta=loadMeta();
+      const prevSnap={rows:antigo, sheet:prevMeta.sheet||'', file:prevMeta.file||'', savedAt:prevMeta.savedAt||new Date().toISOString()};
+      DATA.executionPrev['2026']=antigo; DATA.execMeta.prev=prevSnap;
+      try{ localStorage.setItem('sisi_exec_2026_prev_v1', JSON.stringify(prevSnap)); }catch(e){}
+      alog(`Semana anterior arquivada para comparação (aba ${prevSnap.sheet||'?'}).`,'info');
+    }
     DATA.execution['2026']=pendingRows; DATA.movim['2026']=[]; DATA.execUGE['2026']=pendingUGE||[];
-    try{ localStorage.setItem(LS_KEY, JSON.stringify({rows:pendingRows, uge:(pendingUGE||[]), sheet:pendingSheet, file:fileName, savedAt:new Date().toISOString()})); }
+    const curSnap={rows:pendingRows, uge:(pendingUGE||[]), sheet:pendingSheet, file:fileName, savedAt:new Date().toISOString()};
+    DATA.execMeta.cur=curSnap;
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(curSnap)); }
     catch(e){ alog('Aviso: não foi possível salvar no navegador ('+e.message+'). Os dados valem só para esta sessão.','err'); }
     rebuildOmFilter(); rebuildOdsFilter(); update2026Status();
     alog(`Dados de 2026 aplicados e salvos (aba ${pendingSheet}, ${pendingRows.length} linhas).`,'ok');
@@ -5714,7 +5898,8 @@ function refresh(){
   }
   function clear2026(){
     delete DATA.execution['2026']; delete DATA.movim['2026']; if(DATA.execUGE) delete DATA.execUGE['2026'];
-    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    delete DATA.executionPrev['2026']; if(DATA.execMeta){ DATA.execMeta.cur=null; DATA.execMeta.prev=null; }
+    try{ localStorage.removeItem(LS_KEY); localStorage.removeItem('sisi_exec_2026_prev_v1'); }catch(e){}
     rebuildOmFilter(); rebuildOdsFilter(); update2026Status(); alog('Dados de 2026 removidos.','ok');
     if(state.ano==='2026'){ state.ano='2025';
       document.querySelectorAll('#yearSeg .year-btn').forEach(x=>x.classList.toggle('active',x.dataset.ano==='2025')); }
@@ -6111,9 +6296,14 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
       // O bin será convertido ao formato novo no próximo "Enviar dados ao JSONBin".
       blog('Bin em formato antigo detectado: ignorado (o planejamento embutido no HTML é usado). O próximo envio converte o bin ao formato novo.','info');
     }
+    const execPrev = (data.execPrev2026 && Array.isArray(data.execPrev2026.rows)) ? data.execPrev2026 : null;
+    if(execPrev){
+      DATA.executionPrev['2026']=execPrev.rows; DATA.execMeta.prev=execPrev;
+      try{ localStorage.setItem('sisi_exec_2026_prev_v1', JSON.stringify(execPrev)); }catch(e){}
+    }
     if(exec){
       if(remoteIsNewer(exec,'sisi_exec_2026_v1')){
-        DATA.execution['2026']=exec.rows; DATA.movim['2026']=[];
+        DATA.execution['2026']=exec.rows; DATA.movim['2026']=[]; DATA.execMeta.cur=exec;
         DATA.execUGE=DATA.execUGE||{}; DATA.execUGE['2026']=Array.isArray(exec.uge)?exec.uge:[];
         try{ localStorage.setItem('sisi_exec_2026_v1', JSON.stringify(exec)); }catch(e){}
         out.exec=true;
@@ -6235,7 +6425,8 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
     const payload={
       meta:{ projeto:'Acompanhamento da Execução do Projeto SISI', schema:3,
              atualizado_em:new Date().toISOString(), origem:(exec&&exec.file)||'' },
-      exec2026: exec, plan2026: planGz?null:plan, plan2026_gz: planGz, prazos2026: prazos
+      exec2026: exec, execPrev2026: (readLS('sisi_exec_2026_prev_v1')||null),
+      plan2026: planGz?null:plan, plan2026_gz: planGz, prazos2026: prazos
     };
     if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
     try{
