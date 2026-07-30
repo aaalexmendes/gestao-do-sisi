@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Unificado do Projeto SISI</title>
+<title>Painel de Gestão do Projeto SISI no COMAER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -3145,7 +3145,7 @@
       </div>
       <div class="brand-text">
         <div class="pretitle">Comando da Aeronáutica · Força Aérea Brasileira</div>
-        <h1>Painel Unificado do Projeto SISI</h1>
+        <h1>Painel de Gestão do Projeto SISI no COMAER</h1>
         <div class="subtitle">Execução do Exercício · Restos a Pagar · Gestão do Projeto (Anexo II do MCA 205-5)</div>
       </div>
     </div>
@@ -3693,10 +3693,10 @@
 
 <div class="manual-card">
 <h3>1 · O que é este painel</h3>
-<p>O <strong>Painel Unificado do Projeto SISI</strong> reúne, num só lugar, o acompanhamento financeiro
+<p>O <strong>Painel de Gestão do Projeto SISI no COMAER</strong> reúne, num só lugar, o acompanhamento financeiro
 (execução do exercício, movimento de crédito e Restos a Pagar — fonte: Tesouro Gerencial) e a
 <strong>gestão do projeto</strong> nas OMs (tarefas do Anexo II do MCA 205-5, registros com fotos e
-necessidades da POP-SISI). O acesso é individual, por senha, com três perfis:</p>
+necessidades do SISI). O acesso é individual, por senha, com três perfis:</p>
 <ul>
 <li><strong>Gestor (COMPREP)</strong> — vê tudo, administra usuários, dados e a janela de atualização anual.</li>
 <li><strong>ODS</strong> — vê os dados financeiros e de projeto <em>das OMs do próprio ODS</em>.</li>
@@ -3735,7 +3735,7 @@ prontas para relatórios e apresentações.</p>
 (ex.: "Portão 2", "Guarita Norte"); cada exemplar tem seu próprio lançamento e pode ser
 renomeado (✎) ou removido (×). Ocorrências com fotos ficam no botão "Ocorrências" de cada tarefa.</li>
 <li><strong>Registros</strong> — linha do tempo de avanços, problemas e observações, com fotos.</li>
-<li><strong>Necessidades (POP-SISI)</strong> — itens de necessidade por módulo e natureza de despesa.</li>
+<li><strong>Necessidades SISI</strong> — itens de necessidade por módulo e natureza de despesa.</li>
 <li><strong>Enviar ao servidor / Exportar pacote</strong> — envia seus dados ao consolidado
 (ou gera o arquivo .json para remessa, quando sem servidor).</li>
 </ul>
@@ -3848,6 +3848,9 @@ informados no ciclo anterior.</p>
   <button class="btn mini yellow hidden" id="btnEnviar" type="button">Enviar ao servidor</button>
   <button class="btn mini sec hidden" id="btnRecarregar" type="button">Recarregar do servidor</button>
   <button class="btn mini sec hidden" id="btnExportOm" type="button">Exportar pacote da OM (.json)</button>
+  <button class="btn mini sec hidden" id="btnRelPdf" type="button">Relatório (PDF)</button>
+  <button class="btn mini sec hidden" id="btnExpXlsx" type="button">Exportar Excel</button>
+  <button class="btn mini yellow hidden" id="btnGasEnviar" type="button">Enviar ao servidor</button>
   <button class="btn mini sec" id="btnSair" type="button">Trocar perfil</button>
 </div>
 
@@ -3855,7 +3858,7 @@ informados no ciclo anterior.</p>
   <button class="view-tab active" data-view="om-resumo" type="button">Resumo da OM</button>
   <button class="view-tab" data-view="om-tarefas" type="button">Tarefas (Anexo II)</button>
   <button class="view-tab" data-view="om-registros" type="button">Registros</button>
-  <button class="view-tab" data-view="om-nec" type="button">Necessidades (POP-SISI)</button>
+  <button class="view-tab" data-view="om-nec" type="button">Necessidades SISI</button>
 </nav>
 <nav class="view-tabs hidden" id="tabsGestor">
   <button class="view-tab active" data-view="g-panorama" type="button">Panorama FAB</button>
@@ -3897,8 +3900,8 @@ informados no ciclo anterior.</p>
     <h2 class="section-title"><span>Tarefas do Projeto SISI &#8212; Anexo II (GPAER)</span><span class="count" id="omTarCount"></span></h2>
     <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Lance o percentual realizado, o valor necess&#225;rio e o valor j&#225; empregado de cada tarefa. Marque <b>N/A</b> quando a tarefa n&#227;o se aplicar &#224; sua OM (ex.: OM sem paiol) &#8212; ela sai do c&#225;lculo da m&#233;dia. Use o bot&#227;o <b>Ocorr&#234;ncias</b> para registrar problemas e fotos direto na tarefa. As altera&#231;&#245;es s&#227;o guardadas automaticamente neste computador; use <b>Enviar ao servidor</b> para publicar.</p>
     <div class="chart-card" style="margin-bottom:22px">
-      <h3>Resumo financeiro por m&#243;dulo<span class="info-ico" tabindex="0" data-tip="Soma dos valores Necess&#225;rio e Empregado lan&#231;ados tarefa a tarefa nesta aba. Pode ser diferente do total planejado na aba Necessidades (POP-SISI), que &#233; o planejamento pr&#233;vio por item.">i</span></h3>
-      <div class="chart-sub">valores lan&#231;ados tarefa a tarefa &#183; pode diferir do planejamento POP-SISI</div>
+      <h3>Resumo financeiro por m&#243;dulo<span class="info-ico" tabindex="0" data-tip="Soma dos valores Necess&#225;rio e Empregado lan&#231;ados tarefa a tarefa nesta aba. Pode ser diferente do total planejado na aba Necessidades SISI, que &#233; o planejamento pr&#233;vio por item.">i</span></h3>
+      <div class="chart-sub">valores lan&#231;ados tarefa a tarefa &#183; pode diferir do planejamento de Necessidades SISI</div>
       <div id="tarFinResumo"></div>
     </div>
     <div class="wbs" id="wbsTree"></div>
@@ -3930,7 +3933,7 @@ informados no ciclo anterior.</p>
 
   <!-- ============ OM · NECESSIDADES ============ -->
   <div id="view-om-nec" class="hidden">
-    <h2 class="section-title"><span>Necessidades por m&#243;dulo &#8212; POP-SISI</span><span class="count" id="necCount"></span></h2>
+    <h2 class="section-title"><span>Necessidades SISI por m&#243;dulo</span><span class="count" id="necCount"></span></h2>
     <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Uma linha por item (bem, servi&#231;o ou obra), na hierarquia M&#243;dulo &#8594; Divis&#227;o &#8594; Parte/Local &#8594; Fase &#8594; Item. O valor total &#233; calculado automaticamente (quantidade &#215; valor unit&#225;rio).</p>
     <div class="subtot-grid" id="necSubtot"></div>
     <div class="table-wrap">
@@ -4032,7 +4035,7 @@ informados no ciclo anterior.</p>
 
   <!-- ============ GESTOR · NECESSIDADES ============ -->
   <div id="view-g-nec" class="hidden">
-    <h2 class="section-title"><span>Necessidades consolidadas &#8212; POP-SISI</span><span class="count" id="gNecCount"></span></h2>
+    <h2 class="section-title"><span>Necessidades SISI consolidadas</span><span class="count" id="gNecCount"></span></h2>
     <div class="kpi-grid" id="gNecKpis"></div>
     <section class="charts-row r-2">
       <div class="chart-card">
@@ -4140,9 +4143,9 @@ informados no ciclo anterior.</p>
 </div>
 
 <footer>
-  <span>Painel Unificado do Projeto SISI</span>
+  <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u1.9 &#183; 22/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.3 &#183; 30/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4228,6 +4231,23 @@ informados no ciclo anterior.</p>
             <button type="button" class="admin-btn" id="cicloAbrirBtn">Abrir preenchimento</button>
             <button type="button" class="admin-btn" id="cicloFecharBtn">Encerrar preenchimento</button>
           </div>
+        </div>
+        <div class="admin-section">
+          <h3>Integração Google Drive (Apps Script)</h3>
+          <p>Com o script instalado no seu Google Drive (arquivo <strong>Code.gs</strong> + instruções fornecidas),
+             cada OM ganha o botão <strong>"Enviar ao Google Drive"</strong>: os dados viram uma planilha por OM e as
+             fotos viram arquivos em uma pasta por OM, tudo no seu Drive. Cole aqui a URL do web app e o token
+             definidos na instalação e clique em Salvar; o botão "Enviar dados ao JSONBin" propaga a configuração
+             às OMs. Atenção: o token fica visível no bin (mesma trava de acesso do restante do painel).</p>
+          <div class="cred-form">
+            <input type="url" id="gasUrl" placeholder="URL do web app (https://script.google.com/macros/s/.../exec)" style="flex:2 1 320px">
+            <input type="text" id="gasToken" placeholder="Token" style="flex:1 1 140px">
+            <button type="button" class="admin-btn" id="gasSalvarBtn">Salvar</button>
+            <button type="button" class="admin-btn" id="gasTestarBtn">Testar conexão</button>
+            <button type="button" class="admin-btn" id="gasLiberarBtn">Liberar botão para as OMs</button>
+            <button type="button" class="admin-btn" id="gasRecolherBtn">Recolher botão</button>
+          </div>
+          <div id="gasStatus" class="cred-hint"></div>
         </div>
 
         <div class="admin-section">
@@ -6795,6 +6815,15 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
         }
       }catch(e){}
     }
+    if(data.gas && data.gas.url){
+      try{
+        const curG=JSON.parse(localStorage.getItem('sisi_gas_v1')||'null');
+        if(!curG || !curG.updatedAt || (data.gas.updatedAt && data.gas.updatedAt>curG.updatedAt)){
+          localStorage.setItem('sisi_gas_v1', JSON.stringify(data.gas));
+          if(window.__onGasApplied) window.__onGasApplied(data.gas);
+        }
+      }catch(e){}
+    }
     if(data.ciclo && data.ciclo.ano){
       try{
         const curC=JSON.parse(localStorage.getItem('sisi_ciclo_v1')||'null');
@@ -6961,6 +6990,7 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
              atualizado_em:new Date().toISOString(), origem:(exec&&exec.file)||'' },
       auth: (window.__authForPayload ? window.__authForPayload() : null),
       ciclo: (window.__cicloForPayload ? window.__cicloForPayload() : null),
+      gas: (window.__gasForPayload ? window.__gasForPayload() : null),
       exec2026: execGz?null:exec, exec2026_gz: execGz,
       execPrev2026: prevGz?null:execPrevRaw, execPrev2026_gz: prevGz,
       plan2026: planGz?null:plan, plan2026_gz: planGz,
@@ -7796,7 +7826,7 @@ body.entry-locked { overflow:hidden; }
 <div id="entryOverlay" style="display:none">
  <div class="uent-card">
   <div class="uent-pre">Comando da Aeronáutica · Força Aérea Brasileira</div>
-  <h2>Painel Unificado do Projeto SISI</h2>
+  <h2>Painel de Gestão do Projeto SISI no COMAER</h2>
   <div class="uent-sub">Identifique-se para acessar o painel</div>
   <div class="uent-btns">
     <button id="entBtnGestor" type="button">GESTOR<small>COMPREP</small></button>
@@ -8167,7 +8197,7 @@ function snapGauge(btn){
       g.fillStyle='#39424E'; g.font='400 22px Roboto, Arial, sans-serif';
       let y=H-104; subs.slice(0,3).forEach(t=>{ g.fillText(t.slice(0,84), 26, y); y+=30; });
       g.fillStyle='#8a93a0'; g.font='400 15px \"Roboto Mono\", monospace';
-      g.fillText('Painel Unificado do Projeto SISI \u00b7 '+new Date().toLocaleDateString('pt-BR'), 26, H-20);
+      g.fillText('Painel de Gestão do Projeto SISI no COMAER \u00b7 '+new Date().toLocaleDateString('pt-BR'), 26, H-20);
       const a=document.createElement('a');
       a.download=('velocimetro_'+lbl).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,60).toLowerCase()+'.jpg';
       a.href=c.toDataURL('image/jpeg',0.92);
@@ -8250,6 +8280,8 @@ function renderCtx(){
   el('btnEnviar').classList.toggle('hidden', !(perfil.tipo==='om'));
   el('btnRecarregar').classList.toggle('hidden', !(perfil.tipo==='om' && apiOn()));
   el('btnExportOm').classList.toggle('hidden', !(perfil.tipo==='om'));
+  ['btnRelPdf','btnExpXlsx'].forEach(function(id){ var b=el(id); if(b) b.classList.toggle('hidden', !(perfil.tipo==='om')); });
+  (function(){ var b=el('btnGasEnviar'); if(!b) return; var c=(typeof window!=='undefined'&&window.__gasCfg)||{}; b.classList.toggle('hidden', !(perfil.tipo==='om' && c.url && c.liberado)); })();
   el('hdrRef').textContent = perfil.tipo==='om'? perfil.om : perfil.tipo==='ods'? perfil.ods : 'GESTOR';
 }
 
@@ -8337,7 +8369,7 @@ function renderOmResumo(){
   el('omGauge').innerHTML = gaugeSVG(c.geral,false);
   el('omModBars').innerHTML = modBarsHtml(c.mods);
   el('omFinKpis').innerHTML =
-    kpiR('kpi-nec','Necess\u00e1rio (tarefas)', c.finNec, 'soma lan\u00e7ada tarefa a tarefa','Soma do valor necess\u00e1rio informado em cada tarefa do Anexo II. Pode diferir do total planejado na aba Necessidades (POP-SISI).')+
+    kpiR('kpi-nec','Necess\u00e1rio (tarefas)', c.finNec, 'soma lan\u00e7ada tarefa a tarefa','Soma do valor necess\u00e1rio informado em cada tarefa do Anexo II. Pode diferir do total planejado na aba Necessidades SISI.')+
     kpiR('kpi-emp','Empregado (tarefas)', c.finEmp, 'valor j\u00e1 utilizado nas tarefas')+
     kpiR(c.finSaldo<0?'kpi-warn':'kpi-liq','Saldo (tarefas)', c.finSaldo, c.finSaldo<0? 'excedeu o necess\u00e1rio lan\u00e7ado' : 'ainda dispon\u00edvel para as tarefas');
 }
@@ -8438,6 +8470,147 @@ function excluirRegistroById(id){
 function solucionarRegistroById(id){
   const r=omData.registros.find(r=>r.id===id);
   if(r){ r.tipo='solucionado'; saveLocalOm(); refresh(); }
+}
+
+// ===== Exportadores por OM (PDF / Excel / Google Drive) =====
+const LEAF_GRUPO={};
+WBS.forEach(m=>{ (m.filhos||[]).forEach(g=>{ if(g.filhos){ g.filhos.forEach(f=>LEAF_GRUPO[f.id]=g.nome||''); } else { LEAF_GRUPO[g.id]=''; } }); });
+function omExportData(d, sigla){
+  d=d||{}; const t=d.tarefas||{}; const c=calc(d);
+  const cicloAno=((typeof window!=='undefined'&&window.__cicloNec)||{}).ano||2027;
+  const modNome={}; WBS.forEach(m=>modNome[m.id]=m.curto);
+  const tarefas=leavesFor(d).map(lf=>{
+    const x=t[lf.id]||{};
+    return { modulo:modNome[lf.mod]||lf.mod, grupo:LEAF_GRUPO[lf.base||lf.id]||'', tarefa:lf.nome,
+      na:x.na?'Sim':'', pct:x.na?'':clampPct(x.pct||0),
+      nec:Number(x.nec)||0, emp:Number(x.emp)||0, saldo:(Number(x.nec)||0)-(Number(x.emp)||0),
+      necProx:Number(x['nec_'+cicloAno])||0 };
+  });
+  const registros=((d.registros)||[]).map(r=>({ data:r.data||'', tipo:r.tipo||'', titulo:r.titulo||'',
+    tarefa:(r.tarefaId? (leafByIdFor(d,r.tarefaId)||{}).nome||r.tarefaId : ''),
+    comentario:r.comentario||'', fotos:(r.fotos||[]).length }));
+  const necessidades=((d.necessidades)||[]).map(r=>({ modulo:r.modulo||'', categoria:r.categoria||'',
+    item:r.item||r.descricao||'', nd:r.nd||'', qtd:Number(r.qtd)||0, vunit:Number(r.vunit)||0,
+    total:(Number(r.qtd)||0)*(Number(r.vunit)||0), obs:r.obs||r.observacoes||'' }));
+  return { sigla:sigla||d.om||'', calc:c, cicloAno, tarefas, registros, necessidades };
+}
+function exportXlsxOm(d, sigla){
+  d=d||omData; sigla=sigla||(d&&d.om)||(perfil&&perfil.om)||'OM';
+  if(!d){ alert('Sem dados da OM para exportar.'); return; }
+  if(typeof XLSX==='undefined'||!XLSX.utils||!XLSX.writeFile){ alert('Biblioteca de planilhas indispon\u00edvel (verifique a internet).'); return; }
+  const ex=omExportData(d,sigla);
+  const wb=XLSX.utils.book_new();
+  const resumo=[['Painel de Gestão do Projeto SISI no COMAER'],['OM',ex.sigla],['Gerado em',new Date().toLocaleString('pt-BR')],[],
+    ['% geral',(ex.calc.geral||0).toFixed(1)+'%'],['Tarefas ativas',ex.calc.n],['N/A',ex.calc.na],
+    ['Necess\u00e1rio (R$)',ex.calc.finNec],['Empregado (R$)',ex.calc.finEmp],['Saldo (R$)',ex.calc.finSaldo],
+    ['Necess\u00e1rio '+ex.cicloAno+' (R$)',ex.calc.nec27||0],[],['M\u00f3dulo','%','Necess\u00e1rio','Empregado','Saldo']]
+    .concat(ex.calc.mods.map(m=>[m.nome,(m.pct||0).toFixed(1)+'%',m.nec,m.emp,m.saldo]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumo), 'Resumo');
+  const tHead=['M\u00f3dulo','Grupo','Tarefa','N/A','% realizado','Necess\u00e1rio (R$)','Empregado (R$)','Saldo (R$)','Necess\u00e1rio '+ex.cicloAno+' (R$)'];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([tHead].concat(ex.tarefas.map(r=>[r.modulo,r.grupo,r.tarefa,r.na,r.pct,r.nec,r.emp,r.saldo,r.necProx]))), 'Tarefas');
+  const rHead=['Data','Tipo','T\u00edtulo','Tarefa','Coment\u00e1rio','Fotos'];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([rHead].concat(ex.registros.map(r=>[r.data,r.tipo,r.titulo,r.tarefa,r.comentario,r.fotos]))), 'Registros');
+  const nHead=['M\u00f3dulo','Categoria','Item','ND','Qtd','V. unit (R$)','Total (R$)','Obs'];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([nHead].concat(ex.necessidades.map(r=>[r.modulo,r.categoria,r.item,r.nd,r.qtd,r.vunit,r.total,r.obs]))), 'Necessidades');
+  XLSX.writeFile(wb, 'SISI_'+String(ex.sigla).replace(/[^A-Za-z0-9_-]+/g,'_')+'.xlsx');
+  log('Excel da OM '+ex.sigla+' gerado.');
+}
+function buildRelatorioHtml(d, sigla){
+  const ex=omExportData(d,sigla);
+  const pct=x=>(Number(x)||0).toFixed(1).replace('.',',')+'%';
+  const brl=x=>'R$ '+fmtBRL2(Number(x)||0);
+  const rows=ex.tarefas.map(r=>'<tr><td>'+esc(r.modulo)+'</td><td>'+esc(r.grupo)+'</td><td>'+esc(r.tarefa)+'</td>'+
+    '<td class=\"c\">'+(r.na||'')+'</td><td class=\"c\">'+(r.na?'\u2014':pct(r.pct))+'</td>'+
+    '<td class=\"r\">'+brl(r.nec)+'</td><td class=\"r\">'+brl(r.emp)+'</td><td class=\"r\">'+brl(r.necProx)+'</td></tr>').join('');
+  const regs=((d&&d.registros)||[]).map(r=>{
+    const fts=(r.fotos||[]).map(f=>'<img src=\"'+(f.dataUrl||'')+'\">').join('');
+    return '<div class=\"reg\"><div class=\"reg-h\"><strong>'+esc(r.data||'')+'</strong> \u00b7 '+esc(r.tipo||'')+
+      (r.tarefaId?' \u00b7 '+esc((leafByIdFor(d,r.tarefaId)||{}).nome||''):'')+'</div>'+
+      (r.titulo?'<div class=\"reg-t\">'+esc(r.titulo)+'</div>':'')+
+      (r.comentario?'<div>'+esc(r.comentario)+'</div>':'')+
+      (fts?'<div class=\"reg-f\">'+fts+'</div>':'')+'</div>';
+  }).join('');
+  const necs=ex.necessidades.map(r=>'<tr><td>'+esc(r.modulo)+'</td><td>'+esc(r.item)+'</td><td class=\"c\">'+esc(r.nd)+'</td>'+
+    '<td class=\"c\">'+r.qtd+'</td><td class=\"r\">'+brl(r.vunit)+'</td><td class=\"r\">'+brl(r.total)+'</td></tr>').join('');
+  const mods=ex.calc.mods.map(m=>'<tr><td>'+esc(m.nome)+'</td><td class=\"c\">'+pct(m.pct)+'</td>'+
+    '<td class=\"r\">'+brl(m.nec)+'</td><td class=\"r\">'+brl(m.emp)+'</td><td class=\"r\">'+brl(m.saldo)+'</td></tr>').join('');
+  return '<!DOCTYPE html><html lang=\"pt-BR\"><head><meta charset=\"utf-8\"><title>Relat\u00f3rio SISI \u2014 '+esc(ex.sigla)+'</title><style>'+
+    'body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;padding:0}'+
+    '.hd{background:#002B5C;color:#fff;padding:18px 28px;border-bottom:4px solid #FFCC00}'+
+    '.hd h1{margin:0;font-size:20px;text-transform:uppercase}.hd .s{color:#cfd8e6;font-size:12px;margin-top:3px}'+
+    'main{padding:20px 28px}h2{color:#002B5C;font-size:15px;border-bottom:2px solid #FFCC00;padding-bottom:4px;margin:22px 0 10px}'+
+    'table{width:100%;border-collapse:collapse;font-size:11.5px}th,td{border:1px solid #ccd3dc;padding:5px 7px;text-align:left}'+
+    'th{background:#eef2f7;color:#002B5C}.c{text-align:center}.r{text-align:right}'+
+    '.kpis{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px}.kpis span{background:#eef2f7;border-left:3px solid #002B5C;padding:6px 10px}'+
+    '.reg{border:1px solid #ccd3dc;border-left:3px solid #FFCC00;padding:8px 12px;margin-bottom:8px;font-size:12px}'+
+    '.reg-h{color:#002B5C}.reg-t{font-weight:bold;margin:2px 0}'+
+    '.reg-f{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.reg-f img{max-width:180px;max-height:140px;border:1px solid #ccd3dc}'+
+    'footer{padding:14px 28px;color:#667;font-size:10.5px}'+
+    '@media print{.reg{page-break-inside:avoid}h2{page-break-after:avoid}}'+
+    '</style></head><body>'+
+    '<div class=\"hd\"><h1>Relat\u00f3rio do Projeto SISI \u2014 '+esc(ex.sigla)+'</h1>'+
+    '<div class=\"s\">Comando da Aeron\u00e1utica \u00b7 For\u00e7a A\u00e9rea Brasileira \u00b7 gerado em '+new Date().toLocaleString('pt-BR')+'</div></div><main>'+
+    '<h2>Resumo</h2><div class=\"kpis\"><span>% geral: <strong>'+pct(ex.calc.geral)+'</strong></span>'+
+    '<span>Tarefas ativas: '+ex.calc.n+'</span><span>N/A: '+ex.calc.na+'</span>'+
+    '<span>Necess\u00e1rio: '+brl(ex.calc.finNec)+'</span><span>Empregado: '+brl(ex.calc.finEmp)+'</span>'+
+    '<span>Saldo: '+brl(ex.calc.finSaldo)+'</span><span>Necess\u00e1rio '+ex.cicloAno+': '+brl(ex.calc.nec27||0)+'</span></div>'+
+    '<h2>M\u00f3dulos</h2><table><tr><th>M\u00f3dulo</th><th>%</th><th>Necess\u00e1rio</th><th>Empregado</th><th>Saldo</th></tr>'+mods+'</table>'+
+    '<h2>Tarefas (Anexo II do MCA 205-5)</h2><table><tr><th>M\u00f3dulo</th><th>Grupo</th><th>Tarefa</th><th>N/A</th><th>%</th><th>Necess\u00e1rio</th><th>Empregado</th><th>Nec. '+ex.cicloAno+'</th></tr>'+rows+'</table>'+
+    '<h2>Registros ('+((d&&d.registros)||[]).length+')</h2>'+(regs||'<p>Sem registros.</p>')+
+    '<h2>Necessidades SISI ('+ex.necessidades.length+')</h2>'+
+    (necs?'<table><tr><th>M\u00f3dulo</th><th>Item</th><th>ND</th><th>Qtd</th><th>V. unit</th><th>Total</th></tr>'+necs+'</table>':'<p>Sem itens.</p>')+
+    '</main><footer>Painel de Gestão do Projeto SISI no COMAER \u00b7 Documento de Controle Interno</footer></body></html>';
+}
+function relatorioPdfOm(d, sigla){
+  d=d||omData; sigla=sigla||(d&&d.om)||(perfil&&perfil.om)||'OM';
+  if(!d){ alert('Sem dados da OM.'); return; }
+  const html=buildRelatorioHtml(d, sigla);
+  const w=window.open('', '_blank');
+  if(!w){ alert('O navegador bloqueou a janela do relat\u00f3rio \u2014 permita pop-ups para este site.'); return; }
+  w.document.write(html); w.document.close();
+  try{ w.focus(); setTimeout(function(){ try{ w.print(); }catch(e){} }, 500); }catch(e){}
+  log('Relat\u00f3rio PDF da OM '+sigla+' aberto para impress\u00e3o.');
+}
+function buildGasPackage(d, sigla, ods){
+  const dd=JSON.parse(JSON.stringify(d||{}));
+  const fotos=[];
+  (dd.registros||[]).forEach(function(r){
+    (r.fotos||[]).forEach(function(f, ix){
+      const m=/^data:([^;]+);base64,(.+)$/.exec((f&&f.dataUrl)||'');
+      if(m){
+        const ext=m[1]==='image/png'?'.png':(m[1]==='image/webp'?'.webp':'.jpg');
+        const name=String(r.id||'reg').replace(/[^A-Za-z0-9_-]+/g,'')+'_'+(ix+1)+ext;
+        fotos.push({ name:name, mime:m[1], b64:m[2], registroId:r.id||'', data:r.data||'', titulo:r.titulo||'' });
+        r.fotos[ix]={ ref:name };
+      }
+    });
+  });
+  return { v:1, om:sigla, ods:ods||'', enviadoEm:new Date().toISOString(),
+           dados:dd, export:omExportData(d, sigla), fotos:fotos };
+}
+async function gasEnviar(){
+  const cfg=(typeof window!=='undefined'&&window.__gasCfg)||{};
+  if(!cfg.url){ alert('Envio ao servidor ainda n\u00e3o configurado pelo gestor.'); return; }
+  if(!cfg.liberado){ alert('O envio ao servidor ainda n\u00e3o foi liberado pelo gestor.'); return; }
+  if(!omData){ alert('Sem dados da OM.'); return; }
+  const sigla=(perfil&&perfil.om)||omData.om||'OM';
+  const ods=(roster[sigla]||{}).ods||'';
+  const pkg=buildGasPackage(omData, sigla, ods);
+  pkg.token=cfg.token||'';
+  const btn=el('btnGasEnviar'); if(btn){ btn.disabled=true; btn.textContent='Enviando\u2026'; }
+  log('Enviando ao Google Drive: '+pkg.fotos.length+' foto(s), '+Math.round(JSON.stringify(pkg).length/1024)+' KB.');
+  try{
+    const resp=await fetch(cfg.url, { method:'POST', body: JSON.stringify(pkg) });
+    const j=await resp.json().catch(function(){ return null; });
+    if(!resp.ok || !j || j.ok!==true) throw new Error((j&&j.erro)||('HTTP '+resp.status));
+    log('Google Drive OK \u2014 planilha: '+(j.sheetUrl||'?')+' \u00b7 pasta: '+(j.folderUrl||'?'));
+    alert('Enviado ao servidor!\\nPlanilha da OM: '+(j.sheetUrl||'(ver Drive)')+'\\nFotos novas: '+(j.fotosNovas!=null? j.fotosNovas : 'ok'));
+  }catch(e){
+    log('Falha no envio ao Google Drive: '+e.message);
+    alert('Falha no envio ao servidor: '+e.message);
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='Enviar ao servidor'; }
+  }
 }
 function tarefaOptions(selId){
   let h='<option value="">(sem tarefa espec\u00edfica)</option>';
@@ -8553,7 +8726,7 @@ function renderPanorama(){
     kpiN('kpi-disp','Implanta\u00e7\u00e3o SISI \u2014 FAB','<span>'+fmtPct(fab.geral,1)+'</span>','m\u00e9dia das OM com dados','M\u00e9dia simples do percentual geral das OM que j\u00e1 enviaram dados.')+
     kpiN('kpi-emp','OM com dados','<span>'+ativos.length+'</span>','de '+Object.keys(roster).length+' OM no rol')+
     kpiN(prob?'kpi-warn':'kpi-nec','Problemas em aberto','<span>'+prob+'</span>','registros tipo Problema nas OM')+
-    kpiR('kpi-apr','Necessidades informadas',nec,'soma das POP-SISI das OM','Soma do valor total das planilhas de necessidades enviadas pelas OM.');
+    kpiR('kpi-apr','Necessidades informadas',nec,'soma das Necessidades SISI das OM','Soma do valor total das planilhas de necessidades enviadas pelas OM.');
   el('gPanCount').textContent = ativos.length+' OM com dados \u00b7 '+Object.keys(roster).length+' no rol';
   el('gGaugeGeral').innerHTML = gaugeSVG(fab.geral,false);
   el('gGaugeGeralSub').textContent = 'm\u00e9dia de '+ativos.length+' OM';
@@ -8643,7 +8816,7 @@ function renderGOm(){
     '<div class="kpi-grid">'+
       kpiN('kpi-disp','Implanta\u00e7\u00e3o geral','<span>'+fmtPct(c.geral,1)+'</span>', c.conc+' conclu\u00eddas \u00b7 '+c.exec+' em execu\u00e7\u00e3o \u00b7 '+c.na+' N/A')+
       kpiN(c.probAb?'kpi-warn':'kpi-nec','Problemas em aberto','<span>'+c.probAb+'</span>','registros tipo Problema')+
-      kpiR('kpi-apr','Necessidades',c.necTot, nec.length+' item(ns) na POP-SISI')+
+      kpiR('kpi-apr','Necessidades',c.necTot, nec.length+' item(ns) em Necessidades SISI')+
       (((window.__cicloNec&&window.__cicloNec.aberto)||c.nec27>0)? kpiR('kpi-nec','Necess\u00e1rio '+((window.__cicloNec||{}).ano||2027), c.nec27||0, 'atualiza\u00e7\u00e3o anual das tarefas') : '')+
       kpiN('kpi-emp','\u00daltimo envio','<span style="font-size:16px">'+fmtDT(d.savedAt)+'</span>','')+
     '</div>'+
@@ -8656,6 +8829,8 @@ function renderGOm(){
       kpiR(c.finSaldo<0?'kpi-warn':'kpi-liq','Saldo (tarefas)', c.finSaldo, c.finSaldo<0? 'excedeu o necess\u00e1rio' : 'ainda dispon\u00edvel')+
     '</div>'+
     finTableHtml(c.mods, c.finNec, c.finEmp, c.finSaldo)+
+    '<div style="margin:12px 0"><button type="button" class="btn mini sec" data-omrel="'+esc(gOmAtual)+'">Relat\u00f3rio (PDF)</button> '+
+    '<button type="button" class="btn mini sec" data-omxlsx="'+esc(gOmAtual)+'">Exportar Excel</button></div>'+
     '<h2 class="section-title" style="margin-top:24px"><span>Registros de '+esc(gOmAtual)+'</span><span class="count">'+regs.length+' registro(s)</span></h2>'+
     (regs.length? regs.map(r=>regCardHtml(r,true,d)).join('') : '<div class="empty-state"><p>Sem registros.</p></div>')+
     '<h2 class="section-title" style="margin-top:24px"><span>Necessidades de '+esc(gOmAtual)+'</span><span class="count">'+nec.length+' item(ns)</span></h2>'+
@@ -8677,7 +8852,7 @@ function renderGNec(){
   const omsComNec={}; linhas.forEach(r=>omsComNec[r.om]=1);
   el('gNecKpis').innerHTML =
     kpiR('kpi-apr','Total das necessidades'+(travado?' \u2014 '+perfil.ods:''),tot,travado?'soma das OM do ODS':'soma de todas as OM')+
-    kpiN('kpi-emp','Itens lan\u00e7ados','<span>'+linhas.length+'</span>','linhas de POP-SISI')+
+    kpiN('kpi-emp','Itens lan\u00e7ados','<span>'+linhas.length+'</span>','linhas de Necessidades SISI')+
     kpiN('kpi-disp','OM com necessidades','<span>'+Object.keys(omsComNec).length+'</span>','de '+roscopo+(travado?' OM do ODS':' no rol'))+
     kpiR('kpi-nec','M\u00e9dia por OM', Object.keys(omsComNec).length? tot/Object.keys(omsComNec).length:0,'entre as OM que lan\u00e7aram');
   el('gNecCount').textContent=linhas.length+' item(ns) \u00b7 '+Object.keys(omsComNec).length+' OM'+(travado?' ('+perfil.ods+')':'');
@@ -8908,7 +9083,14 @@ function bind(){
   });
   el('gOdsSel').addEventListener('change',e=>{ gOdsAtual=e.target.value; renderGOds(); });
   el('gOmSel').addEventListener('change',e=>{ gOmAtual=e.target.value; renderGOm(); });
-  el('appMain').addEventListener('click',e=>{ const b=e.target.closest('[data-gsnap]'); if(b){ e.preventDefault(); e.stopPropagation(); snapGauge(b); } }, true);
+  el('appMain').addEventListener('click',e=>{
+    const b=e.target.closest('[data-gsnap]'); if(b){ e.preventDefault(); e.stopPropagation(); snapGauge(b); return; }
+    const rel=e.target.closest('[data-omrel]'); if(rel){ e.stopPropagation(); relatorioPdfOm(DB[rel.dataset.omrel], rel.dataset.omrel); return; }
+    const xls=e.target.closest('[data-omxlsx]'); if(xls){ e.stopPropagation(); exportXlsxOm(DB[xls.dataset.omxlsx], xls.dataset.omxlsx); return; }
+  }, true);
+  var _bp=el('btnRelPdf'); if(_bp) _bp.addEventListener('click',function(){ relatorioPdfOm(); });
+  var _bx=el('btnExpXlsx'); if(_bx) _bx.addEventListener('click',function(){ exportXlsxOm(); });
+  var _bg=el('btnGasEnviar'); if(_bg) _bg.addEventListener('click',function(){ gasEnviar(); });
   el('btnEntOds').addEventListener('click',()=>{ const o=el('entOdsSel').value; if(o) entrarOds(o, el('entSenhaOds').value); });
   el('entSenhaOds').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const o=el('entOdsSel').value; if(o) entrarOds(o, el('entSenhaOds').value); } });
 
@@ -8980,14 +9162,15 @@ async function enterAs(sess){
 }
 
 return { enterAs, refresh, sair, showView, getRoster:()=>roster, getPerfil:()=>perfil,
-  _test:{ addInstancia, renomearInstancia, removerInstancia, leavesFor, leafByIdFor, calc, getOmData:()=>omData } };
+  _test:{ addInstancia, renomearInstancia, removerInstancia, leavesFor, leafByIdFor, calc, getOmData:()=>omData,
+          omExportData, buildRelatorioHtml, buildGasPackage, exportXlsxOm, relatorioPdfOm, gasEnviar } };
 })();
 
 </script>
 <script id="unifiedScript">
 /* ============================================================
    CAMADA UNIFICADA — sessão, credenciais e escopo por perfil
-   Painel Unificado do Projeto SISI (Execução + Gestão do Projeto)
+   Painel de Gestão do Projeto SISI no COMAER (Execução + Gestão do Projeto)
    ============================================================ */
 (function(){
 'use strict';
@@ -9234,6 +9417,49 @@ async function entEntrar(){
   configureProfile(sess);
 }
 
+/* ---------- Integração Google Drive (Apps Script) ---------- */
+var LS_GAS='sisi_gas_v1';
+function getGas(){
+  try{ var v=JSON.parse(localStorage.getItem(LS_GAS)||'null');
+       if(v && v.url) return v; }catch(e){}
+  return { url:'', token:'', updatedAt:null };
+}
+function setGas(cfg){
+  cfg.updatedAt=new Date().toISOString();
+  try{ localStorage.setItem(LS_GAS, JSON.stringify(cfg)); }catch(e){}
+  window.__gasCfg=cfg;
+  renderGasStatus();
+}
+window.__gasCfg=getGas();
+window.__gasForPayload=function(){ var c=getGas(); return c.url? c : null; };
+window.__onGasApplied=function(c){ window.__gasCfg=c; renderGasStatus(); };
+function refreshGasBtn(){
+  try{
+    var b=document.getElementById('btnGasEnviar'); if(!b) return;
+    var p=(window.PM&&PM.getPerfil&&PM.getPerfil())||null;
+    var c=getGas();
+    b.classList.toggle('hidden', !(p&&p.tipo==='om'&&c.url&&c.liberado));
+  }catch(e){}
+}
+function renderGasStatus(){
+  var s=el('gasStatus');
+  var c=getGas();
+  if(s){
+    s.textContent = !c.url
+      ? 'Não configurado — o botão "Enviar ao servidor" não aparece para as OMs.'
+      : (c.liberado
+        ? 'LIBERADO — as OMs estão vendo o botão "Enviar ao servidor".'
+        : 'Configurado, botão ainda NÃO liberado — as OMs não veem o botão.');
+    var lb=el('gasLiberarBtn'), rc=el('gasRecolherBtn');
+    if(lb) lb.style.display = (c.url && !c.liberado) ? '' : 'none';
+    if(rc) rc.style.display = (c.url && c.liberado) ? '' : 'none';
+    var iu=el('gasUrl'), it=el('gasToken');
+    if(iu && !iu.value) iu.value=c.url||'';
+    if(it && !it.value) it.value=c.token||'';
+  }
+  refreshGasBtn();
+}
+
 /* ---------- Janela anual de necessidades ---------- */
 var LS_CICLO='sisi_ciclo_v1';
 function getCiclo(){
@@ -9271,7 +9497,7 @@ function renderCicloStatus(){
 /* ---------- E-mail padrão de acesso ---------- */
 var MAIL_TPL_PADRAO =
 'Prezado(a) {POSTO} {NOME},\n\n'+
-'Segue o seu acesso ao Painel Unificado do Projeto SISI:\n\n'+
+'Segue o seu acesso ao Painel de Gestão do Projeto SISI no COMAER:\n\n'+
 'Endere\u00e7o: {LINK}\n'+
 'Perfil de acesso: {PERFIL}\n'+
 'Escopo: {ESCOPO}\n'+
@@ -9303,7 +9529,7 @@ function montarEmail(c, senha){
     .replace(/\{SENHA\}/g, senha||'')
     .replace(/\{LINK\}/g, link)
     .replace(/[ \t]+\n/g,'\n');
-  var subject='Acesso ao Painel do Projeto SISI'+(c.perfil!=='gestor'&&c.escopo? ' \u2014 '+c.escopo : '');
+  var subject='Acesso ao Painel de Gest\u00e3o do Projeto SISI'+(c.perfil!=='gestor'&&c.escopo? ' \u2014 '+c.escopo : '');
   return { to:(c.email||'').trim(), subject:subject, body:body };
 }
 function abrirEmail(c, senha){
@@ -9494,6 +9720,36 @@ function initUnified(){
             var s=genSenha(); el('credSenha').value=s; copiar(s);
             credNote('Senha gerada: '+s+' — copiada para a área de transferência. Cadastre o usuário e envie a senha a ele pelo canal oficial.');
           });
+          var gs=el('gasSalvarBtn');
+          if(gs){
+            gs.addEventListener('click',function(){
+              var url=el('gasUrl').value.trim(), tok=el('gasToken').value.trim();
+              if(url && !/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){
+                el('gasStatus').textContent='URL inválida — deve começar com https://script.google.com/'; return;
+              }
+              setGas({url:url, token:tok, liberado: !!url && !!getGas().liberado});
+              credNote(url? 'Integração salva. Use "Enviar dados ao JSONBin" para que as OMs recebam.' : 'Integração removida.');
+            });
+            el('gasLiberarBtn').addEventListener('click',function(){
+              var c=getGas();
+              if(!c.url){ el('gasStatus').textContent='Configure e salve a URL antes de liberar.'; return; }
+              c.liberado=true; setGas(c);
+              credNote('Botão "Enviar ao servidor" LIBERADO neste navegador. Clique em "Enviar dados ao JSONBin" para liberar para todas as OMs.');
+            });
+            el('gasRecolherBtn').addEventListener('click',function(){
+              var c=getGas(); c.liberado=false; setGas(c);
+              credNote('Botão recolhido neste navegador. Clique em "Enviar dados ao JSONBin" para propagar.');
+            });
+            el('gasTestarBtn').addEventListener('click',function(){
+              var c=getGas();
+              if(!c.url){ el('gasStatus').textContent='Informe e salve a URL antes de testar.'; return; }
+              el('gasStatus').textContent='Testando…';
+              fetch(c.url).then(function(r){ return r.json(); }).then(function(j){
+                el('gasStatus').textContent = (j && j.ok) ? 'Conexão OK — script respondendo.' : 'O endereço respondeu, mas não parece ser o script do SISI.';
+              }).catch(function(e){ el('gasStatus').textContent='Falha na conexão: '+e.message; });
+            });
+            renderGasStatus();
+          }
           var ca=el('cicloAbrirBtn'), cf=el('cicloFecharBtn');
           if(ca){
             ca.addEventListener('click',function(){
@@ -9552,7 +9808,7 @@ function initUnified(){
 if(document.readyState==='loading') window.addEventListener('DOMContentLoaded', initUnified);
 else initUnified();
 
-window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo,
+window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas,
   configureProfile:configureProfile, resolveOmNome:resolveOmNome, entPick:entPick, entEntrar:entEntrar, credAdd:credAdd };
 })();
 
