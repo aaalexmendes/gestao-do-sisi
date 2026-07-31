@@ -4145,7 +4145,7 @@ informados no ciclo anterior.</p>
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.4 &#183; 30/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.5 &#183; 31/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4173,6 +4173,7 @@ informados no ciclo anterior.</p>
           <button type="button" class="adm-tab" data-g="dados">Dados de 2026</button>
           <button type="button" class="adm-tab" data-g="ciclo">Ciclo e integrações</button>
           <button type="button" class="adm-tab" data-g="sync">Sincronização</button>
+          <button type="button" class="adm-tab" data-g="com">Comunicação</button>
         </div>
 
         <div class="admin-section" data-adm="acessos">
@@ -4239,6 +4240,37 @@ informados no ciclo anterior.</p>
             <textarea id="mailTplTxt" rows="14" style="width:100%; box-sizing:border-box; font:13px/1.5 'Roboto Mono',monospace; padding:10px; border:1px solid #c8cdd4"></textarea>
             <div class="cred-hint">O modelo fica salvo neste navegador.</div>
           </div>
+        </div>
+        <div class="admin-section" data-adm="com">
+          <h3>Aviso geral (pop-up para todos)</h3>
+          <p>O aviso <strong>ativo</strong> aparece como pop-up para todos os usuários a cada entrada no painel,
+             enquanto estiver ativo. Use para comunicar períodos (ex.: abertura do Necessário 2027), prazos e
+             orientações. Após criar, ativar ou desativar, publique em <strong>Sincronização → Enviar dados ao
+             JSONBin</strong>. Atenção: o conteúdo viaja pelo bin público — não inclua informações sigilosas.</p>
+          <div class="cred-form"><input type="text" id="avTitulo" placeholder="Título do aviso" style="flex:1 1 100%"></div>
+          <div class="cred-form"><textarea id="avTexto" rows="3" placeholder="Texto do aviso" style="flex:1 1 100%; padding:8px 9px; border:1px solid #c8cdd4; font:13px/1.5 'Roboto',sans-serif;"></textarea></div>
+          <div class="cred-form"><button type="button" class="admin-btn" id="avAddBtn">Cadastrar aviso (ativo)</button><span id="comNote" class="cred-note" style="flex:1 1 auto"></span></div>
+          <div id="avList"></div>
+        </div>
+        <div class="admin-section" data-adm="com">
+          <h3>Mensagem a usuário específico</h3>
+          <p>A mensagem aparece como pop-up apenas para o destinatário, a cada entrada, até ele clicar em
+             <strong>Ciente</strong>. A ciência (quem e quando) fica registrada no navegador do usuário e,
+             se o servidor (Apps Script) estiver configurado com a atualização do Code.gs desta versão,
+             também na planilha do servidor — consulte na seção abaixo. Publique em
+             <strong>Sincronização</strong> para entregar.</p>
+          <div class="cred-form"><select id="dmUser" style="flex:1 1 100%"></select></div>
+          <div class="cred-form"><textarea id="dmTexto" rows="3" placeholder="Ex.: Prezado, o relatório da sua OM ainda não foi entregue…" style="flex:1 1 100%; padding:8px 9px; border:1px solid #c8cdd4; font:13px/1.5 'Roboto',sans-serif;"></textarea></div>
+          <div class="cred-form"><button type="button" class="admin-btn" id="dmAddBtn">Registrar mensagem</button></div>
+          <div id="dmList"></div>
+        </div>
+        <div class="admin-section" data-adm="com">
+          <h3>Ciências registradas no servidor</h3>
+          <p>Consulta os registros de ciência gravados pelo Apps Script (rota "ciencias"). Requer a atualização
+             do <strong>Code.gs</strong> fornecida junto com esta versão do painel; sem servidor, a ciência fica
+             registrada apenas no navegador de cada usuário.</p>
+          <div class="cred-form"><button type="button" class="admin-btn" id="dmCienciasBtn">Consultar ciências no servidor</button></div>
+          <div id="dmCienciasList"></div>
         </div>
         <div class="admin-section" data-adm="ciclo">
           <h3>Janela de atualização anual (Necessário <span id="cicloAnoLbl">2027</span>)</h3>
@@ -6452,7 +6484,7 @@ function refresh(){
 
   $('adminFooterBtn').addEventListener('click',()=>{ $('adminModalBackdrop').classList.add('open'); update2026Status(); });
   $('adminModalCloseBtn').addEventListener('click',()=>$('adminModalBackdrop').classList.remove('open'));
-  $('adminModalBackdrop').addEventListener('click',e=>{ if(e.target===$('adminModalBackdrop')) $('adminModalBackdrop').classList.remove('open'); });
+  /* u2.5: o painel Admin fecha apenas pelo X ou pelo Sair — clique/seleção fora do cartão não fecha mais. */
   function tryLogin(){ if($('adminPasswordInput').value===ADMIN_PASSWORD){ $('adminLoginView').style.display='none'; $('adminPanelView').classList.add('open'); $('adminLogoutBtn').style.display=''; $('adminLoginError').classList.remove('show'); update2026Status(); }
     else { $('adminLoginError').classList.add('show'); } }
   $('adminLoginBtn').addEventListener('click',tryLogin);
@@ -6854,6 +6886,16 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
         }
       }catch(e){}
     }
+    if(data.msgs && (Array.isArray(data.msgs.avisos)||Array.isArray(data.msgs.diretas))){
+      try{
+        const curM=JSON.parse(localStorage.getItem('sisi_msgs_v1')||'null');
+        if(!curM || !curM.updatedAt || (data.msgs.updatedAt && data.msgs.updatedAt>curM.updatedAt)){
+          localStorage.setItem('sisi_msgs_v1', JSON.stringify(data.msgs));
+          if(window.__onMsgsApplied) window.__onMsgsApplied(data.msgs);
+          blog(`Comunicação atualizada a partir do bin (${(data.msgs.avisos||[]).length} aviso(s) · ${(data.msgs.diretas||[]).length} mensagem(ns)).`,'info');
+        }
+      }catch(e){}
+    }
     if(!data.exec2026 && typeof data.exec2026_gz==='string' && data.exec2026_gz){
       try{ const e=await gunzipJson(data.exec2026_gz); if(e) data.exec2026=e; }catch(e){}
     }
@@ -7011,6 +7053,7 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
       auth: (window.__authForPayload ? window.__authForPayload() : null),
       ciclo: (window.__cicloForPayload ? window.__cicloForPayload() : null),
       gas: (window.__gasForPayload ? window.__gasForPayload() : null),
+      msgs: (window.__msgsForPayload ? window.__msgsForPayload() : null),
       exec2026: execGz?null:exec, exec2026_gz: execGz,
       execPrev2026: prevGz?null:execPrevRaw, execPrev2026_gz: prevGz,
       plan2026: planGz?null:plan, plan2026_gz: planGz,
@@ -7846,7 +7889,37 @@ body.entry-locked { overflow:hidden; }
   font-family:'Roboto Condensed',sans-serif; font-size:13.5px; font-weight:600; letter-spacing:.03em; border-radius:3px; }
 .adm-tab:hover{ background:#eaf0f8; }
 .adm-tab.active{ background:#002B5C; border-color:#002B5C; color:#fff; }
+/* ===== u2.5 — Admin sem rolagem horizontal ===== */
+.admin-modal{ max-width:min(1040px,96vw); overflow-x:hidden; }
+.admin-modal-body{ overflow-x:hidden; }
+.cred-table td{ word-break:break-word; overflow-wrap:anywhere; }
+.cred-acoes{ white-space:normal; display:flex; flex-wrap:wrap; gap:4px; min-width:112px; }
+.cred-acoes .admin-btn{ padding:4px 8px; font-size:11px; }
+th.cred-sort{ cursor:pointer; user-select:none; white-space:nowrap; }
+th.cred-sort:hover{ color:#002B5C; }
+/* ===== u2.5 — Pop-up de boas-vindas / avisos / mensagens ===== */
+#msgOverlay{ display:none; position:fixed; inset:0; background:rgba(0,26,61,.62); z-index:9600;
+  align-items:center; justify-content:center; padding:20px; }
+.msg-pop{ background:#fff; border-top:4px solid #FFCC00; border-radius:4px; max-width:560px; width:100%;
+  box-shadow:0 10px 40px rgba(0,0,0,.35); font-family:'Roboto',sans-serif; overflow:hidden; }
+.msg-pop-head{ background:#002B5C; color:#fff; padding:12px 18px 0; display:flex; justify-content:space-between; align-items:center; }
+.msg-pop-tag{ font:600 10px/1 'Roboto Mono',monospace; letter-spacing:.12em; color:#FFCC00; text-transform:uppercase; }
+.msg-pop-count{ font:11px 'Roboto Mono',monospace; color:rgba(255,255,255,.8); }
+.msg-pop-titlebar{ background:#002B5C; color:#fff; padding:6px 18px 14px; }
+.msg-pop-titlebar h4{ margin:0; font-family:'Roboto Condensed',sans-serif; font-size:17px; letter-spacing:.04em; }
+.msg-pop-body{ padding:16px 18px; font-size:14px; line-height:1.55; color:#39424E; white-space:pre-wrap; max-height:50vh; overflow-y:auto; }
+.msg-pop-foot{ padding:0 18px 16px; text-align:right; }
+
 </style>
+
+<div id="msgOverlay">
+ <div class="msg-pop">
+  <div class="msg-pop-head"><span class="msg-pop-tag" id="msgPopTag"></span><span class="msg-pop-count" id="msgPopCount"></span></div>
+  <div class="msg-pop-titlebar"><h4 id="msgPopTitle"></h4></div>
+  <div class="msg-pop-body" id="msgPopBody"></div>
+  <div class="msg-pop-foot"><button type="button" class="admin-btn" id="msgPopBtn">Fechar</button></div>
+ </div>
+</div>
 
 <div id="entryOverlay" style="display:none">
  <div class="uent-card">
@@ -9309,13 +9382,13 @@ function resolveOmNome(sigla){
 /* ---------- Validação de login ---------- */
 function validate(tipo, escopo, senha){
   if(!senha) return null;
-  if(senha===MASTER_PASS) return { via:'master', rotulo:'Senha mestra' };
+  if(senha===MASTER_PASS) return { via:'master', rotulo:'Senha mestra', uid:null, nome:'', posto:'' };
   var creds=authGet().credenciais;
   for(var i=0;i<creds.length;i++){
     var c=creds[i];
     if(sha256Hex(String(c.salt||'')+senha)!==c.hash) continue;
-    if(c.perfil==='gestor') return { via:'credencial', rotulo:c.rotulo };            // gestor abre qualquer perfil
-    if(c.perfil===tipo && norm(c.escopo)===norm(escopo)) return { via:'credencial', rotulo:c.rotulo };
+    if(c.perfil==='gestor') return { via:'credencial', rotulo:c.rotulo, uid:c.uid||null, nome:c.nome||'', posto:c.posto||'' }; // gestor abre qualquer perfil
+    if(c.perfil===tipo && norm(c.escopo)===norm(escopo)) return { via:'credencial', rotulo:c.rotulo, uid:c.uid||null, nome:c.nome||'', posto:c.posto||'' };
   }
   return null;
 }
@@ -9375,6 +9448,7 @@ function configureProfile(sess){
     PM.enterAs({ tipo:sess.tipo, om:sess.om, ods:sess.ods });
   }
   refresh();
+  try{ showEntryPopups(sess); }catch(e){}
 }
 
 window.__logoutUnificado = function(){
@@ -9436,7 +9510,7 @@ async function entEntrar(){
   var ok=validate(entTipo, escopo, senha);
   if(!ok){ msg.textContent='Senha não reconhecida para este perfil/escopo.'; return; }
   msg.textContent='';
-  var sess={ tipo:entTipo, rotulo:ok.rotulo, em:new Date().toISOString() };
+  var sess={ tipo:entTipo, rotulo:ok.rotulo, uid:ok.uid||null, nome:ok.nome||'', posto:ok.posto||'', em:new Date().toISOString() };
   if(entTipo==='ods') sess.ods=escopo;
   if(entTipo==='om'){ sess.om=escopo; sess.omNome=resolveOmNome(escopo); }
   configureProfile(sess);
@@ -9626,6 +9700,17 @@ function credUserLabel(c){
   var n=(c.nome||c.rotulo||'(sem nome)');
   return (c.posto? c.posto+' ' : '')+n;
 }
+var credSort={ key:'nome', dir:1 };
+function credSortVal(c,key){
+  switch(key){
+    case 'nome': return norm(c.nome||c.rotulo||'');
+    case 'om': return norm(c.omUser||'');
+    case 'contato': return norm((c.email||'')+' '+(c.tel||''));
+    case 'acesso': return norm(String(c.perfil||'')+' '+(c.escopo||''));
+    case 'quando': return String(c.alteradoEm||c.criadoEm||'');
+    default: return '';
+  }
+}
 function renderCredList(){
   var box=el('credList'); if(!box) return;
   var creds=authGet().credenciais;
@@ -9635,26 +9720,54 @@ function renderCredList(){
     var c=r.c;
     return norm([c.nome,c.rotulo,c.posto,c.omUser,c.tel,c.email,c.perfil,c.escopo].join(' ')).indexOf(q)>=0;
   });
-  if(!creds.length){ box.innerHTML='<div class="cred-hint">Nenhum usuário cadastrado. A senha mestra continua válida como Gestor.</div>'; return; }
+  if(!creds.length){
+    box.innerHTML='<div class="cred-hint">Nenhum usuário cadastrado. A senha mestra continua válida como Gestor.</div>';
+    try{ comUsersRefresh(); }catch(e){}
+    return;
+  }
   if(!vis.length){ box.innerHTML='<div class="cred-hint">Nenhum usuário corresponde à busca.</div>'; return; }
+  vis.sort(function(a,b){
+    var va=credSortVal(a.c,credSort.key), vb=credSortVal(b.c,credSort.key);
+    var r = va<vb ? -1 : (va>vb ? 1 : 0);
+    if(r===0){ var na=norm(a.c.nome||a.c.rotulo||''), nb=norm(b.c.nome||b.c.rotulo||''); r = na<nb? -1 : (na>nb? 1:0); }
+    return r*credSort.dir;
+  });
+  function th(key,label){
+    var arr = credSort.key===key ? (credSort.dir>0?' \u25B2':' \u25BC') : '';
+    return '<th class="cred-sort" data-k="'+key+'" title="Clique para ordenar">'+label+arr+'</th>';
+  }
   var rows=vis.map(function(r){
     var c=r.c, i=r.i;
-    var acesso=c.perfil.toUpperCase()+(c.perfil==='gestor'?'':' · '+(c.escopo||'—'));
+    var acesso=String(c.perfil||'').toUpperCase()+(c.perfil==='gestor'?'':' \u00b7 '+(c.escopo||'\u2014'));
     var contato=[c.tel,c.email].filter(Boolean).join('<br>');
     var quando=(c.alteradoEm||c.criadoEm||'').slice(0,10);
-    return '<tr><td><strong>'+credUserLabel(c)+'</strong>'+(c.omUser?'<br><small>'+c.omUser+'</small>':'')+'</td>'+
-      '<td>'+(contato||'—')+'</td>'+
+    return '<tr><td><strong>'+credUserLabel(c)+'</strong></td>'+
+      '<td>'+(c.omUser||'\u2014')+'</td>'+
+      '<td>'+(contato||'\u2014')+'</td>'+
       '<td>'+acesso+'</td>'+
       '<td>'+quando+'</td>'+
       '<td class="cred-acoes">'+
-        '<button type="button" class="admin-btn cred-edit" data-i="'+i+'">Editar</button> '+
-        '<button type="button" class="admin-btn cred-reset" data-i="'+i+'">Redefinir senha</button> '+
+        '<button type="button" class="admin-btn cred-edit" data-i="'+i+'">Editar</button>'+
+        '<button type="button" class="admin-btn cred-mail" data-i="'+i+'" title="Gera nova senha e prepara o e-mail de acesso">Reenviar e-mail</button>'+
+        '<button type="button" class="admin-btn cred-reset" data-i="'+i+'">Nova senha</button>'+
         '<button type="button" class="admin-btn cred-del" data-i="'+i+'">Remover</button></td></tr>';
   }).join('');
-  box.innerHTML='<table class="cred-table"><thead><tr><th>Usuário / OM</th><th>Contato</th><th>Acesso</th><th>Senha em</th><th>Ações</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<div class="cred-hint">'+vis.length+' de '+creds.length+' usuário(s). Alterações só valem nos demais navegadores após "Enviar dados ao JSONBin".</div>';
+  box.innerHTML='<table class="cred-table"><thead><tr>'+
+      th('nome','Usu\u00e1rio')+th('om','OM')+th('contato','Contato')+th('acesso','Acesso')+th('quando','Senha em')+'<th>A\u00e7\u00f5es</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="cred-hint">'+vis.length+' de '+creds.length+' usu\u00e1rio(s) \u00b7 ordenado por '+credSort.key+' ('+(credSort.dir>0?'A\u2192Z':'Z\u2192A')+'). Altera\u00e7\u00f5es s\u00f3 valem nos demais navegadores ap\u00f3s "Enviar dados ao JSONBin".</div>';
+  box.querySelectorAll('.cred-sort').forEach(function(h){
+    h.addEventListener('click',function(){
+      var k=h.dataset.k;
+      if(credSort.key===k) credSort.dir=-credSort.dir; else { credSort.key=k; credSort.dir=1; }
+      renderCredList();
+    });
+  });
   box.querySelectorAll('.cred-edit').forEach(function(b){
     b.addEventListener('click',function(){ credEditar(+b.dataset.i); });
+  });
+  box.querySelectorAll('.cred-mail').forEach(function(b){
+    b.addEventListener('click',function(){ credReenviar(+b.dataset.i); });
   });
   box.querySelectorAll('.cred-reset').forEach(function(b){
     b.addEventListener('click',function(){ credReset(+b.dataset.i); });
@@ -9667,9 +9780,10 @@ function renderCredList(){
       if(!confirm('Remover o acesso de "'+credUserLabel(c)+'"?')) return;
       st.credenciais.splice(i,1); authSet(st);
       if(credEditIdx===i) credCancelar();
-      credNote('Usuário removido. Use "Enviar dados ao JSONBin" para propagar.');
+      credNote('Usu\u00e1rio removido. Use "Enviar dados ao JSONBin" para propagar.');
     });
   });
+  try{ comUsersRefresh(); }catch(e){}
 }
 function credNote(t){ var n=el('credNote'); if(n) n.textContent=t; }
 function credReset(i){
@@ -9896,7 +10010,285 @@ function initUnified(){
 if(document.readyState==='loading') window.addEventListener('DOMContentLoaded', initUnified);
 else initUnified();
 
-window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas, admShowGroup:admShowGroup,
+/* ============================================================
+   u2.5 — Comunicação (avisos, mensagens diretas, ciência),
+   boas-vindas diárias e utilidades de reenvio de e-mail
+   ============================================================ */
+var LS_MSGS='sisi_msgs_v1', LS_CIENCIA='sisi_ciencia_v1', LS_WELCOME='sisi_welcome_v1';
+function msgsGet(){
+  try{ var v=JSON.parse(localStorage.getItem(LS_MSGS)||'null');
+       if(v && (Array.isArray(v.avisos)||Array.isArray(v.diretas)))
+         return { avisos:v.avisos||[], diretas:v.diretas||[], updatedAt:v.updatedAt||null }; }catch(e){}
+  return { avisos:[], diretas:[], updatedAt:null };
+}
+function msgsSet(st){
+  st.updatedAt=new Date().toISOString();
+  try{ localStorage.setItem(LS_MSGS, JSON.stringify(st)); }catch(e){}
+  renderAvList(); renderDmList();
+}
+window.__msgsForPayload=function(){ var m=msgsGet(); return (m.avisos.length||m.diretas.length||m.updatedAt)? m : null; };
+window.__onMsgsApplied=function(m){
+  renderAvList(); renderDmList();
+  try{ if(window.SESS) showEntryPopups(window.SESS); }catch(e){}
+};
+function msgId(){ return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function cienciasGet(){
+  try{ var v=JSON.parse(localStorage.getItem(LS_CIENCIA)||'null'); if(Array.isArray(v)) return v; }catch(e){}
+  return [];
+}
+function cienciaLocal(id){ return cienciasGet().some(function(c){ return c.msgId===id; }); }
+function darCiencia(m){
+  var lst=cienciasGet();
+  if(!lst.some(function(c){ return c.msgId===m.id; })) lst.push({ msgId:m.id, quando:new Date().toISOString() });
+  try{ localStorage.setItem(LS_CIENCIA, JSON.stringify(lst)); }catch(e){}
+  /* Registro no servidor (Apps Script), quando configurado. Sem servidor, a
+     ciência fica apenas neste navegador (informado ao gestor na Área Admin). */
+  try{
+    var cfg=(window.__gasCfg)||{};
+    if(cfg.url && typeof fetch!=='undefined'){
+      var s=window.SESS||{};
+      fetch(cfg.url,{ method:'POST', body: JSON.stringify({
+        rota:'ciencia', token:cfg.token||'', msgId:m.id,
+        texto:String(m.texto||'').slice(0,200),
+        usuario:s.rotulo||'', perfil:s.tipo||'', escopo:s.ods||s.om||'',
+        quando:new Date().toISOString() }) })
+      .then(function(r){ return r.json(); })
+      .then(function(j){ if(!j||j.ok!==true) console.warn('Ciência não registrada no servidor:', j&&j.erro); })
+      .catch(function(e){ console.warn('Ciência: servidor indisponível ('+e.message+') — registrada apenas neste navegador.'); });
+    }
+  }catch(e){}
+}
+
+/* ---------- Pop-ups de entrada ---------- */
+var _popupShownThisLoad={};
+function saudacao(d){ var h=d.getHours(); return h<12?'Bom dia':(h<18?'Boa tarde':'Boa noite'); }
+function dataPorExtenso(d){
+  try{ return d.toLocaleDateString('pt-BR',{ weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
+  catch(e){ try{ return d.toLocaleDateString('pt-BR'); }catch(_){ return String(d); } }
+}
+function welcomeDevido(sess){
+  var key=norm(sess.rotulo||sess.tipo||'?');
+  var hoje=(function(){ var d=new Date(); var p=function(n){return (n<10?'0':'')+n;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); })();
+  var reg={};
+  try{ reg=JSON.parse(localStorage.getItem(LS_WELCOME)||'{}')||{}; }catch(e){}
+  if(reg[key]===hoje) return false;
+  reg[key]=hoje;
+  try{ localStorage.setItem(LS_WELCOME, JSON.stringify(reg)); }catch(e){}
+  return true;
+}
+function diretasPara(sess){
+  var m=msgsGet();
+  return m.diretas.filter(function(d){
+    if(!d.ativo) return false;
+    var t=d.destino||{};
+    if(t.uid && sess.uid) return t.uid===sess.uid;
+    if(t.rotulo && sess.rotulo && norm(t.rotulo)===norm(sess.rotulo)){
+      if(t.perfil && sess.tipo && t.perfil!==sess.tipo) return false;
+      return true;
+    }
+    return false;
+  }).filter(function(d){ return !cienciaLocal(d.id); });
+}
+function showEntryPopups(sess){
+  if(!sess) return;
+  var fila=[];
+  if(welcomeDevido(sess)){
+    var now=new Date();
+    var nome=((sess.posto? sess.posto+' ':'')+(sess.nome||'')).trim()||sess.rotulo||'';
+    fila.push({ tipo:'welcome',
+      titulo: saudacao(now)+(nome? ', '+nome:'')+'!',
+      texto: 'Seja bem-vindo ao Painel de Gestão do Projeto SISI no COMAER.\n'+
+             'Hoje é '+dataPorExtenso(now)+' — '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'.' });
+  }
+  msgsGet().avisos.filter(function(a){ return a.ativo; }).forEach(function(a){
+    if(_popupShownThisLoad['av_'+a.id]) return; _popupShownThisLoad['av_'+a.id]=1;
+    fila.push({ tipo:'aviso', titulo:a.titulo||'Aviso do gestor', texto:a.texto||'' });
+  });
+  diretasPara(sess).forEach(function(d){
+    if(_popupShownThisLoad['dm_'+d.id]) return; _popupShownThisLoad['dm_'+d.id]=1;
+    fila.push({ tipo:'direta', titulo:'Mensagem do gestor do Projeto SISI', texto:d.texto||'', msg:d });
+  });
+  if(fila.length) popupFila(fila);
+}
+function popupFila(fila){
+  var ov=el('msgOverlay'); if(!ov||!fila.length) return;
+  var idx=0;
+  function render(){
+    var it=fila[idx];
+    el('msgPopTag').textContent = it.tipo==='welcome'?'Boas-vindas':(it.tipo==='aviso'?'Aviso geral':'Mensagem para você');
+    el('msgPopTitle').textContent=it.titulo;
+    el('msgPopBody').textContent=it.texto;
+    el('msgPopBtn').textContent = it.tipo==='direta'?'Ciente':'Fechar';
+    el('msgPopCount').textContent = fila.length>1 ? (idx+1)+' de '+fila.length : '';
+    ov.style.display='flex';
+  }
+  el('msgPopBtn').onclick=function(){
+    var it=fila[idx];
+    if(it.tipo==='direta' && it.msg) darCiencia(it.msg);
+    idx++;
+    if(idx<fila.length) render(); else ov.style.display='none';
+  };
+  render();
+}
+
+/* ---------- Admin: aba Comunicação ---------- */
+function comNote(t){ var n=el('comNote'); if(n) n.textContent=t; }
+function comUsersRefresh(){
+  var sel=el('dmUser'); if(!sel) return;
+  var creds=authGet().credenciais;
+  var atual=sel.value;
+  sel.innerHTML='';
+  if(!creds.length){
+    var o0=document.createElement('option'); o0.value=''; o0.textContent='(nenhum usuário cadastrado)';
+    sel.appendChild(o0); return;
+  }
+  creds.forEach(function(c,i){
+    var o=document.createElement('option'); o.value=String(i);
+    o.textContent=credUserLabel(c)+(c.omUser? ' — '+c.omUser:'')+' ('+String(c.perfil||'').toUpperCase()+(c.escopo? ' '+c.escopo:'')+')';
+    sel.appendChild(o);
+  });
+  if(atual) sel.value=atual;
+}
+function avAdd(){
+  var t=el('avTitulo').value.trim(), x=el('avTexto').value.trim();
+  if(!t && !x){ comNote('Escreva o título ou o texto do aviso.'); return; }
+  var m=msgsGet();
+  m.avisos.push({ id:msgId(), titulo:t||'Aviso do gestor', texto:x, ativo:true, criadoEm:new Date().toISOString() });
+  msgsSet(m);
+  el('avTitulo').value=''; el('avTexto').value='';
+  comNote('Aviso cadastrado e ATIVO neste navegador. Clique em "Enviar dados ao JSONBin" (aba Sincronização) para que os usuários o vejam ao entrar.');
+}
+function renderAvList(){
+  var box=el('avList'); if(!box) return;
+  var m=msgsGet();
+  if(!m.avisos.length){ box.innerHTML='<div class="cred-hint">Nenhum aviso cadastrado.</div>'; return; }
+  box.innerHTML='<table class="cred-table"><thead><tr><th>Aviso</th><th>Situação</th><th>Criado em</th><th>Ações</th></tr></thead><tbody>'+
+    m.avisos.map(function(a,i){
+      return '<tr><td><strong>'+escU(a.titulo)+'</strong>'+(a.texto?'<br><small>'+escU(String(a.texto).slice(0,180))+'</small>':'')+'</td>'+
+        '<td>'+(a.ativo? '<span style="color:#00600f;font-weight:600">ATIVO</span>':'inativo')+'</td>'+
+        '<td>'+String(a.criadoEm||'').slice(0,10)+'</td>'+
+        '<td class="cred-acoes"><button type="button" class="admin-btn av-tgl" data-i="'+i+'">'+(a.ativo?'Desativar':'Ativar')+'</button>'+
+        '<button type="button" class="admin-btn av-del" data-i="'+i+'">Excluir</button></td></tr>';
+    }).join('')+'</tbody></table>';
+  box.querySelectorAll('.av-tgl').forEach(function(b){
+    b.addEventListener('click',function(){
+      var m2=msgsGet(); var a=m2.avisos[+b.dataset.i]; if(!a) return;
+      a.ativo=!a.ativo; msgsSet(m2);
+      comNote('Aviso '+(a.ativo?'ATIVADO':'desativado')+' neste navegador. Use "Enviar dados ao JSONBin" para propagar.');
+    });
+  });
+  box.querySelectorAll('.av-del').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(typeof confirm==='function' && !confirm('Excluir este aviso?')) return;
+      var m2=msgsGet(); m2.avisos.splice(+b.dataset.i,1); msgsSet(m2);
+      comNote('Aviso excluído. Use "Enviar dados ao JSONBin" para propagar.');
+    });
+  });
+}
+function dmAdd(){
+  var sel=el('dmUser'); var x=el('dmTexto').value.trim();
+  var st=authGet(); var c=st.credenciais[+(sel&&sel.value)];
+  if(!c){ comNote('Selecione o usuário destinatário (cadastre-o antes em "Acessos e usuários").'); return; }
+  if(!x){ comNote('Escreva a mensagem.'); return; }
+  if(!c.uid){ c.uid='u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); authSet(st); }
+  var m=msgsGet();
+  m.diretas.push({ id:msgId(),
+    destino:{ uid:c.uid, rotulo:c.rotulo, nome:c.nome||'', perfil:c.perfil, escopo:c.escopo||'' },
+    texto:x, ativo:true, criadoEm:new Date().toISOString() });
+  msgsSet(m);
+  el('dmTexto').value='';
+  comNote('Mensagem registrada para '+credUserLabel(c)+'. Clique em "Enviar dados ao JSONBin" para entregá-la. Ela aparecerá a cada entrada do usuário até ele clicar em "Ciente".');
+}
+function renderDmList(){
+  var box=el('dmList'); if(!box) return;
+  var m=msgsGet();
+  if(!m.diretas.length){ box.innerHTML='<div class="cred-hint">Nenhuma mensagem registrada.</div>'; return; }
+  box.innerHTML='<table class="cred-table"><thead><tr><th>Destinatário</th><th>Mensagem</th><th>Situação</th><th>Criada em</th><th>Ações</th></tr></thead><tbody>'+
+    m.diretas.map(function(d,i){
+      var t=d.destino||{};
+      return '<tr><td><strong>'+escU(t.rotulo||t.nome||'?')+'</strong>'+(t.escopo?'<br><small>'+escU(t.escopo)+'</small>':'')+'</td>'+
+        '<td><small>'+escU(String(d.texto||'').slice(0,180))+'</small></td>'+
+        '<td>'+(d.ativo? '<span style="color:#00600f;font-weight:600">ATIVA</span>':'encerrada')+'</td>'+
+        '<td>'+String(d.criadoEm||'').slice(0,10)+'</td>'+
+        '<td class="cred-acoes"><button type="button" class="admin-btn dm-tgl" data-i="'+i+'">'+(d.ativo?'Encerrar':'Reativar')+'</button>'+
+        '<button type="button" class="admin-btn dm-del" data-i="'+i+'">Excluir</button></td></tr>';
+    }).join('')+'</tbody></table>'+
+    '<div class="cred-hint">A situação "encerrada" impede novas exibições; a ciência já dada permanece registrada.</div>';
+  box.querySelectorAll('.dm-tgl').forEach(function(b){
+    b.addEventListener('click',function(){
+      var m2=msgsGet(); var d=m2.diretas[+b.dataset.i]; if(!d) return;
+      d.ativo=!d.ativo; msgsSet(m2);
+      comNote('Mensagem '+(d.ativo?'REATIVADA':'encerrada')+' neste navegador. Use "Enviar dados ao JSONBin" para propagar.');
+    });
+  });
+  box.querySelectorAll('.dm-del').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(typeof confirm==='function' && !confirm('Excluir esta mensagem?')) return;
+      var m2=msgsGet(); m2.diretas.splice(+b.dataset.i,1); msgsSet(m2);
+      comNote('Mensagem excluída. Use "Enviar dados ao JSONBin" para propagar.');
+    });
+  });
+}
+function dmCiencias(){
+  var box=el('dmCienciasList'); if(!box) return;
+  var cfg=getGas();
+  if(!cfg.url){
+    box.innerHTML='<div class="cred-hint">Servidor (Apps Script) não configurado — as ciências ficam registradas apenas no navegador de cada usuário. Configure a URL em "Ciclo e integrações" e aplique a atualização do Code.gs fornecida com esta versão.</div>';
+    return;
+  }
+  box.innerHTML='<div class="cred-hint">Consultando o servidor…</div>';
+  fetch(cfg.url+(cfg.url.indexOf('?')>=0?'&':'?')+'rota=ciencias&token='+encodeURIComponent(cfg.token||''))
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if(!j || j.ok!==true || !Array.isArray(j.ciencias))
+        throw new Error((j&&j.erro)||'resposta inesperada — o Code.gs instalado ainda não tem a rota "ciencias" (aplique a atualização fornecida com esta versão)');
+      if(!j.ciencias.length){ box.innerHTML='<div class="cred-hint">Nenhuma ciência registrada no servidor até agora.</div>'; return; }
+      box.innerHTML='<table class="cred-table"><thead><tr><th>Usuário</th><th>Mensagem</th><th>Quando</th></tr></thead><tbody>'+
+        j.ciencias.map(function(c){
+          return '<tr><td>'+escU(c.usuario||'')+(c.escopo?'<br><small>'+escU(c.escopo)+'</small>':'')+'</td>'+
+            '<td><small>'+escU(String(c.texto||c.msgId||'').slice(0,180))+'</small></td>'+
+            '<td>'+escU(String(c.quando||'').slice(0,16).replace('T',' '))+'</td></tr>';
+        }).join('')+'</tbody></table>';
+    })
+    .catch(function(e){
+      box.innerHTML='<div class="cred-hint" style="color:#8C4D00">Não foi possível consultar: '+escU(e.message)+'</div>';
+    });
+}
+function initCom(){
+  var b1=el('avAddBtn'); if(b1) b1.addEventListener('click',avAdd);
+  var b2=el('dmAddBtn'); if(b2) b2.addEventListener('click',dmAdd);
+  var b3=el('dmCienciasBtn'); if(b3) b3.addEventListener('click',dmCiencias);
+  comUsersRefresh(); renderAvList(); renderDmList();
+}
+if(document.readyState==='loading') window.addEventListener('DOMContentLoaded', initCom); else initCom();
+
+/* ---------- Reenvio de e-mail de acesso (gera nova senha) ---------- */
+function credReenviar(i){
+  var st=authGet(); var c=st.credenciais[i]; if(!c) return null;
+  if(!(c.email&&c.email.trim())){
+    credNote('Este usuário não tem e-mail cadastrado — use "Editar" para incluir o e-mail antes de reenviar.');
+    return null;
+  }
+  if(typeof confirm==='function' && !confirm('Reenviar o e-mail de acesso para "'+credUserLabel(c)+'"?\nSerá gerada uma NOVA senha (a atual deixará de valer nos demais navegadores após "Enviar dados ao JSONBin").')) return null;
+  var nova=genSenha();
+  c.salt=randomSalt(); c.hash=sha256Hex(c.salt+nova); c.alteradoEm=new Date().toISOString();
+  authSet(st);
+  copiar(nova);
+  window.__unifiedTest.lastReset={ rotulo:credUserLabel(c), senha:nova };
+  credNoteEnvio(c, nova, 'Nova senha gerada para reenvio do e-mail.');
+  return nova;
+}
+
+/* Ao sair, os avisos voltam a valer para o próximo login nesta mesma aba
+   (a mensagem direta continua condicionada à ciência). */
+(function(){
+  var _lg=window.__logoutUnificado;
+  if(typeof _lg==='function'){
+    window.__logoutUnificado=function(){ _popupShownThisLoad={}; return _lg.apply(this,arguments); };
+  }
+})();
+
+window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas, admShowGroup:admShowGroup, msgsGet:msgsGet, msgsSet:msgsSet, avAdd:avAdd, dmAdd:dmAdd, renderAvList:renderAvList, renderDmList:renderDmList, showEntryPopups:showEntryPopups, cienciasGet:cienciasGet, darCiencia:darCiencia, credReenviar:credReenviar, welcomeDevido:welcomeDevido, diretasPara:diretasPara, comUsersRefresh:comUsersRefresh,
   configureProfile:configureProfile, resolveOmNome:resolveOmNome, entPick:entPick, entEntrar:entEntrar, credAdd:credAdd };
 })();
 
