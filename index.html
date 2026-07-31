@@ -4145,7 +4145,7 @@ informados no ciclo anterior.</p>
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.3 &#183; 30/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.4 &#183; 30/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4168,14 +4168,20 @@ informados no ciclo anterior.</p>
         <button class="admin-btn" id="adminLoginBtn" type="button">Entrar</button>
       </div>
       <div class="admin-panel-content" id="adminPanelView">
-        <div class="admin-section">
-          <h3>Usuários e credenciais de acesso</h3>
-          <p>Cadastre cada usuário com seus dados de identificação e a senha de acesso ao painel.
-             O perfil define o que a pessoa vê: <strong>Gestor</strong> (tudo), <strong>ODS</strong> (o próprio ODS)
-             ou <strong>OM</strong> (a própria OM). As senhas são guardadas como hash (SHA-256 + sal) e chegam aos
-             demais navegadores pelo botão <strong>Enviar dados ao JSONBin</strong>. Recuperação de senha:
-             use <strong>Redefinir senha</strong> na lista e envie a nova ao usuário pelo canal oficial.
-             Atenção: trava de acesso no cliente, não criptografia dos dados — o bin de leitura é público.</p>
+        <div class="adm-tabs" id="admTabs">
+          <button type="button" class="adm-tab active" data-g="acessos">Acessos e usuários</button>
+          <button type="button" class="adm-tab" data-g="dados">Dados de 2026</button>
+          <button type="button" class="adm-tab" data-g="ciclo">Ciclo e integrações</button>
+          <button type="button" class="adm-tab" data-g="sync">Sincronização</button>
+        </div>
+
+        <div class="admin-section" data-adm="acessos">
+          <h3>Cadastro de usuário</h3>
+          <p>Cadastre cada pessoa com seus dados de identificação e a senha de acesso. O perfil define o que ela vê:
+             <strong>Gestor</strong> (todo o COMAER), <strong>ODS</strong> (o próprio ODS) ou <strong>OM</strong> (a própria OM).
+             Use o botão <strong>Gerar</strong> para uma senha forte; ao cadastrar, o painel exibe a senha e o botão para
+             copiar o e-mail pronto. As senhas são guardadas como hash (SHA-256 + sal) e só valem nos demais navegadores
+             após <strong>Enviar dados ao JSONBin</strong> (aba Sincronização).</p>
           <div class="cred-form">
             <input type="text" id="credNome" placeholder="Nome completo" style="flex:2 1 240px">
             <input type="text" id="credPosto" list="listPostos" placeholder="Posto/Grad" style="flex:0 1 110px">
@@ -4205,40 +4211,54 @@ informados no ciclo anterior.</p>
             <option value="S1"><option value="S2"><option value="Civil">
           </datalist>
           <datalist id="listOmsU"></datalist>
-          <div class="cred-form">
-            <button type="button" class="admin-btn" id="mailTplToggle">Modelo do e-mail de acesso</button>
-          </div>
-          <div id="mailTplWrap" style="display:none">
-            <textarea id="mailTplTxt" rows="12" style="width:100%; box-sizing:border-box; font:13px/1.5 'Roboto Mono',monospace; padding:10px; border:1px solid #c8cdd4"></textarea>
-            <div class="cred-form">
-              <button type="button" class="admin-btn" id="mailTplSave">Salvar modelo</button>
-              <button type="button" class="admin-btn" id="mailTplRestore">Restaurar padrão</button>
-              <span class="cred-hint">Marcadores: {NOME} {POSTO} {PERFIL} {ESCOPO} {SENHA} {LINK}. O modelo fica salvo neste navegador.</span>
-            </div>
-          </div>
           <div id="credNote" class="cred-note"></div>
-          <div class="cred-form"><input type="text" id="credBusca" placeholder="Buscar usuário (nome, OM, e-mail, perfil...)" style="flex:1 1 100%"></div>
+        </div>
+        <div class="admin-section" data-adm="acessos">
+          <h3>Usuários cadastrados</h3>
+          <p>Consulte, edite os dados, redefina a senha (recuperação em caso de esquecimento) ou remova o acesso.
+             Ao editar, a senha só muda se o campo Senha for preenchido.</p>
+          <div class="cred-form"><input type="text" id="credBusca" placeholder="Buscar por nome, OM, e-mail ou perfil…" style="flex:1 1 100%"></div>
           <div id="credList"></div>
         </div>
-        <div class="admin-section">
+        <div class="admin-section" data-adm="acessos">
+          <h3>Modelo do e-mail de acesso</h3>
+          <p>Há um texto para cada perfil, já ajustado ao que a pessoa poderá fazer no painel. Selecione o perfil,
+             ajuste a redação se desejar e salve. Marcadores disponíveis:
+             <strong>{NOME} {POSTO} {PERFIL} {ESCOPO} {SENHA} {LINK}</strong> — o painel os substitui na hora do envio.</p>
+          <div class="cred-form">
+            <select id="mailTplPerfil">
+              <option value="om">Modelo para OM</option>
+              <option value="ods">Modelo para ODS</option>
+              <option value="gestor">Modelo para Gestor</option>
+            </select>
+            <button type="button" class="admin-btn" id="mailTplToggle">Mostrar / ocultar texto</button>
+            <button type="button" class="admin-btn" id="mailTplSave">Salvar modelo</button>
+            <button type="button" class="admin-btn" id="mailTplRestore">Restaurar padrão</button>
+          </div>
+          <div id="mailTplWrap" style="display:none">
+            <textarea id="mailTplTxt" rows="14" style="width:100%; box-sizing:border-box; font:13px/1.5 'Roboto Mono',monospace; padding:10px; border:1px solid #c8cdd4"></textarea>
+            <div class="cred-hint">O modelo fica salvo neste navegador.</div>
+          </div>
+        </div>
+        <div class="admin-section" data-adm="ciclo">
           <h3>Janela de atualização anual (Necessário <span id="cicloAnoLbl">2027</span>)</h3>
           <p>Conforme o ciclo do Projeto SISI, abra a janela no período de atualização (ago–nov) para que as OMs
              preencham, na aba Tarefas, o valor <strong>Necessário</strong> de cada tarefa para o ano seguinte,
              atualizando também o % realizado e o Empregado. Fora da janela o campo fica oculto.
-             Após abrir ou encerrar, clique em <strong>Enviar dados ao JSONBin</strong> para valer nos demais navegadores.</p>
+             Após abrir ou encerrar, publique em <strong>Sincronização</strong>.</p>
           <div class="cred-form">
             <span id="cicloStatus" class="cred-hint" style="flex:1 1 auto"></span>
             <button type="button" class="admin-btn" id="cicloAbrirBtn">Abrir preenchimento</button>
             <button type="button" class="admin-btn" id="cicloFecharBtn">Encerrar preenchimento</button>
           </div>
         </div>
-        <div class="admin-section">
-          <h3>Integração Google Drive (Apps Script)</h3>
+        <div class="admin-section" data-adm="ciclo">
+          <h3>Envio ao servidor (Google Drive · Apps Script)</h3>
           <p>Com o script instalado no seu Google Drive (arquivo <strong>Code.gs</strong> + instruções fornecidas),
-             cada OM ganha o botão <strong>"Enviar ao Google Drive"</strong>: os dados viram uma planilha por OM e as
-             fotos viram arquivos em uma pasta por OM, tudo no seu Drive. Cole aqui a URL do web app e o token
-             definidos na instalação e clique em Salvar; o botão "Enviar dados ao JSONBin" propaga a configuração
-             às OMs. Atenção: o token fica visível no bin (mesma trava de acesso do restante do painel).</p>
+             cada OM ganha o botão <strong>"Enviar ao servidor"</strong>: os dados viram uma planilha por OM e as
+             fotos viram arquivos em uma pasta por OM. Cole a URL do web app e o token definidos na instalação,
+             salve, teste a conexão e só então <strong>libere o botão</strong> para as OMs.
+             Atenção: o token fica visível no bin (mesma trava de acesso do restante do painel).</p>
           <div class="cred-form">
             <input type="url" id="gasUrl" placeholder="URL do web app (https://script.google.com/macros/s/.../exec)" style="flex:2 1 320px">
             <input type="text" id="gasToken" placeholder="Token" style="flex:1 1 140px">
@@ -4250,7 +4270,7 @@ informados no ciclo anterior.</p>
           <div id="gasStatus" class="cred-hint"></div>
         </div>
 
-        <div class="admin-section">
+        <div class="admin-section" data-adm="dados">
           <h3>Upload da planilha de 2026</h3>
           <p>Envie a planilha semanal de execução de 2026. O sistema reconhece as colunas pelo <strong>nome do cabeçalho</strong> (não pela posição), então diferenças de layout entre relatórios são toleradas — inclusive quando a OM vem como código + nome em colunas separadas. Reconhece tanto o formato com <strong>Destaque Recebido / Empenhado / Liquidado / Pago</strong> quanto o de situação de crédito (<strong>Crédito Disponível / Crédito Bloqueado / Empenhos a Liquidar</strong>). A aba mais recente é detectada automaticamente; a prévia mostra as colunas reconhecidas antes de aplicar. Os valores ficam salvos neste navegador e são substituídos a cada novo upload.</p>
           <div class="admin-upload-grid">
@@ -4277,7 +4297,7 @@ informados no ciclo anterior.</p>
             </div>
           </div>
         </div>
-        <div class="admin-section">
+        <div class="admin-section" data-adm="dados">
           <h3>Status de 2026</h3>
           <div class="admin-config-status" id="admin2026Status">Nenhum dado de 2026 carregado.</div>
           <div class="admin-preview-actions" style="border-top:none;padding-top:8px;">
@@ -4285,7 +4305,7 @@ informados no ciclo anterior.</p>
           </div>
         </div>
 
-        <div class="admin-section">
+        <div class="admin-section" data-adm="dados">
           <h3>Upload do planejamento 2026 (Crédito a Liberar / Módulos SISI)</h3>
           <p>Envie a planilha de planejamento de 2026. O sistema reconhece as colunas pelo <strong>nome do cabeçalho</strong> (não pela posição), então pequenas mudanças de ordem das colunas são toleradas. São esperadas duas tabelas: <strong>verba por OM</strong> (com colunas Necessário, Aprovado, Recebido, ODS, Guarnição, Nomenclatura, disponível por ND) e <strong>itens/módulos</strong> (com colunas Categoria, Módulo, Valor, Descrição, Observações). Podem estar em abas separadas do mesmo arquivo. A prévia mostra exatamente o que foi reconhecido antes de aplicar.</p>
           <div class="admin-upload-grid">
@@ -4308,14 +4328,14 @@ informados no ciclo anterior.</p>
           </div>
         </div>
 
-        <div class="admin-section">
+        <div class="admin-section" data-adm="dados">
           <h3>Status do planejamento 2026</h3>
           <div class="admin-config-status" id="adminPlanStatus">Usando o planejamento embutido no arquivo (nenhum upload aplicado).</div>
           <div class="admin-preview-actions" style="border-top:none;padding-top:8px;">
             <button class="admin-btn admin-btn-secondary" id="adminClearPlanBtn" type="button">Restaurar planejamento embutido</button>
           </div>
         </div>
-        <div class="admin-section">
+        <div class="admin-section" data-adm="dados">
           <h3>Upload de prazos dos empenhos (Acompanhamento SISI_3_Prazos)</h3>
           <p>Envie a planilha de prazos dos empenhos — <strong>upload próprio, separado</strong> da planilha semanal de crédito. O formato esperado tem <strong>uma aba por OM (UGR)</strong>, com as colunas <strong>NE CCor - Dia Emissão</strong>, <strong>NE CCor</strong>, <strong>Natureza Despesa Detalhada</strong> e <strong>Valores a Liquidar / Saldo</strong>, reconhecidas pelo nome do cabeçalho. Os prazos aplicados são: <strong>60 dias</strong> para as ND 33.90.30 e 44.90.52 e <strong>90 dias</strong> para a ND 33.90.39, contados da emissão do empenho. Os dados alimentam a seção "Prazos de Liquidação dos Empenhos" da aba Ano Corrente e são substituídos a cada novo upload.</p>
           <div class="admin-upload-grid">
@@ -4341,7 +4361,7 @@ informados no ciclo anterior.</p>
             <button class="admin-btn admin-btn-secondary" id="adminClearPrazosBtn" type="button">Remover dados de prazos</button>
           </div>
         </div>
-        <div class="admin-section">
+        <div class="admin-section" data-adm="sync">
           <h3>Compartilhamento · JSONBin</h3>
           <p>Sincroniza os dados de <strong>2026</strong> (execução semanal + planejamento) com um bin no <strong>jsonbin.io</strong>, para que outras pessoas que abrirem este arquivo vejam os mesmos dados sem precisar fazer upload. Ao abrir, o dashboard tenta carregar do JSONBin em segundo plano; se estiver indisponível, usa os dados locais/embutidos. A chave fica salva <strong>apenas neste navegador</strong> e nunca é gravada no arquivo. Compatível com o bin do dashboard anterior (formato verba/categorias é reconhecido como planejamento). <strong>O planejamento embutido no HTML não é enviado ao bin</strong> (todos já o recebem com o arquivo publicado no GitHub Pages) — apenas execução, prazos e planejamentos de upload próprio são sincronizados. Todos os blocos (execução, execução anterior, prazos e planejamento) são <strong>comprimidos automaticamente</strong> (gzip nativo do navegador), mantendo o envio abaixo dos 100&nbsp;KB do plano gratuito.</p>
           <div class="admin-config-row">
@@ -7821,6 +7841,11 @@ body.entry-locked { overflow:hidden; }
 .cred-acoes{ white-space:nowrap; }
 .cred-acoes .admin-btn{ padding:4px 8px; font-size:11px; }
 .cred-hint{ font-size:12px; color:#5b6572; margin-top:8px; }
+.adm-tabs{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 18px; border-bottom:2px solid #e2e5e9; padding-bottom:10px; }
+.adm-tab{ background:#f4f6f9; border:1px solid #d4dae1; color:#39424E; padding:8px 16px; cursor:pointer;
+  font-family:'Roboto Condensed',sans-serif; font-size:13.5px; font-weight:600; letter-spacing:.03em; border-radius:3px; }
+.adm-tab:hover{ background:#eaf0f8; }
+.adm-tab.active{ background:#002B5C; border-color:#002B5C; color:#fff; }
 </style>
 
 <div id="entryOverlay" style="display:none">
@@ -9495,33 +9520,68 @@ function renderCicloStatus(){
 }
 
 /* ---------- E-mail padrão de acesso ---------- */
-var MAIL_TPL_PADRAO =
-'Prezado(a) {POSTO} {NOME},\n\n'+
-'Segue o seu acesso ao Painel de Gestão do Projeto SISI no COMAER:\n\n'+
-'Endere\u00e7o: {LINK}\n'+
+var MAIL_TPL_COMUM =
+'\nEndereço: {LINK}\n'+
 'Perfil de acesso: {PERFIL}\n'+
 'Escopo: {ESCOPO}\n'+
 'Senha: {SENHA}\n\n'+
-'Instru\u00e7\u00f5es:\n'+
-'1. Acesse o endere\u00e7o acima e selecione o perfil indicado.\n'+
+'Instruções:\n'+
+'1. Acesse o endereço acima e selecione o perfil indicado.\n'+
 '2. Selecione o escopo correspondente e informe a senha.\n'+
-'3. A senha \u00e9 pessoal e intransfer\u00edvel. N\u00e3o a repasse e n\u00e3o responda este e-mail com ela.\n'+
+'3. A senha é pessoal e intransferível. Não a repasse e não responda este e-mail com ela.\n'+
 '4. Em caso de esquecimento, solicite nova senha ao gestor do projeto.\n\n'+
 'Respeitosamente,\n'+
-'Gest\u00e3o do Projeto SISI \u2014 COMPREP';
+'Gestão do Projeto SISI — COMPREP';
+
+var MAIL_TPL_PADRAO = {
+  gestor:
+    'Prezado(a) {POSTO} {NOME},\n\n'+
+    'O senhor está recebendo os dados de acesso ao Painel de Gestão do Projeto SISI no COMAER, no perfil Gestor. '+
+    'Nele o senhor poderá acompanhar a evolução dos projetos e a execução financeira de todas as OM do COMAER, '+
+    'além de administrar os usuários, os dados do painel e a janela anual de atualização das necessidades.\n'+
+    MAIL_TPL_COMUM,
+  ods:
+    'Prezado(a) {POSTO} {NOME},\n\n'+
+    'O senhor está recebendo os dados para acesso ao Painel de Gestão do Projeto SISI no COMAER. '+
+    'Nele o senhor poderá acompanhar a evolução dos projetos, bem como da execução financeira das OM '+
+    'subordinadas ao {ESCOPO}.\n'+
+    MAIL_TPL_COMUM,
+  om:
+    'Prezado(a) {POSTO} {NOME},\n\n'+
+    'O senhor está recebendo os dados para acesso ao Painel de Gestão do Projeto SISI no COMAER. '+
+    'Nele o senhor poderá registrar e acompanhar a evolução do projeto SISI da {ESCOPO}, informando o percentual '+
+    'realizado e os valores necessário e empregado em cada tarefa do Anexo II do MCA 205-5, além de acompanhar '+
+    'a execução financeira da própria OM.\n'+
+    MAIL_TPL_COMUM
+};
+function perfilTplKey(p){ return (p==='gestor'||p==='ods')? p : 'om'; }
+function mailTplStore(){
+  var st=null;
+  try{ st=JSON.parse(localStorage.getItem('sisi_mailtpl_v2')||'null'); }catch(e){}
+  if(st && typeof st==='object') return st;
+  // migração: modelo único da versão anterior vira o texto dos três perfis
+  var antigo=null;
+  try{ antigo=localStorage.getItem('sisi_mailtpl_v1'); }catch(e){}
+  if(antigo){ return { gestor:antigo, ods:antigo, om:antigo }; }
+  return {};
+}
 function escU(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]; }); }
-function getMailTpl(){ try{ return localStorage.getItem('sisi_mailtpl_v1')||MAIL_TPL_PADRAO; }catch(e){ return MAIL_TPL_PADRAO; } }
-function setMailTpl(t){
-  try{
-    if(t && t.trim() && t!==MAIL_TPL_PADRAO) localStorage.setItem('sisi_mailtpl_v1', t);
-    else localStorage.removeItem('sisi_mailtpl_v1');
-  }catch(e){}
+function getMailTpl(perfil){
+  var k=perfilTplKey(perfil), st=mailTplStore();
+  return (st[k] && String(st[k]).trim()) ? st[k] : MAIL_TPL_PADRAO[k];
+}
+function setMailTpl(perfil, t){
+  var k=perfilTplKey(perfil), st=mailTplStore();
+  if(t && String(t).trim() && t!==MAIL_TPL_PADRAO[k]) st[k]=t; else delete st[k];
+  try{ localStorage.setItem('sisi_mailtpl_v2', JSON.stringify(st)); localStorage.removeItem('sisi_mailtpl_v1'); }catch(e){}
 }
 function montarEmail(c, senha){
-  var link=''; try{ link=location.origin+location.pathname; }catch(e){}
+  var link='';
+  try{ link=String(location.href||'').split('?')[0].split('#')[0]; }catch(e){}
+  if(!link){ try{ link=(location.origin||'')+(location.pathname||''); }catch(e){} }
   var perfilTxt = c.perfil==='gestor' ? 'Gestor (acesso total)' : (c.perfil==='ods' ? 'ODS' : 'OM');
   var escopo = c.perfil==='gestor' ? 'Todo o projeto' : (c.escopo||'');
-  var body=getMailTpl()
+  var body=getMailTpl(c.perfil)
     .replace(/\{NOME\}/g, c.nome||c.rotulo||'')
     .replace(/\{POSTO\}/g, c.posto||'')
     .replace(/\{PERFIL\}/g, perfilTxt)
@@ -9700,6 +9760,28 @@ function credAdd(){
   copiar(f.senha);
   credNoteEnvio(novoC, f.senha, 'Usuário cadastrado.');
 }
+/* ---------- Navegação do painel Admin ---------- */
+function admShowGroup(g){
+  var secs=document.querySelectorAll('#adminPanelView [data-adm]');
+  if(!secs.length) return;
+  Array.prototype.forEach.call(secs, function(sec){
+    sec.style.display = (sec.getAttribute('data-adm')===g) ? '' : 'none';
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#admTabs .adm-tab'), function(t){
+    t.classList.toggle('active', t.getAttribute('data-g')===g);
+  });
+  try{ localStorage.setItem('sisi_adm_tab', g); }catch(e){}
+}
+function initAdmTabs(){
+  var nav=el('admTabs'); if(!nav) return;
+  Array.prototype.forEach.call(nav.querySelectorAll('.adm-tab'), function(t){
+    t.addEventListener('click', function(){ admShowGroup(t.getAttribute('data-g')); });
+  });
+  var salvo=null;
+  try{ salvo=localStorage.getItem('sisi_adm_tab'); }catch(e){}
+  admShowGroup(salvo||'acessos');
+}
+
 /* ---------- Inicialização ---------- */
 function initUnified(){
   document.body.classList.add('entry-locked');
@@ -9764,19 +9846,24 @@ function initUnified(){
           }
           var tg=el('mailTplToggle');
           if(tg){
+            var tplPerfil=function(){ return (el('mailTplPerfil')||{value:'om'}).value; };
+            var tplLoad=function(){ el('mailTplTxt').value=getMailTpl(tplPerfil()); };
             tg.addEventListener('click',function(){
               var wrp=el('mailTplWrap');
               var aberto = wrp.style.display!=='none';
-              if(!aberto) el('mailTplTxt').value=getMailTpl();
+              if(!aberto) tplLoad();
               wrp.style.display = aberto? 'none' : '';
             });
+            if(el('mailTplPerfil')) el('mailTplPerfil').addEventListener('change',function(){
+              tplLoad(); el('mailTplWrap').style.display='';
+            });
             el('mailTplSave').addEventListener('click',function(){
-              setMailTpl(el('mailTplTxt').value);
-              credNote('Modelo do e-mail salvo neste navegador.');
+              setMailTpl(tplPerfil(), el('mailTplTxt').value);
+              credNote('Modelo do perfil '+tplPerfil().toUpperCase()+' salvo neste navegador.');
             });
             el('mailTplRestore').addEventListener('click',function(){
-              setMailTpl(''); el('mailTplTxt').value=getMailTpl();
-              credNote('Modelo padrão restaurado.');
+              setMailTpl(tplPerfil(), ''); tplLoad();
+              credNote('Modelo padrão do perfil '+tplPerfil().toUpperCase()+' restaurado.');
             });
           }
           var tf=el('credTel');
@@ -9796,6 +9883,7 @@ function initUnified(){
               if(vistos[sg]) return; vistos[sg]=1;
               var o=document.createElement('option'); o.value=sg; dl.appendChild(o); }); }
           credEscopoRefresh(); renderCredList(); }
+  initAdmTabs();
   var saved=null;
   try{ saved=JSON.parse(localStorage.getItem(LS_SESS)||'null'); }catch(e){}
   if(saved && saved.tipo){
@@ -9808,7 +9896,7 @@ function initUnified(){
 if(document.readyState==='loading') window.addEventListener('DOMContentLoaded', initUnified);
 else initUnified();
 
-window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas,
+window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas, admShowGroup:admShowGroup,
   configureProfile:configureProfile, resolveOmNome:resolveOmNome, entPick:entPick, entEntrar:entEntrar, credAdd:credAdd };
 })();
 
