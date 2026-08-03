@@ -3158,7 +3158,7 @@
   </div>
 </header>
 
-<div id="sessBar" style="display:none"><span id="sessBarTxt"></span><button id="sessBarSair" type="button">Sair</button></div>
+<div id="sessBar" style="display:none"><span id="sessBarTxt"></span><span id="sessViewWrap" style="display:none"><label id="sessViewLbl" for="sessView">Visão:</label><select id="sessView"></select></span><button id="sessBarSair" type="button">Sair</button></div>
 <!-- VIEW TABS -->
 <div class="view-tabs" id="mainTabs">
   <div class="view-tab active" data-view="hist">2023&#8211;2025 · Histórico</div>
@@ -3281,8 +3281,8 @@
         </div>
       </div>
       <div class="chart-card">
-        <h3 class="sortable" data-sort="topoms" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Top OMs<span class="sort-arrow" id="sa-topoms"></span><span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada nos botões abaixo. Clique no título para inverter a ordem; clique numa barra para abrir o detalhamento da OM por natureza de despesa.">i</span></h3>
-        <div class="chart-sub">Ranking &#183; valores em R$ &#183; &#8599; clique para detalhar</div>
+        <h3 class="sortable" data-sort="topoms" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Top OMs<span class="sort-arrow" id="sa-topoms"></span><span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada nos botões abaixo. Cada barra mostra o valor e o percentual que ele representa da base da OM: em 2023–2025, do crédito recebido bruto (movimento devedor); em 2026, do crédito total da OM na semana (disponível + bloqueado + empenhos a liquidar). Ordene por Valor (quem executou mais em R$) ou por percentual (quem foi mais eficiente com o que recebeu). Clique no título para inverter a ordem; clique numa barra para detalhar por natureza de despesa.">i</span></h3>
+        <div class="chart-sub" id="omChartSub">Ranking &#183; valor e % da base da OM &#183; &#8599; clique para detalhar</div>
         <div class="toggle-row" id="omToggle">
           <button class="toggle-btn active" data-metric="saldo">Destaque receb.</button>
           <button class="toggle-btn" data-metric="empenhado">Empenhado</button>
@@ -3290,6 +3290,7 @@
           <button class="toggle-btn" data-metric="pago">Pago</button>
           <button class="toggle-btn" data-metric="devolvido">Devolvido</button>
         </div>
+        <div class="sort-ctl" id="omSortCtl">ordenar por: <span class="sort-lbl active" data-sort="topoms" data-sortkey="v" id="omSort-v">Valor</span><span class="sort-lbl" data-sort="topoms" data-sortkey="pct" id="omSort-pct">% do recebido</span></div>
         <div class="bar-chart" id="omChart"></div>
       </div>
     </section>
@@ -3763,10 +3764,10 @@ percentual da demanda atendida (100% ou parcial) conforme executa.</li>
 </ul>
 <p><strong>Como isso funciona no painel:</strong> no período de atualização, o gestor abre a
 <strong>janela de atualização anual</strong>. Enquanto aberta, a aba Tarefas da OM exibe o campo
-<strong>"Necessário 2027"</strong> ao lado de Necessário/Empregado: informe ali o valor que cada
-tarefa precisará no ano seguinte, atualize o % realizado e o Empregado, e envie o pacote.
-Fora da janela o campo fica oculto, e os valores de "Necessário" do ano corrente são os que foram
-informados no ciclo anterior.</p>
+<strong>"Necessário para concluir"</strong> ao lado de Necessário/Empregado: informe ali o
+<strong>valor total que ainda falta para terminar</strong> aquela tarefa (não é o valor de um único
+ano), atualize o % realizado e o Empregado, e envie o pacote. Fora da janela o campo fica oculto.
+A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naquela OM.</p>
 </div>
 
 <div class="manual-card">
@@ -4145,7 +4146,7 @@ informados no ciclo anterior.</p>
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.5 &#183; 31/07/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.8 &#183; 03/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4162,9 +4163,10 @@ informados no ciclo anterior.</p>
     <div class="admin-modal-body">
       <div class="admin-login" id="adminLoginView">
         <h3>Acesso restrito</h3>
-        <p>Informe a senha para atualizar os dados de 2026.</p>
-        <div class="admin-login-error" id="adminLoginError">Senha incorreta.</div>
-        <input type="password" id="adminPasswordInput" placeholder="Senha de administrador" autocomplete="off">
+        <p>Informe a <strong>sua senha de acesso ao painel</strong>. A &#225;rea administrativa
+           est&#225; liberada aos usu&#225;rios do perfil <strong>Gestor</strong>.</p>
+        <div class="admin-login-error" id="adminLoginError">Senha n&#227;o reconhecida como de um usu&#225;rio do perfil Gestor.</div>
+        <input type="password" id="adminPasswordInput" placeholder="Sua senha de acesso" autocomplete="off">
         <button class="admin-btn" id="adminLoginBtn" type="button">Entrar</button>
       </div>
       <div class="admin-panel-content" id="adminPanelView">
@@ -4244,7 +4246,7 @@ informados no ciclo anterior.</p>
         <div class="admin-section" data-adm="com">
           <h3>Aviso geral (pop-up para todos)</h3>
           <p>O aviso <strong>ativo</strong> aparece como pop-up para todos os usuários a cada entrada no painel,
-             enquanto estiver ativo. Use para comunicar períodos (ex.: abertura do Necessário 2027), prazos e
+             enquanto estiver ativo. Use para comunicar períodos (ex.: abertura da janela de necessidades), prazos e
              orientações. Após criar, ativar ou desativar, publique em <strong>Sincronização → Enviar dados ao
              JSONBin</strong>. Atenção: o conteúdo viaja pelo bin público — não inclua informações sigilosas.</p>
           <div class="cred-form"><input type="text" id="avTitulo" placeholder="Título do aviso" style="flex:1 1 100%"></div>
@@ -4273,10 +4275,12 @@ informados no ciclo anterior.</p>
           <div id="dmCienciasList"></div>
         </div>
         <div class="admin-section" data-adm="ciclo">
-          <h3>Janela de atualização anual (Necessário <span id="cicloAnoLbl">2027</span>)</h3>
+          <h3>Janela de atualização das necessidades (campanha <span id="cicloAnoLbl">2027</span>)</h3>
           <p>Conforme o ciclo do Projeto SISI, abra a janela no período de atualização (ago–nov) para que as OMs
-             preencham, na aba Tarefas, o valor <strong>Necessário</strong> de cada tarefa para o ano seguinte,
+             preencham, na aba Tarefas, o campo <strong>"Necessário para concluir"</strong> — o valor
+             <strong>total ainda necessário para terminar</strong> cada tarefa (não é o valor de um ano) —
              atualizando também o % realizado e o Empregado. Fora da janela o campo fica oculto.
+             A campanha indica apenas o ano de referência do levantamento.
              Após abrir ou encerrar, publique em <strong>Sincronização</strong>.</p>
           <div class="cred-form">
             <span id="cicloStatus" class="cred-hint" style="flex:1 1 auto"></span>
@@ -5056,18 +5060,33 @@ document.addEventListener('click',e=>{
 
 function renderTopOms(rows){
   const m=state.omMetric;
+  const ehCorrente = state.ano==='2026';
+  // Base de comparação da OM: 2023–2025 = recebido bruto (movimento devedor);
+  // 2026 = crédito total da OM na semana (disponível + bloqueado + empenhos a liquidar).
+  const baseDe = r => ehCorrente
+    ? ((r.disponivel||0)+(r.bloqueado||0)+(r.emp_a_liquidar||0))
+    : ((r.recebido||0) || ((r.saldo||0)+(r.devolvido||0)));
   const byOm={};
-  rows.forEach(r=>{ byOm[r.om]=(byOm[r.om]||0)+ (r[m]||0); });
+  rows.forEach(r=>{ const o=byOm[r.om]||(byOm[r.om]={v:0,base:0});
+    o.v   += (r[m]||0);
+    o.base+= baseDe(r); });
   const s=getSort('topoms','v','desc'); setSortArrow('topoms', s.dir);
-  const arr=topSort(Object.entries(byOm).map(([om,v])=>({om,v})).filter(x=>x.v>0), 'v', s.dir, 12);
-  const max=arr.length?Math.max(...arr.map(x=>x.v),1):1;
+  const all=Object.entries(byOm).map(([om,x])=>({om, v:x.v, base:x.base,
+      pct: x.base>0 ? (x.v/x.base*100) : 0}))
+    .filter(x=> s.key==='pct' ? (x.base>0 && x.v>0) : x.v>0);
+  const arr=topSort(all, s.key==='pct'?'pct':'v', s.dir, 12);
+  const max=arr.length?Math.max(...arr.map(x=>x[s.key==='pct'?'pct':'v']),1):1;
   const cls = m==='liquidado'?'green':(m==='devolvido'?'':'alt');
+  const lblPct = ehCorrente ? '% do crédito da OM' : '% do recebido';
+  ['v','pct'].forEach(k=>{ const e=document.getElementById('omSort-'+k);
+    if(e){ e.classList.toggle('active', s.key===k);
+           e.textContent=(k==='v'?'Valor':lblPct)+(s.key===k?' '+sortArrow(s.dir):''); } });
   const wrap=document.getElementById('omChart');
   wrap.innerHTML = arr.length? arr.map(x=>`
     <div class="bar-row clickable" data-om="${x.om.replace(/"/g,'&quot;')}" title="Clique para detalhar ${x.om}">
       <div class="bar-label"><span class="code-tag">${x.om}</span></div>
-      <div class="bar-value">R$ ${fmtBRL0(x.v)}</div>
-      <div class="bar-track"><div class="bar-fill ${cls}" style="width:${(x.v/max)*100}%"></div></div>
+      <div class="bar-value">R$ ${fmtBRL0(x.v)}${x.base>0?' · <strong>'+fmtPct(x.pct,0)+'</strong> de R$ '+fmtBRL0(x.base):''}</div>
+      <div class="bar-track"><div class="bar-fill ${cls}" style="width:${Math.max(2,(x[s.key==='pct'?'pct':'v']/max)*100)}%"></div></div>
     </div>`).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
 }
 
@@ -6289,7 +6308,11 @@ function refresh(){
 
 // ---------- MÓDULO ADMIN (upload da planilha de 2026) ----------
 (function adminInit(){
-  const ADMIN_PASSWORD = 'Infa99Adelfi'; // trava simples no cliente — não é segurança real
+  // u2.8 — sem senha fixa: a Área Admin aceita a senha de acesso de qualquer Gestor.
+  function validaAdmin(senha){
+    if(typeof window.__validaGestor==='function') return window.__validaGestor(senha);
+    return null;
+  }
   const LS_KEY = 'sisi_exec_2026_v1';
   const MONTHS = {JAN:1,FEV:2,MAR:3,ABR:4,MAI:5,JUN:6,JUL:7,AGO:8,SET:9,OUT:10,NOV:11,DEZ:12};
   const $ = id=>document.getElementById(id);
@@ -6485,8 +6508,17 @@ function refresh(){
   $('adminFooterBtn').addEventListener('click',()=>{ $('adminModalBackdrop').classList.add('open'); update2026Status(); });
   $('adminModalCloseBtn').addEventListener('click',()=>$('adminModalBackdrop').classList.remove('open'));
   /* u2.5: o painel Admin fecha apenas pelo X ou pelo Sair — clique/seleção fora do cartão não fecha mais. */
-  function tryLogin(){ if($('adminPasswordInput').value===ADMIN_PASSWORD){ $('adminLoginView').style.display='none'; $('adminPanelView').classList.add('open'); $('adminLogoutBtn').style.display=''; $('adminLoginError').classList.remove('show'); update2026Status(); }
-    else { $('adminLoginError').classList.add('show'); } }
+  function tryLogin(){
+    const quem = validaAdmin($('adminPasswordInput').value);
+    if(quem){
+      $('adminLoginView').style.display='none'; $('adminPanelView').classList.add('open');
+      $('adminLogoutBtn').style.display=''; $('adminLoginError').classList.remove('show');
+      const t=$('adminModalTitle');
+      if(t){ const n=((quem.posto? quem.posto+' ':'')+(quem.nome||'')).trim()||quem.rotulo||'';
+             t.textContent='Área Administrativa'+(n? ' · '+n : ''); }
+      $('adminPasswordInput').value='';
+      update2026Status();
+    } else { $('adminLoginError').classList.add('show'); } }
   $('adminLoginBtn').addEventListener('click',tryLogin);
   $('adminPasswordInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryLogin(); });
   $('adminLogoutBtn').addEventListener('click',()=>{ $('adminPanelView').classList.remove('open'); $('adminLoginView').style.display='block'; $('adminLogoutBtn').style.display='none'; $('adminPasswordInput').value=''; });
@@ -7909,6 +7941,12 @@ th.cred-sort:hover{ color:#002B5C; }
 .msg-pop-titlebar h4{ margin:0; font-family:'Roboto Condensed',sans-serif; font-size:17px; letter-spacing:.04em; }
 .msg-pop-body{ padding:16px 18px; font-size:14px; line-height:1.55; color:#39424E; white-space:pre-wrap; max-height:50vh; overflow-y:auto; }
 .msg-pop-foot{ padding:0 18px 16px; text-align:right; }
+/* ===== u2.6 — seletor de visão do gestor ===== */
+#sessViewWrap{ display:flex; align-items:center; gap:6px; flex:1 1 auto; justify-content:flex-end; }
+#sessViewLbl{ color:#FFCC00; font:600 10px/1 'Roboto Mono',monospace; letter-spacing:.12em; text-transform:uppercase; }
+#sessBar select{ background:#00204a; color:#dce4ee; border:1px solid rgba(255,204,0,.5);
+  font-family:'Roboto Mono',monospace; font-size:11px; padding:3px 6px; max-width:340px; }
+#sessBar select:focus{ outline:1px solid #FFCC00; }
 
 </style>
 
@@ -7925,8 +7963,8 @@ th.cred-sort:hover{ color:#002B5C; }
  <div class="uent-card">
   <div class="uent-pre">Comando da Aeronáutica · Força Aérea Brasileira</div>
   <h2>Painel de Gestão do Projeto SISI no COMAER</h2>
-  <div class="uent-sub">Identifique-se para acessar o painel</div>
-  <div class="uent-btns">
+  <div class="uent-sub">Informe sua senha de acesso — o painel reconhece automaticamente o seu perfil (Gestor, ODS ou OM)</div>
+  <div class="uent-btns" style="display:none">
     <button id="entBtnGestor" type="button">GESTOR<small>COMPREP</small></button>
     <button id="entBtnOds" type="button">ODS<small>Órgão Setorial</small></button>
     <button id="entBtnOm" type="button">OM<small>Organização Militar</small></button>
@@ -7939,6 +7977,7 @@ th.cred-sort:hover{ color:#002B5C; }
   <input type="password" id="entSenhaU" autocomplete="current-password">
   <button id="entBtnEntrar" type="button" class="uent-go">Entrar</button>
   <div id="entMsg" class="uent-msg"></div>
+  <button type="button" id="entBootstrap" style="display:none; margin-top:10px; background:none; border:1px solid #c8cdd4; padding:8px 12px; cursor:pointer; font:12px 'Roboto',sans-serif; color:#5b6572;">Primeira configura&#231;&#227;o &#183; criar o Gestor inicial</button>
  </div>
 </div>
 
@@ -8175,6 +8214,14 @@ async function apiSaveRoster(){ return apiFetch('?roster=1',{method:'POST',
   headers:{'Content-Type':'application/json','X-Auth':cfg.senhaSessao}, body:JSON.stringify(roster)}); }
 
 // ================= CÁLCULO (roll-up) =================
+/* u2.7 — "Necessário para concluir": valor total remanescente para terminar a tarefa.
+   Grava em `necConcluir`; lê chaves antigas `nec_<ano>` para não perder lançamentos. */
+function necConcluirDe(x){
+  if(!x) return 0;
+  if(x.necConcluir!=null) return Number(x.necConcluir)||0;
+  for(var k in x){ if(/^nec_\d{4}$/.test(k)){ var v=Number(x[k])||0; if(v) return v; } }
+  return 0;
+}
 function calc(d){
   const t = (d&&d.tarefas)||{};
   const byMod = {}; let sum=0, n=0, iniciar=0, exec=0, conc=0, na=0;
@@ -8189,7 +8236,7 @@ function calc(d){
     if(p===0) iniciar++; else if(p>=100) conc++; else exec++;
     const nec=Number(x.nec)||0, emp=Number(x.emp)||0;
     finNec+=nec; finEmp+=emp; byMod[l.mod].nec+=nec; byMod[l.mod].emp+=emp;
-    nec27+=Number(x['nec_'+_cicloAno])||0;
+    nec27+=necConcluirDe(x);
   });
   const geral = n? sum/n : 0;
   const mods = WBS.map(m=>({id:m.id, nome:m.curto, pct: byMod[m.id].n? byMod[m.id].sum/byMod[m.id].n : 0, n:byMod[m.id].n,
@@ -8494,7 +8541,7 @@ function leafRow(l){
   const finRow='<div class="wbs-leaf-fin" data-leaffin="'+l.id+'">'+
     '<label>Necess\u00e1rio <input type="number" min="0" step="0.01" value="'+nec+'" data-leaf="'+l.id+'" data-f="nec"></label>'+
     '<label>Empregado <input type="number" min="0" step="0.01" value="'+emp+'" data-leaf="'+l.id+'" data-f="emp"></label>'+
-    ((window.__cicloNec&&window.__cicloNec.aberto)? '<label class="lf-prox">Necess\u00e1rio '+window.__cicloNec.ano+' <input type="number" min="0" step="0.01" value="'+(Number(x['nec_'+window.__cicloNec.ano])||0)+'" data-leaf="'+l.id+'" data-f="necprox"></label>' : '')+
+    ((window.__cicloNec&&window.__cicloNec.aberto)? '<label class="lf-prox" title="Valor total ainda necess\u00e1rio para concluir esta tarefa (n\u00e3o \u00e9 o valor de um ano)">Necess\u00e1rio para concluir <input type="number" min="0" step="0.01" value="'+necConcluirDe(x)+'" data-leaf="'+l.id+'" data-f="necprox"></label>' : '')+
     '<span class="fin-saldo'+(saldo<0?' neg':'')+'" data-saldo="'+l.id+'">Saldo: R$ '+fmtBRL2(saldo)+'</span>'+
     '<button type="button" class="btn mini sec" data-toggleocc="'+l.id+'">'+(openOcc?'\u25be':'\u25b8')+' Ocorr\u00eancias'+(regs.length?' ('+regs.length+')':'')+'</button>'+
   '</div>';
@@ -8556,7 +8603,7 @@ function renderWbs(){
     html+='</div>';
   });
   el('wbsTree').innerHTML=html;
-  el('omTarCount').textContent = leavesFor(omData).length+' tarefas \u00b7 '+c.na+' N/A \u00b7 geral '+fmtPct(c.geral,1)+' \u00b7 saldo R$ '+fmtBRL2(c.finSaldo)+((window.__cicloNec&&(window.__cicloNec.aberto||c.nec27>0))? ' \u00b7 Nec. '+((window.__cicloNec||{}).ano||2027)+': R$ '+fmtBRL2(c.nec27||0):'');
+  el('omTarCount').textContent = leavesFor(omData).length+' tarefas \u00b7 '+c.na+' N/A \u00b7 geral '+fmtPct(c.geral,1)+' \u00b7 saldo R$ '+fmtBRL2(c.finSaldo)+((window.__cicloNec&&(window.__cicloNec.aberto||c.nec27>0))? ' \u00b7 Nec. p/ concluir: R$ '+fmtBRL2(c.nec27||0):'');
 }
 
 // ================= OM · REGISTROS (compartilhado com o painel inline das tarefas) =================
@@ -8582,7 +8629,7 @@ function omExportData(d, sigla){
     return { modulo:modNome[lf.mod]||lf.mod, grupo:LEAF_GRUPO[lf.base||lf.id]||'', tarefa:lf.nome,
       na:x.na?'Sim':'', pct:x.na?'':clampPct(x.pct||0),
       nec:Number(x.nec)||0, emp:Number(x.emp)||0, saldo:(Number(x.nec)||0)-(Number(x.emp)||0),
-      necProx:Number(x['nec_'+cicloAno])||0 };
+      necProx:necConcluirDe(x) };
   });
   const registros=((d.registros)||[]).map(r=>({ data:r.data||'', tipo:r.tipo||'', titulo:r.titulo||'',
     tarefa:(r.tarefaId? (leafByIdFor(d,r.tarefaId)||{}).nome||r.tarefaId : ''),
@@ -8601,10 +8648,10 @@ function exportXlsxOm(d, sigla){
   const resumo=[['Painel de Gestão do Projeto SISI no COMAER'],['OM',ex.sigla],['Gerado em',new Date().toLocaleString('pt-BR')],[],
     ['% geral',(ex.calc.geral||0).toFixed(1)+'%'],['Tarefas ativas',ex.calc.n],['N/A',ex.calc.na],
     ['Necess\u00e1rio (R$)',ex.calc.finNec],['Empregado (R$)',ex.calc.finEmp],['Saldo (R$)',ex.calc.finSaldo],
-    ['Necess\u00e1rio '+ex.cicloAno+' (R$)',ex.calc.nec27||0],[],['M\u00f3dulo','%','Necess\u00e1rio','Empregado','Saldo']]
+    ['Necess\u00e1rio para concluir (R$)',ex.calc.nec27||0],[],['M\u00f3dulo','%','Necess\u00e1rio','Empregado','Saldo']]
     .concat(ex.calc.mods.map(m=>[m.nome,(m.pct||0).toFixed(1)+'%',m.nec,m.emp,m.saldo]));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumo), 'Resumo');
-  const tHead=['M\u00f3dulo','Grupo','Tarefa','N/A','% realizado','Necess\u00e1rio (R$)','Empregado (R$)','Saldo (R$)','Necess\u00e1rio '+ex.cicloAno+' (R$)'];
+  const tHead=['M\u00f3dulo','Grupo','Tarefa','N/A','% realizado','Necess\u00e1rio (R$)','Empregado (R$)','Saldo (R$)','Necess\u00e1rio para concluir (R$)'];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([tHead].concat(ex.tarefas.map(r=>[r.modulo,r.grupo,r.tarefa,r.na,r.pct,r.nec,r.emp,r.saldo,r.necProx]))), 'Tarefas');
   const rHead=['Data','Tipo','T\u00edtulo','Tarefa','Coment\u00e1rio','Fotos'];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([rHead].concat(ex.registros.map(r=>[r.data,r.tipo,r.titulo,r.tarefa,r.comentario,r.fotos]))), 'Registros');
@@ -8651,9 +8698,9 @@ function buildRelatorioHtml(d, sigla){
     '<h2>Resumo</h2><div class=\"kpis\"><span>% geral: <strong>'+pct(ex.calc.geral)+'</strong></span>'+
     '<span>Tarefas ativas: '+ex.calc.n+'</span><span>N/A: '+ex.calc.na+'</span>'+
     '<span>Necess\u00e1rio: '+brl(ex.calc.finNec)+'</span><span>Empregado: '+brl(ex.calc.finEmp)+'</span>'+
-    '<span>Saldo: '+brl(ex.calc.finSaldo)+'</span><span>Necess\u00e1rio '+ex.cicloAno+': '+brl(ex.calc.nec27||0)+'</span></div>'+
+    '<span>Saldo: '+brl(ex.calc.finSaldo)+'</span><span>Necess\u00e1rio para concluir: '+brl(ex.calc.nec27||0)+'</span></div>'+
     '<h2>M\u00f3dulos</h2><table><tr><th>M\u00f3dulo</th><th>%</th><th>Necess\u00e1rio</th><th>Empregado</th><th>Saldo</th></tr>'+mods+'</table>'+
-    '<h2>Tarefas (Anexo II do MCA 205-5)</h2><table><tr><th>M\u00f3dulo</th><th>Grupo</th><th>Tarefa</th><th>N/A</th><th>%</th><th>Necess\u00e1rio</th><th>Empregado</th><th>Nec. '+ex.cicloAno+'</th></tr>'+rows+'</table>'+
+    '<h2>Tarefas (Anexo II do MCA 205-5)</h2><table><tr><th>M\u00f3dulo</th><th>Grupo</th><th>Tarefa</th><th>N/A</th><th>%</th><th>Necess\u00e1rio</th><th>Empregado</th><th>Nec. p/ concluir</th></tr>'+rows+'</table>'+
     '<h2>Registros ('+((d&&d.registros)||[]).length+')</h2>'+(regs||'<p>Sem registros.</p>')+
     '<h2>Necessidades SISI ('+ex.necessidades.length+')</h2>'+
     (necs?'<table><tr><th>M\u00f3dulo</th><th>Item</th><th>ND</th><th>Qtd</th><th>V. unit</th><th>Total</th></tr>'+necs+'</table>':'<p>Sem itens.</p>')+
@@ -8915,7 +8962,7 @@ function renderGOm(){
       kpiN('kpi-disp','Implanta\u00e7\u00e3o geral','<span>'+fmtPct(c.geral,1)+'</span>', c.conc+' conclu\u00eddas \u00b7 '+c.exec+' em execu\u00e7\u00e3o \u00b7 '+c.na+' N/A')+
       kpiN(c.probAb?'kpi-warn':'kpi-nec','Problemas em aberto','<span>'+c.probAb+'</span>','registros tipo Problema')+
       kpiR('kpi-apr','Necessidades',c.necTot, nec.length+' item(ns) em Necessidades SISI')+
-      (((window.__cicloNec&&window.__cicloNec.aberto)||c.nec27>0)? kpiR('kpi-nec','Necess\u00e1rio '+((window.__cicloNec||{}).ano||2027), c.nec27||0, 'atualiza\u00e7\u00e3o anual das tarefas') : '')+
+      (((window.__cicloNec&&window.__cicloNec.aberto)||c.nec27>0)? kpiR('kpi-nec','Necess\u00e1rio para concluir', c.nec27||0, 'total remanescente lan\u00e7ado nas tarefas') : '')+
       kpiN('kpi-emp','\u00daltimo envio','<span style="font-size:16px">'+fmtDT(d.savedAt)+'</span>','')+
     '</div>'+
     '<section class="charts-row r-12"><div class="gauge-card big"><div class="g-lbl">'+esc(gOmAtual)+'</div><svg viewBox="0 0 200 130" style="max-width:280px">'+gaugeSVG(c.geral,false)+'</svg>'+GSNAP_BTN+'</div>'+
@@ -9046,10 +9093,9 @@ function bind(){
       const x=omData.tarefas[id]||(omData.tarefas[id]={pct:0,na:false,nec:0,emp:0});
       if(t.dataset.f==='na'){ x.na=t.checked; saveLocalOm(); renderWbs(); return; }
       if(t.dataset.f==='necprox'){
-        const _a=((window.__cicloNec||{}).ano||2027);
-        x['nec_'+_a]=Number(t.value)||0; saveLocalOm();
+        x.necConcluir=Number(t.value)||0; saveLocalOm();
         try{ const c2=calc(omData);
-          el('omTarCount').textContent = leavesFor(omData).length+' tarefas \u00b7 '+c2.na+' N/A \u00b7 geral '+fmtPct(c2.geral,1)+' \u00b7 saldo R$ '+fmtBRL2(c2.finSaldo)+((window.__cicloNec&&(window.__cicloNec.aberto||c2.nec27>0))? ' \u00b7 Nec. '+_a+': R$ '+fmtBRL2(c2.nec27||0):'');
+          el('omTarCount').textContent = leavesFor(omData).length+' tarefas \u00b7 '+c2.na+' N/A \u00b7 geral '+fmtPct(c2.geral,1)+' \u00b7 saldo R$ '+fmtBRL2(c2.finSaldo)+((window.__cicloNec&&(window.__cicloNec.aberto||c2.nec27>0))? ' \u00b7 Nec. p/ concluir: R$ '+fmtBRL2(c2.nec27||0):'');
         }catch(_e){}
         return;
       }
@@ -9273,7 +9319,12 @@ return { enterAs, refresh, sair, showView, getRoster:()=>roster, getPerfil:()=>p
 (function(){
 'use strict';
 
-var MASTER_PASS = 'Infa99Adelfi'; // trava mestra (mesma da Área Admin) — não é segurança real
+/* u2.8 — a senha mestra em texto puro foi REMOVIDA do arquivo publicado.
+   O acesso agora depende exclusivamente das credenciais cadastradas (hash + sal).
+   Enquanto nenhuma credencial existir (primeira instalação ou sincronização ainda
+   não concluída), o painel entra em "primeira configuração": permite criar o
+   primeiro Gestor apenas neste navegador. */
+function semCredenciais(){ try{ return authGet().credenciais.length===0; }catch(e){ return true; } }
 var LS_AUTH = 'sisi_auth_v1';
 var LS_SESS = 'sisi_session_v1';
 
@@ -9382,7 +9433,6 @@ function resolveOmNome(sigla){
 /* ---------- Validação de login ---------- */
 function validate(tipo, escopo, senha){
   if(!senha) return null;
-  if(senha===MASTER_PASS) return { via:'master', rotulo:'Senha mestra', uid:null, nome:'', posto:'' };
   var creds=authGet().credenciais;
   for(var i=0;i<creds.length;i++){
     var c=creds[i];
@@ -9406,7 +9456,7 @@ window.__scopeOms = function(list){
 window.applySessionLocks = function(){
   var s=window.SESS;
   var fb=el('adminFooterBtn');
-  if(fb) fb.style.display=(!s||s.tipo==='gestor')?'':'none';
+  if(fb) fb.style.display=(!s||s.tipo==='gestor'||s.baseGestor)?'':'none';
   function grp(id){ var e=el(id); if(!e) return null; return (e.closest&&e.closest('.filter-group'))||e; }
   function show(node,v){ if(node) node.style.display=v?'':'none'; }
   if(!s){ show(grp('ms-om'),true); show(grp('ms-ods'),true); show(grp('ms-guarnicao'),true); return; }
@@ -9422,11 +9472,21 @@ window.applySessionLocks = function(){
   }
 };
 
+function quemEstaLogado(s){
+  var n=((s.posto? s.posto+' ':'')+(s.nome||'')).trim();
+  return n || s.rotulo || '';
+}
 function sessBarText(s){
-  if(s.tipo==='gestor') return 'GESTOR · COMPREP · acesso total';
-  if(s.tipo==='ods') return 'ODS · '+s.ods+' · dados restritos ao próprio ODS';
+  var quem=quemEstaLogado(s);
+  var eu = quem ? (' · ' + quem) : '';
+  if(s.tipo==='gestor') return 'GESTOR'+eu+' · COMPREP · acesso total';
+  if(s.tipo==='ods') return s.baseGestor
+    ? 'GESTOR'+eu+' · visão ODS · '+s.ods
+    : 'ODS · '+s.ods+eu+' · dados restritos ao próprio ODS';
   var nome=s.omNome && s.omNome!==s.om ? (' — '+s.omNome) : '';
-  return 'OM · '+s.om+nome+' · dados restritos à própria OM';
+  return s.baseGestor
+    ? 'GESTOR'+eu+' · visão OM · '+s.om+nome
+    : 'OM · '+s.om+nome+eu+' · dados restritos à própria OM';
 }
 
 function configureProfile(sess){
@@ -9437,6 +9497,7 @@ function configureProfile(sess){
   document.body.classList.remove('entry-locked');
   var sb=el('sessBar');
   if(sb){ sb.style.display=''; el('sessBarTxt').textContent=sessBarText(sess); }
+  try{ renderSessView(sess); }catch(e){}
   applySessionLocks();
   try{ rebuildOmFilter(); }catch(e){}
   try{ if(typeof ctrlOds!=='undefined'&&ctrlOds&&ctrlOds.renderChips) ctrlOds.renderChips(); }catch(e){}
@@ -9499,22 +9560,66 @@ function waitAuth(maxMs){
     })();
   });
 }
+/* u2.8 — usada pela Área Admin (script do dashboard financeiro) para aceitar
+   a senha de acesso de qualquer usuário do perfil Gestor. */
+window.__validaGestor = function(senha){
+  try{
+    var r=validateSenha(senha);
+    if(r && r.perfil==='gestor') return { rotulo:r.rotulo, nome:r.nome, posto:r.posto };
+  }catch(e){}
+  return null;
+};
+function validateSenha(senha){
+  if(!senha) return null;
+  var creds=authGet().credenciais;
+  for(var i=0;i<creds.length;i++){
+    var c=creds[i];
+    if(sha256Hex(String(c.salt||'')+senha)!==c.hash) continue;
+    return { via:'credencial', perfil:c.perfil, escopo:c.escopo||'', rotulo:c.rotulo,
+             uid:c.uid||null, nome:c.nome||'', posto:c.posto||'' };
+  }
+  return null;
+}
 async function entEntrar(){
   var msg=el('entMsg');
-  if(!entTipo){ msg.textContent='Selecione o perfil de acesso.'; return; }
-  var escopo = entTipo==='gestor' ? '' : el('entEscopo').value;
-  if(entTipo!=='gestor' && !escopo){ msg.textContent='Selecione o escopo ('+(entTipo==='ods'?'ODS':'OM')+').'; return; }
   var senha=el('entSenhaU').value;
+  if(!senha){ msg.textContent='Informe a senha.'; return; }
   msg.textContent='Verificando…';
   await waitAuth(6000);
-  var ok=validate(entTipo, escopo, senha);
-  if(!ok){ msg.textContent='Senha não reconhecida para este perfil/escopo.'; return; }
+  if(semCredenciais()){
+    msg.innerHTML='Nenhum usuário sincronizado neste navegador. '+
+      'Verifique a conexão e recarregue a página; se este for o primeiro acesso do painel, '+
+      'use "Primeira configuração" abaixo.';
+    var bt=el('entBootstrap'); if(bt) bt.style.display='';
+    return;
+  }
+  var ok=validateSenha(senha);
+  if(!ok){ msg.textContent='Senha não reconhecida.'; return; }
   msg.textContent='';
-  var sess={ tipo:entTipo, rotulo:ok.rotulo, uid:ok.uid||null, nome:ok.nome||'', posto:ok.posto||'', em:new Date().toISOString() };
-  if(entTipo==='ods') sess.ods=escopo;
-  if(entTipo==='om'){ sess.om=escopo; sess.omNome=resolveOmNome(escopo); }
+  var sess={ tipo:ok.perfil, rotulo:ok.rotulo, uid:ok.uid||null, nome:ok.nome||'', posto:ok.posto||'', em:new Date().toISOString() };
+  if(ok.perfil==='gestor') sess.baseGestor=true;
+  if(ok.perfil==='ods') sess.ods=ok.escopo;
+  if(ok.perfil==='om'){ sess.om=ok.escopo; sess.omNome=resolveOmNome(ok.escopo); }
   configureProfile(sess);
 }
+
+/* ---------- Primeira configuração (só quando não há credencial alguma) ---------- */
+function bootstrapGestor(){
+  if(!semCredenciais()){ el('entMsg').textContent='Já existem usuários cadastrados — use sua senha de acesso.'; return; }
+  var senha=el('entSenhaU').value;
+  if(!senha || senha.length<8){ el('entMsg').textContent='Defina uma senha de pelo menos 8 caracteres no campo acima e clique novamente.'; return; }
+  var nome=(typeof prompt==='function') ? prompt('Nome do gestor inicial (posto e nome):','') : '';
+  var st=authGet(), salt=randomSalt();
+  st.credenciais.push({ nome:(nome||'Gestor'), posto:'', omUser:'', tel:'', email:'',
+    rotulo:(nome||'Gestor'), perfil:'gestor', escopo:'',
+    uid:'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    salt:salt, hash:sha256Hex(salt+senha), criadoEm:new Date().toISOString() });
+  authSet(st);
+  el('entBootstrap').style.display='none';
+  el('entMsg').textContent='Gestor criado neste navegador. Entre com a senha que você acabou de definir e publique em Sincronização.';
+}
+(function(){ function b(){ var e=el('entBootstrap'); if(e&&!e.__b){ e.__b=1; e.addEventListener('click',bootstrapGestor); } }
+  if(document.readyState==='loading') window.addEventListener('DOMContentLoaded',b); else b(); })();
 
 /* ---------- Integração Google Drive (Apps Script) ---------- */
 var LS_GAS='sisi_gas_v1';
@@ -9585,10 +9690,10 @@ function renderCicloStatus(){
   var c=getCiclo();
   var lbl=el('cicloAnoLbl'); if(lbl) lbl.textContent=c.ano;
   var ab=el('cicloAbrirBtn'), fc=el('cicloFecharBtn');
-  if(ab) ab.textContent='Abrir preenchimento '+c.ano;
+  if(ab) ab.textContent='Abrir preenchimento (campanha '+c.ano+')';
   s.textContent = c.aberto
-    ? 'ABERTA — as OMs estão vendo o campo "Necessário '+c.ano+'" na aba Tarefas.'
-    : 'Fechada — o campo "Necessário '+c.ano+'" está oculto para as OMs.';
+    ? 'ABERTA — as OMs estão vendo o campo "Necessário para concluir" na aba Tarefas (campanha '+c.ano+').'
+    : 'Fechada — o campo "Necessário para concluir" está oculto para as OMs.';
   if(ab) ab.style.display = c.aberto? 'none':'';
   if(fc) fc.style.display = c.aberto? '':'none';
 }
@@ -9600,8 +9705,8 @@ var MAIL_TPL_COMUM =
 'Escopo: {ESCOPO}\n'+
 'Senha: {SENHA}\n\n'+
 'Instruções:\n'+
-'1. Acesse o endereço acima e selecione o perfil indicado.\n'+
-'2. Selecione o escopo correspondente e informe a senha.\n'+
+'1. Acesse o endereço acima e informe a senha — o painel reconhece automaticamente o seu perfil.\n'+
+'2. Não é necessário selecionar perfil nem escopo.\n'+
 '3. A senha é pessoal e intransferível. Não a repasse e não responda este e-mail com ela.\n'+
 '4. Em caso de esquecimento, solicite nova senha ao gestor do projeto.\n\n'+
 'Respeitosamente,\n'+
@@ -10288,7 +10393,63 @@ function credReenviar(i){
   }
 })();
 
-window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas, admShowGroup:admShowGroup, msgsGet:msgsGet, msgsSet:msgsSet, avAdd:avAdd, dmAdd:dmAdd, renderAvList:renderAvList, renderDmList:renderDmList, showEntryPopups:showEntryPopups, cienciasGet:cienciasGet, darCiencia:darCiencia, credReenviar:credReenviar, welcomeDevido:welcomeDevido, diretasPara:diretasPara, comUsersRefresh:comUsersRefresh,
+/* ============================================================
+   u2.6 — Seletor de visão do gestor (troca de escopo sem sair)
+   O gestor autenticado pode enxergar o painel como um ODS ou
+   como uma OM; a sessão continua sendo dele (baseGestor) e a
+   Área Admin permanece acessível.
+   ============================================================ */
+function sessViewOptions(){
+  var sel=el('sessView'); if(!sel) return;
+  sel.innerHTML='';
+  var og0=document.createElement('optgroup'); og0.label='Gestor';
+  var o0=document.createElement('option'); o0.value='gestor'; o0.textContent='COMAER \u2014 acesso total';
+  og0.appendChild(o0); sel.appendChild(og0);
+  var og1=document.createElement('optgroup'); og1.label='Vis\u00e3o de ODS';
+  odsListSafe().forEach(function(x){
+    var o=document.createElement('option'); o.value='ods:'+x; o.textContent=x; og1.appendChild(o);
+  });
+  sel.appendChild(og1);
+  var og2=document.createElement('optgroup'); og2.label='Vis\u00e3o de OM';
+  var ros=rosterSafe();
+  Object.keys(ros).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); }).forEach(function(sg){
+    var r=ros[sg];
+    var o=document.createElement('option'); o.value='om:'+sg;
+    o.textContent=sg+(r&&r.nome? ' \u2014 '+r.nome : '');
+    og2.appendChild(o);
+  });
+  sel.appendChild(og2);
+}
+function renderSessView(sess){
+  var wrap=el('sessViewWrap'), sel=el('sessView'); if(!wrap||!sel) return;
+  var mostrar = !!(sess && (sess.tipo==='gestor' || sess.baseGestor));
+  wrap.style.display = mostrar? '' : 'none';
+  if(!mostrar) return;
+  if(!sel.options.length) sessViewOptions();
+  sel.value = sess.tipo==='gestor' ? 'gestor' : (sess.tipo+':'+(sess.tipo==='ods'? (sess.ods||'') : (sess.om||'')));
+  if(sel.selectedIndex<0){ sessViewOptions(); sel.value='gestor'; }
+}
+function sessViewChange(){
+  var s=window.SESS;
+  if(!s || !(s.tipo==='gestor' || s.baseGestor)) return;
+  var v=(el('sessView')||{}).value||'gestor';
+  var base={ rotulo:s.rotulo, uid:s.uid||null, nome:s.nome||'', posto:s.posto||'',
+             em:s.em||new Date().toISOString(), baseGestor:true };
+  var novo;
+  if(v==='gestor'){ novo=Object.assign({ tipo:'gestor' }, base); }
+  else{
+    var p=v.split(':'), tipo=p[0], escopo=p.slice(1).join(':');
+    if(tipo==='ods') novo=Object.assign({ tipo:'ods', ods:escopo }, base);
+    else novo=Object.assign({ tipo:'om', om:escopo, omNome:resolveOmNome(escopo) }, base);
+  }
+  configureProfile(novo);
+}
+(function(){
+  function bind(){ var sv=el('sessView'); if(sv && !sv.__u26) { sv.__u26=1; sv.addEventListener('change',sessViewChange); } }
+  if(document.readyState==='loading') window.addEventListener('DOMContentLoaded',bind); else bind();
+})();
+
+window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas, admShowGroup:admShowGroup, validateSenha:validateSenha, sessViewChange:sessViewChange, renderSessView:renderSessView, sessViewOptions:sessViewOptions, msgsGet:msgsGet, msgsSet:msgsSet, avAdd:avAdd, dmAdd:dmAdd, renderAvList:renderAvList, renderDmList:renderDmList, showEntryPopups:showEntryPopups, cienciasGet:cienciasGet, darCiencia:darCiencia, credReenviar:credReenviar, welcomeDevido:welcomeDevido, diretasPara:diretasPara, comUsersRefresh:comUsersRefresh,
   configureProfile:configureProfile, resolveOmNome:resolveOmNome, entPick:entPick, entEntrar:entEntrar, credAdd:credAdd };
 })();
 
