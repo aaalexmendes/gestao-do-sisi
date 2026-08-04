@@ -4146,7 +4146,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.8 &#183; 03/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.9 &#183; 04/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4304,6 +4304,12 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
             <button type="button" class="admin-btn" id="gasRecolherBtn">Recolher botão</button>
           </div>
           <div id="gasStatus" class="cred-hint"></div>
+          <div class="cred-form" style="margin-top:12px; border-top:1px solid #e6e9ed; padding-top:12px">
+            <button type="button" class="admin-btn" id="gasPuxarBtn" title="L&#234; os pacotes enviados pelas OMs e atualiza o consolidado da Gest&#227;o do Projeto neste navegador">Puxar lan&#231;amentos das OMs</button>
+            <button type="button" class="admin-btn" id="gasListarBtn" title="Mostra apenas quem j&#225; enviou e quando, sem baixar os dados">Ver quem j&#225; enviou</button>
+            <span class="cred-hint" style="flex:1 1 auto">Traz para o painel o que as OMs enviaram ao Drive. Necess&#225;rio o Code.gs v4 instalado.</span>
+          </div>
+          <div id="gasPuxarStatus" class="cred-hint"></div>
         </div>
 
         <div class="admin-section" data-adm="dados">
@@ -9030,6 +9036,21 @@ function baixar(nome, obj){
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nome; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
+/* u2.9 — importa pacotes já desserializados (vindos do Apps Script).
+   Mesma regra do arquivo: só substitui se o pacote for igual ou mais novo. */
+function importarPacotesObj(lista){
+  let novos=0, ignorados=0, nomes=[];
+  (lista||[]).forEach(function(p){
+    if(!p || !p.om) return;
+    const atual=DB[p.om];
+    if(!atual || !atual.savedAt || (p.savedAt && p.savedAt>=atual.savedAt)){
+      DB[p.om]=p; novos++; nomes.push(p.om);
+    } else ignorados++;
+  });
+  if(novos){ lsSet(LS.all,DB); renderCtx(); refresh(); }
+  log('Servidor: '+novos+' pacote(s) aplicado(s)'+(ignorados? ', '+ignorados+' ignorado(s) por serem mais antigos':'')+'.');
+  return { novos:novos, ignorados:ignorados, oms:nomes, total:(lista||[]).length };
+}
 function importarPacotes(files){
   let n=0, total=files.length;
   Array.from(files).forEach(f=>{
@@ -9306,6 +9327,7 @@ async function enterAs(sess){
 }
 
 return { enterAs, refresh, sair, showView, getRoster:()=>roster, getPerfil:()=>perfil,
+  importarPacotesObj, getDB:()=>DB,
   _test:{ addInstancia, renomearInstancia, removerInstancia, leavesFor, leafByIdFor, calc, getOmData:()=>omData,
           omExportData, buildRelatorioHtml, buildGasPackage, exportXlsxOm, relatorioPdfOm, gasEnviar } };
 })();
@@ -9601,6 +9623,35 @@ async function entEntrar(){
   if(ok.perfil==='ods') sess.ods=ok.escopo;
   if(ok.perfil==='om'){ sess.om=ok.escopo; sess.omNome=resolveOmNome(ok.escopo); }
   configureProfile(sess);
+}
+
+/* ---------- u2.9 — puxar os lançamentos das OMs do servidor ---------- */
+function gasPuxarPacotes(somenteLista){
+  var st=el('gasPuxarStatus'); if(!st) return;
+  var c=getGas();
+  if(!c.url){ st.textContent='Configure e salve a URL do Apps Script antes de puxar.'; return; }
+  st.textContent = somenteLista? 'Consultando quem já enviou…' : 'Baixando os lançamentos das OMs…';
+  var u=c.url+(c.url.indexOf('?')>=0?'&':'?')+'rota=pacotes&token='+encodeURIComponent(c.token||'')+(somenteLista?'&lista=1':'');
+  fetch(u).then(function(r){ return r.json(); }).then(function(j){
+    if(!j || j.ok!==true) throw new Error((j&&j.erro)||'resposta inesperada do servidor');
+    if(!Array.isArray(j.pacotes)) throw new Error('o Code.gs instalado não tem a rota "pacotes" (respondeu como versão '+(j.versao||'anterior')+') — instale o Code.gs v4 e reimplante como Nova versão');
+    if(somenteLista){
+      var l=j.pacotes||[];
+      if(!l.length){ st.textContent='Nenhuma OM enviou dados ao servidor até agora.'; return; }
+      st.innerHTML='<strong>'+l.length+' OM(s) com envio registrado:</strong><br>'+
+        l.map(function(p){ return escU(p.om)+' — '+String(p.savedAt||p.enviadoEm||'sem data').slice(0,16).replace('T',' '); }).join('<br>');
+      return;
+    }
+    if(!window.PM || !PM.importarPacotesObj) throw new Error('módulo de projeto indisponível nesta página');
+    var res=PM.importarPacotesObj(j.pacotes||[]);
+    if(!res.total){ st.textContent='O servidor respondeu, mas nenhuma OM enviou dados ainda.'; return; }
+    st.innerHTML='<strong>'+res.novos+' de '+res.total+' pacote(s) aplicado(s)</strong>'+
+      (res.ignorados? ' · '+res.ignorados+' ignorado(s) por serem mais antigos que o já existente' : '')+
+      (res.oms.length? '<br>OMs atualizadas: '+escU(res.oms.join(', ')) : '')+
+      '<br>Os lançamentos já aparecem na aba Gestão do Projeto <em>neste navegador</em>. Repita este passo em cada computador que você usar.';
+  }).catch(function(e){
+    st.textContent='Falha ao puxar: '+e.message;
+  });
 }
 
 /* ---------- Primeira configuração (só quando não há credencial alguma) ---------- */
@@ -10041,6 +10092,10 @@ function initUnified(){
               var c=getGas(); c.liberado=false; setGas(c);
               credNote('Botão recolhido neste navegador. Clique em "Enviar dados ao JSONBin" para propagar.');
             });
+            var _pz=el('gasPuxarBtn');
+            if(_pz) _pz.addEventListener('click',function(){ gasPuxarPacotes(); });
+            var _pl=el('gasListarBtn');
+            if(_pl) _pl.addEventListener('click',function(){ gasPuxarPacotes(true); });
             el('gasTestarBtn').addEventListener('click',function(){
               var c=getGas();
               if(!c.url){ el('gasStatus').textContent='Informe e salve a URL antes de testar.'; return; }
@@ -10449,7 +10504,7 @@ function sessViewChange(){
   if(document.readyState==='loading') window.addEventListener('DOMContentLoaded',bind); else bind();
 })();
 
-window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas, admShowGroup:admShowGroup, validateSenha:validateSenha, sessViewChange:sessViewChange, renderSessView:renderSessView, sessViewOptions:sessViewOptions, msgsGet:msgsGet, msgsSet:msgsSet, avAdd:avAdd, dmAdd:dmAdd, renderAvList:renderAvList, renderDmList:renderDmList, showEntryPopups:showEntryPopups, cienciasGet:cienciasGet, darCiencia:darCiencia, credReenviar:credReenviar, welcomeDevido:welcomeDevido, diretasPara:diretasPara, comUsersRefresh:comUsersRefresh,
+window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet, authSet:authSet, genSenha:genSenha, credReset:credReset, credEditar:credEditar, credCancelar:credCancelar, montarEmail:montarEmail, abrirEmail:abrirEmail, getMailTpl:getMailTpl, setMailTpl:setMailTpl, getCiclo:getCiclo, setCiclo:setCiclo, getGas:getGas, setGas:setGas, admShowGroup:admShowGroup, validateSenha:validateSenha, gasPuxarPacotes:gasPuxarPacotes, sessViewChange:sessViewChange, renderSessView:renderSessView, sessViewOptions:sessViewOptions, msgsGet:msgsGet, msgsSet:msgsSet, avAdd:avAdd, dmAdd:dmAdd, renderAvList:renderAvList, renderDmList:renderDmList, showEntryPopups:showEntryPopups, cienciasGet:cienciasGet, darCiencia:darCiencia, credReenviar:credReenviar, welcomeDevido:welcomeDevido, diretasPara:diretasPara, comUsersRefresh:comUsersRefresh,
   configureProfile:configureProfile, resolveOmNome:resolveOmNome, entPick:entPick, entEntrar:entEntrar, credAdd:credAdd };
 })();
 
