@@ -4146,7 +4146,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.9 &#183; 04/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.11 &#183; 04/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4307,7 +4307,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
           <div class="cred-form" style="margin-top:12px; border-top:1px solid #e6e9ed; padding-top:12px">
             <button type="button" class="admin-btn" id="gasPuxarBtn" title="L&#234; os pacotes enviados pelas OMs e atualiza o consolidado da Gest&#227;o do Projeto neste navegador">Puxar lan&#231;amentos das OMs</button>
             <button type="button" class="admin-btn" id="gasListarBtn" title="Mostra apenas quem j&#225; enviou e quando, sem baixar os dados">Ver quem j&#225; enviou</button>
-            <span class="cred-hint" style="flex:1 1 auto">Traz para o painel o que as OMs enviaram ao Drive. Necess&#225;rio o Code.gs v4 instalado.</span>
+            <span class="cred-hint" style="flex:1 1 auto">Traz para o painel o que as OMs enviaram ao Drive (Code.gs v4). A busca tamb&#233;m ocorre <strong>automaticamente</strong> a cada entrada de Gestor e ODS; use os bot&#245;es para for&#231;ar agora.</span>
           </div>
           <div id="gasPuxarStatus" class="cred-hint"></div>
         </div>
@@ -8412,14 +8412,19 @@ function refresh(){
     else if(viewAtual==='g-admin') renderAdmin();
   }
 }
+function gasAtivo(){
+  var c=(typeof window!=='undefined'&&window.__gasCfg)||{};
+  return !!(c.url && c.liberado);
+}
 function renderCtx(){
   const p=el('ctxPerfil'), s=el('ctxSync'), sv=el('ctxSaved');
   if(!perfil){ return; }
   p.textContent = perfil.tipo==='om' ? ('OM \u00b7 '+perfil.om+' ('+(roster[perfil.om]?roster[perfil.om].ods:'?')+')')
     : perfil.tipo==='ods' ? ('ODS \u00b7 '+perfil.ods+' (somente leitura)')
     : 'GESTOR \u00b7 COMPREP';
-  s.textContent = apiOn()? 'servidor: '+cfg.apiUrl.replace(/^https?:\/\//,'').slice(0,34) : 'modo local (sem servidor)';
-  s.className = 'ctx-pill '+(apiOn()?'ok':'warnp');
+  s.textContent = apiOn()? ('servidor: '+cfg.apiUrl.replace(/^https?:\/\//,'').slice(0,34))
+    : (gasAtivo()? 'servidor: Google Drive (Apps Script)' : 'modo local (sem servidor)');
+  s.className = 'ctx-pill '+((apiOn()||gasAtivo())?'ok':'warnp');
   if(perfil.tipo==='om'){
     sv.textContent = dirty? 'altera\u00e7\u00f5es n\u00e3o enviadas' : ('\u00faltimo envio: '+fmtDT(omData&&omData.savedAt));
     sv.className='ctx-pill '+(dirty?'warnp':'');
@@ -8428,7 +8433,7 @@ function renderCtx(){
     const tot=Object.keys(roster).filter(o=>roster[o].ods===perfil.ods).length;
     sv.textContent='OM do ODS com dados: '+n+' de '+tot; sv.className='ctx-pill';
   } else { sv.textContent='OM com dados: '+Object.keys(DB).length; sv.className='ctx-pill'; }
-  el('btnEnviar').classList.toggle('hidden', !(perfil.tipo==='om'));
+  el('btnEnviar').classList.toggle('hidden', !(perfil.tipo==='om' && !gasAtivo()));
   el('btnRecarregar').classList.toggle('hidden', !(perfil.tipo==='om' && apiOn()));
   el('btnExportOm').classList.toggle('hidden', !(perfil.tipo==='om'));
   ['btnRelPdf','btnExpXlsx'].forEach(function(id){ var b=el(id); if(b) b.classList.toggle('hidden', !(perfil.tipo==='om')); });
@@ -8722,6 +8727,74 @@ function relatorioPdfOm(d, sigla){
   try{ w.focus(); setTimeout(function(){ try{ w.print(); }catch(e){} }, 500); }catch(e){}
   log('Relat\u00f3rio PDF da OM '+sigla+' aberto para impress\u00e3o.');
 }
+/* u2.11 — versão do relatório destinada à conversão em PDF pelo Apps Script.
+   Diferenças em relação ao relatório do navegador:
+   - sem flexbox (o conversor do Google só entende HTML/CSS básico);
+   - sem fotos embutidas em base64 (elas já vão como arquivos na pasta da OM;
+     aqui entram apenas as referências, o que mantém o pacote leve);
+   - cabeçalho com a identificação da OM que enviou, do ODS e da data. */
+function buildRelatorioPdfHtml(d, sigla, ods){
+  const ex=omExportData(d,sigla);
+  const pct=x=>(Number(x)||0).toFixed(1).replace('.',',')+'%';
+  const brl=x=>'R$ '+fmtBRL2(Number(x)||0);
+  const nomeOm=(roster[sigla]||{}).nome||'';
+  const quando=new Date().toLocaleString('pt-BR');
+  const th='style="border:1px solid #ccd3dc;padding:5px 7px;background:#eef2f7;color:#002B5C;text-align:left;font-size:10.5px"';
+  const td='style="border:1px solid #ccd3dc;padding:4px 7px;font-size:10.5px"';
+  const tdc='style="border:1px solid #ccd3dc;padding:4px 7px;font-size:10.5px;text-align:center"';
+  const tdr='style="border:1px solid #ccd3dc;padding:4px 7px;font-size:10.5px;text-align:right"';
+  const h2='style="color:#002B5C;font-size:14px;border-bottom:2px solid #FFCC00;padding-bottom:3px;margin:18px 0 8px"';
+  const tab='width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%"';
+  const mods=ex.calc.mods.map(m=>'<tr><td '+td+'>'+esc(m.nome)+'</td><td '+tdc+'>'+pct(m.pct)+'</td>'+
+    '<td '+tdr+'>'+brl(m.nec)+'</td><td '+tdr+'>'+brl(m.emp)+'</td><td '+tdr+'>'+brl(m.saldo)+'</td></tr>').join('');
+  const rows=ex.tarefas.map(r=>'<tr><td '+td+'>'+esc(r.modulo)+'</td><td '+td+'>'+esc(r.grupo)+'</td><td '+td+'>'+esc(r.tarefa)+'</td>'+
+    '<td '+tdc+'>'+(r.na||'')+'</td><td '+tdc+'>'+(r.na?'\u2014':pct(r.pct))+'</td>'+
+    '<td '+tdr+'>'+brl(r.nec)+'</td><td '+tdr+'>'+brl(r.emp)+'</td><td '+tdr+'>'+brl(r.necProx)+'</td></tr>').join('');
+  const necs=ex.necessidades.map(r=>'<tr><td '+td+'>'+esc(r.modulo)+'</td><td '+td+'>'+esc(r.item)+'</td>'+
+    '<td '+tdc+'>'+esc(r.nd)+'</td><td '+tdc+'>'+r.qtd+'</td><td '+tdr+'>'+brl(r.vunit)+'</td><td '+tdr+'>'+brl(r.total)+'</td></tr>').join('');
+  const regs=((d&&d.registros)||[]).map(r=>{
+    const nomes=(r.fotos||[]).map(f=>esc(f.ref||f.name||'foto')).join(', ');
+    return '<tr><td '+tdc+'>'+esc(r.data||'')+'</td><td '+tdc+'>'+esc(r.tipo||'')+'</td>'+
+      '<td '+td+'><strong>'+esc(r.titulo||'')+'</strong>'+(r.comentario?'<br>'+esc(r.comentario):'')+'</td>'+
+      '<td '+td+'>'+(nomes||'\u2014')+'</td></tr>';
+  }).join('');
+  const kpi=(rot,val)=>'<td style="border-left:3px solid #002B5C;background:#eef2f7;padding:6px 9px;font-size:11px">'+
+      rot+'<br><strong style="font-size:13px;color:#002B5C">'+val+'</strong></td><td width="8"></td>';
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relat\u00f3rio SISI \u2014 '+esc(sigla)+'</title></head>'+
+    '<body style="font-family:Arial,Helvetica,sans-serif;color:#222;margin:0">'+
+    '<table '+tab+'><tr><td style="background:#002B5C;padding:16px 24px;border-bottom:4px solid #FFCC00">'+
+      '<div style="color:#FFCC00;font-size:10px;letter-spacing:2px">COMANDO DA AERON\u00c1UTICA \u00b7 FOR\u00c7A A\u00c9REA BRASILEIRA</div>'+
+      '<div style="color:#fff;font-size:19px;font-weight:bold;text-transform:uppercase;margin-top:3px">Painel de Gest\u00e3o do Projeto SISI no COMAER</div>'+
+      '<div style="color:#fff;font-size:15px;margin-top:6px"><strong>'+esc(sigla)+(nomeOm? ' \u2014 '+esc(nomeOm):'')+'</strong></div>'+
+      '<div style="color:#cfd8e6;font-size:11px;margin-top:2px">'+(ods? 'ODS: '+esc(ods)+' \u00b7 ':'')+
+        'Relat\u00f3rio enviado em '+quando+' \u00b7 Anexo II do MCA 205-5</div>'+
+    '</td></tr></table>'+
+    '<div style="padding:16px 24px">'+
+    '<div '+h2+'>Resumo da OM</div>'+
+    '<table cellspacing="0" cellpadding="0"><tr>'+
+      kpi('Implanta\u00e7\u00e3o geral', pct(ex.calc.geral))+
+      kpi('Tarefas aplic\u00e1veis', String(ex.calc.n))+
+      kpi('N/A', String(ex.calc.na))+
+      kpi('Necess\u00e1rio', brl(ex.calc.finNec))+
+      kpi('Empregado', brl(ex.calc.finEmp))+
+      kpi('Necess\u00e1rio para concluir', brl(ex.calc.nec27||0))+
+    '</tr></table>'+
+    '<div '+h2+'>M\u00f3dulos</div>'+
+    '<table '+tab+'><tr><th '+th+'>M\u00f3dulo</th><th '+th+'>%</th><th '+th+'>Necess\u00e1rio</th><th '+th+'>Empregado</th><th '+th+'>Saldo</th></tr>'+mods+'</table>'+
+    '<div '+h2+'>Tarefas (Anexo II do MCA 205-5)</div>'+
+    '<table '+tab+'><tr><th '+th+'>M\u00f3dulo</th><th '+th+'>Grupo</th><th '+th+'>Tarefa</th><th '+th+'>N/A</th><th '+th+'>%</th>'+
+      '<th '+th+'>Necess\u00e1rio</th><th '+th+'>Empregado</th><th '+th+'>Nec. p/ concluir</th></tr>'+rows+'</table>'+
+    '<div '+h2+'>Registros ('+((d&&d.registros)||[]).length+')</div>'+
+    (regs? '<table '+tab+'><tr><th '+th+'>Data</th><th '+th+'>Tipo</th><th '+th+'>Ocorr\u00eancia</th><th '+th+'>Fotos (arquivos na pasta da OM)</th></tr>'+regs+'</table>'
+         : '<p style="font-size:11px">Sem registros lan\u00e7ados.</p>')+
+    '<div '+h2+'>Necessidades SISI ('+ex.necessidades.length+')</div>'+
+    (necs? '<table '+tab+'><tr><th '+th+'>M\u00f3dulo</th><th '+th+'>Item</th><th '+th+'>ND</th><th '+th+'>Qtd</th><th '+th+'>V. unit.</th><th '+th+'>Total</th></tr>'+necs+'</table>'
+         : '<p style="font-size:11px">Sem itens informados.</p>')+
+    '</div>'+
+    '<table '+tab+'><tr><td style="border-top:2px solid #FFCC00;padding:10px 24px;color:#667;font-size:9.5px">'+
+      'Painel de Gest\u00e3o do Projeto SISI no COMAER \u00b7 Documento de Controle Interno \u00b7 '+esc(sigla)+' \u00b7 '+quando+
+    '</td></tr></table></body></html>';
+}
 function buildGasPackage(d, sigla, ods){
   const dd=JSON.parse(JSON.stringify(d||{}));
   const fotos=[];
@@ -8736,8 +8809,10 @@ function buildGasPackage(d, sigla, ods){
       }
     });
   });
-  return { v:1, om:sigla, ods:ods||'', enviadoEm:new Date().toISOString(),
-           dados:dd, export:omExportData(d, sigla), fotos:fotos };
+  var relatorio='';
+  try{ relatorio=buildRelatorioPdfHtml(d, sigla, ods); }catch(e){ /* PDF é opcional: não impede o envio */ }
+  return { v:2, om:sigla, omNome:(roster[sigla]||{}).nome||'', ods:ods||'', enviadoEm:new Date().toISOString(),
+           dados:dd, export:omExportData(d, sigla), fotos:fotos, relatorio:relatorio };
 }
 async function gasEnviar(){
   const cfg=(typeof window!=='undefined'&&window.__gasCfg)||{};
@@ -8754,8 +8829,14 @@ async function gasEnviar(){
     const resp=await fetch(cfg.url, { method:'POST', body: JSON.stringify(pkg) });
     const j=await resp.json().catch(function(){ return null; });
     if(!resp.ok || !j || j.ok!==true) throw new Error((j&&j.erro)||('HTTP '+resp.status));
-    log('Google Drive OK \u2014 planilha: '+(j.sheetUrl||'?')+' \u00b7 pasta: '+(j.folderUrl||'?'));
-    alert('Enviado ao servidor!\\nPlanilha da OM: '+(j.sheetUrl||'(ver Drive)')+'\\nFotos novas: '+(j.fotosNovas!=null? j.fotosNovas : 'ok'));
+    omData.savedAt=new Date().toISOString();
+    lsSet(LS.om(sigla), omData);
+    setDirty(false);
+    renderCtx();
+    log('Google Drive OK \u2014 planilha: '+(j.sheetUrl||'?')+(j.pdfUrl? ' \u00b7 PDF: '+j.pdfUrl : ' \u00b7 PDF n\u00e3o gerado (verifique o Code.gs v5)')+' \u00b7 pasta: '+(j.folderUrl||'?'));
+    alert('Enviado ao servidor!\\nPlanilha da OM: '+(j.sheetUrl||'(ver Drive)')+
+          (j.pdfUrl? '\\nRelatório PDF: '+j.pdfUrl : '')+
+          '\\nFotos novas: '+(j.fotosNovas!=null? j.fotosNovas : 'ok'));
   }catch(e){
     log('Falha no envio ao Google Drive: '+e.message);
     alert('Falha no envio ao servidor: '+e.message);
@@ -9329,7 +9410,7 @@ async function enterAs(sess){
 return { enterAs, refresh, sair, showView, getRoster:()=>roster, getPerfil:()=>perfil,
   importarPacotesObj, getDB:()=>DB,
   _test:{ addInstancia, renomearInstancia, removerInstancia, leavesFor, leafByIdFor, calc, getOmData:()=>omData,
-          omExportData, buildRelatorioHtml, buildGasPackage, exportXlsxOm, relatorioPdfOm, gasEnviar } };
+          omExportData, buildRelatorioHtml, buildRelatorioPdfHtml, buildGasPackage, exportXlsxOm, relatorioPdfOm, gasEnviar } };
 })();
 
 </script>
@@ -9532,6 +9613,13 @@ function configureProfile(sess){
   }
   refresh();
   try{ showEntryPopups(sess); }catch(e){}
+  /* u2.10 — quem consolida (gestor e ODS) busca os lançamentos das OMs ao entrar.
+     Silencioso: falha de rede não atrapalha o login; o botão manual continua disponível. */
+  try{
+    if((sess.tipo==='gestor'||sess.tipo==='ods'||sess.baseGestor) && getGas().url){
+      setTimeout(function(){ try{ gasPuxarPacotes(false, true); }catch(e){} }, 400);
+    }
+  }catch(e){}
 }
 
 window.__logoutUnificado = function(){
@@ -9626,31 +9714,37 @@ async function entEntrar(){
 }
 
 /* ---------- u2.9 — puxar os lançamentos das OMs do servidor ---------- */
-function gasPuxarPacotes(somenteLista){
-  var st=el('gasPuxarStatus'); if(!st) return;
+function gasPuxarPacotes(somenteLista, silencioso){
+  var st=el('gasPuxarStatus');
+  var diz=function(txt, html){ if(!st) return; if(html) st.innerHTML=txt; else st.textContent=txt; };
   var c=getGas();
-  if(!c.url){ st.textContent='Configure e salve a URL do Apps Script antes de puxar.'; return; }
-  st.textContent = somenteLista? 'Consultando quem já enviou…' : 'Baixando os lançamentos das OMs…';
+  if(!c.url){ if(!silencioso) diz('Configure e salve a URL do Apps Script antes de puxar.'); return; }
+  if(!silencioso) diz(somenteLista? 'Consultando quem já enviou…' : 'Baixando os lançamentos das OMs…');
   var u=c.url+(c.url.indexOf('?')>=0?'&':'?')+'rota=pacotes&token='+encodeURIComponent(c.token||'')+(somenteLista?'&lista=1':'');
   fetch(u).then(function(r){ return r.json(); }).then(function(j){
     if(!j || j.ok!==true) throw new Error((j&&j.erro)||'resposta inesperada do servidor');
     if(!Array.isArray(j.pacotes)) throw new Error('o Code.gs instalado não tem a rota "pacotes" (respondeu como versão '+(j.versao||'anterior')+') — instale o Code.gs v4 e reimplante como Nova versão');
     if(somenteLista){
       var l=j.pacotes||[];
-      if(!l.length){ st.textContent='Nenhuma OM enviou dados ao servidor até agora.'; return; }
-      st.innerHTML='<strong>'+l.length+' OM(s) com envio registrado:</strong><br>'+
-        l.map(function(p){ return escU(p.om)+' — '+String(p.savedAt||p.enviadoEm||'sem data').slice(0,16).replace('T',' '); }).join('<br>');
+      if(!l.length){ diz('Nenhuma OM enviou dados ao servidor até agora.'); return; }
+      diz('<strong>'+l.length+' OM(s) com envio registrado:</strong><br>'+
+        l.map(function(p){ return escU(p.om)+' — '+String(p.savedAt||p.enviadoEm||'sem data').slice(0,16).replace('T',' '); }).join('<br>'), true);
       return;
     }
     if(!window.PM || !PM.importarPacotesObj) throw new Error('módulo de projeto indisponível nesta página');
     var res=PM.importarPacotesObj(j.pacotes||[]);
-    if(!res.total){ st.textContent='O servidor respondeu, mas nenhuma OM enviou dados ainda.'; return; }
-    st.innerHTML='<strong>'+res.novos+' de '+res.total+' pacote(s) aplicado(s)</strong>'+
+    if(!res.total){ if(!silencioso) diz('O servidor respondeu, mas nenhuma OM enviou dados ainda.'); return; }
+    if(silencioso){
+      if(res.novos) diz('Atualizado automaticamente na entrada: '+res.novos+' pacote(s) de OM ('+escU(res.oms.join(', '))+').');
+      return;
+    }
+    diz('<strong>'+res.novos+' de '+res.total+' pacote(s) aplicado(s)</strong>'+
       (res.ignorados? ' · '+res.ignorados+' ignorado(s) por serem mais antigos que o já existente' : '')+
       (res.oms.length? '<br>OMs atualizadas: '+escU(res.oms.join(', ')) : '')+
-      '<br>Os lançamentos já aparecem na aba Gestão do Projeto <em>neste navegador</em>. Repita este passo em cada computador que você usar.';
+      '<br>Os lançamentos aparecem na aba Gestão do Projeto. A busca também é feita automaticamente a cada entrada.', true);
   }).catch(function(e){
-    st.textContent='Falha ao puxar: '+e.message;
+    if(!silencioso) diz('Falha ao puxar: '+e.message);
+    else try{ console.warn('Busca automática de lançamentos falhou: '+e.message); }catch(_){}
   });
 }
 
