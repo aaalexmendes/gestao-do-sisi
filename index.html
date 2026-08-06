@@ -4146,7 +4146,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.11 &#183; 04/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.12 &#183; 04/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -8434,7 +8434,7 @@ function renderCtx(){
     sv.textContent='OM do ODS com dados: '+n+' de '+tot; sv.className='ctx-pill';
   } else { sv.textContent='OM com dados: '+Object.keys(DB).length; sv.className='ctx-pill'; }
   el('btnEnviar').classList.toggle('hidden', !(perfil.tipo==='om' && !gasAtivo()));
-  el('btnRecarregar').classList.toggle('hidden', !(perfil.tipo==='om' && apiOn()));
+  el('btnRecarregar').classList.toggle('hidden', !(perfil.tipo==='om' && (apiOn()||gasAtivo())));
   el('btnExportOm').classList.toggle('hidden', !(perfil.tipo==='om'));
   ['btnRelPdf','btnExpXlsx'].forEach(function(id){ var b=el(id); if(b) b.classList.toggle('hidden', !(perfil.tipo==='om')); });
   (function(){ var b=el('btnGasEnviar'); if(!b) return; var c=(typeof window!=='undefined'&&window.__gasCfg)||{}; b.classList.toggle('hidden', !(perfil.tipo==='om' && c.url && c.liberado)); })();
@@ -8456,15 +8456,65 @@ function renderEntry(){
   const odsSel=el('entOdsSel');
   if(odsSel) odsSel.innerHTML = odsLista().map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('');
 }
+/* u2.12 — busca no Apps Script o pacote da própria OM, para que vários usuários
+   da mesma OM (e depois o ODS) vejam os mesmos lançamentos. Devolve o pacote ou null. */
+function gasCfgAtual(){
+  var c=(typeof window!=='undefined'&&window.__gasCfg)||null;
+  if(c && c.url) return c;
+  /* Reserva: a configuração pode ainda não ter sido aplicada pelo bin neste
+     carregamento — ela já está no armazenamento local desde a última visita. */
+  try{ var v=JSON.parse(localStorage.getItem('sisi_gas_v1')||'null'); if(v && v.url) return v; }catch(e){}
+  return {};
+}
+async function gasBaixarOm(sigla){
+  const c=gasCfgAtual();
+  if(!c.url) return null;
+  const u=c.url+(c.url.indexOf('?')>=0?'&':'?')+'rota=pacotes&om='+encodeURIComponent(sigla)+
+          '&token='+encodeURIComponent(c.token||'');
+  const r=await fetch(u,{cache:'no-store'});
+  const j=await r.json();
+  if(!j || j.ok!==true || !Array.isArray(j.pacotes)) throw new Error((j&&j.erro)||'servidor sem a rota "pacotes" (Code.gs v4 ou superior)');
+  const p=j.pacotes.find(function(x){ return x && x.om===sigla; });
+  return p||null;
+}
+/* Adota o pacote do servidor quando ele for mais novo que o local.
+   Nunca descarta alteração local não enviada sem avisar. */
+async function sincronizarOmComServidor(sigla, opts){
+  opts=opts||{};
+  try{
+    const srv=await gasBaixarOm(sigla);
+    if(!srv){ if(opts.avisar) log('O servidor ainda não tem lançamentos desta OM.'); return false; }
+    const localSaved=(omData&&omData.savedAt)||'';
+    const srvSaved=srv.savedAt||'';
+    if(dirty && srvSaved>localSaved){
+      log('Atenção: há lançamentos mais recentes de outro usuário da ' + sigla + ' no servidor ('+fmtDT(srvSaved)+
+          '), mas existem alterações não enviadas neste computador. Use "Recarregar do servidor" para trocar (as alterações locais serão perdidas) ou envie as suas primeiro.');
+      return false;
+    }
+    if(!localSaved || (srvSaved && srvSaved>localSaved) || opts.forcar){
+      omData=srv; lsSet(LS.om(sigla),omData); dirty=false;
+      log('Lançamentos de '+sigla+' carregados do servidor ('+fmtDT(srv.savedAt)+').');
+      return true;
+    }
+    if(opts.avisar) log('Seus lançamentos já são os mais recentes ('+fmtDT(localSaved)+').');
+    return false;
+  }catch(e){
+    log('Não foi possível consultar o servidor ('+e.message+'). Usando os dados deste computador.');
+    return false;
+  }
+}
 async function entrarOm(sigla){
   perfil={tipo:'om', om:sigla}; lsSet(LS.perfil,perfil);
   omData = lsGet(LS.om(sigla), null) || novoOmData(sigla);
+  dirty=false;
   if(apiOn()){
     try{ const srv=await apiGetOm(sigla);
       if(srv && (!omData.savedAt || (srv.savedAt && srv.savedAt>omData.savedAt))){ omData=srv; lsSet(LS.om(sigla),omData); log('Dados de '+sigla+' carregados do servidor.'); }
     }catch(e){ log('Sem acesso ao servidor ('+e.message+'). Usando dados locais.'); }
+  } else {
+    await sincronizarOmComServidor(sigla);   // u2.12 — todos da OM veem o mesmo
   }
-  dirty=false; montarApp();
+  montarApp();
 }
 async function entrarGestor(senha){
   if(apiOn()){
@@ -8733,7 +8783,7 @@ function relatorioPdfOm(d, sigla){
    - sem fotos embutidas em base64 (elas já vão como arquivos na pasta da OM;
      aqui entram apenas as referências, o que mantém o pacote leve);
    - cabeçalho com a identificação da OM que enviou, do ODS e da data. */
-function buildRelatorioPdfHtml(d, sigla, ods){
+function buildRelatorioPdfHtml(d, sigla, ods, comFotos){
   const ex=omExportData(d,sigla);
   const pct=x=>(Number(x)||0).toFixed(1).replace('.',',')+'%';
   const brl=x=>'R$ '+fmtBRL2(Number(x)||0);
@@ -8753,10 +8803,17 @@ function buildRelatorioPdfHtml(d, sigla, ods){
   const necs=ex.necessidades.map(r=>'<tr><td '+td+'>'+esc(r.modulo)+'</td><td '+td+'>'+esc(r.item)+'</td>'+
     '<td '+tdc+'>'+esc(r.nd)+'</td><td '+tdc+'>'+r.qtd+'</td><td '+tdr+'>'+brl(r.vunit)+'</td><td '+tdr+'>'+brl(r.total)+'</td></tr>').join('');
   const regs=((d&&d.registros)||[]).map(r=>{
+    var tarefaNome='';
+    try{ tarefaNome=(r.tarefaId && (leafByIdFor(d, r.tarefaId)||{}).nome) || ''; }catch(e){}
     const nomes=(r.fotos||[]).map(f=>esc(f.ref||f.name||'foto')).join(', ');
+    /* Na versão com fotos, cada imagem entra como marcador que o Apps Script troca
+       pela foto já enviada — assim o pacote não carrega a mesma imagem duas vezes. */
+    const imgs=comFotos ? (r.fotos||[]).map(f=>'[[FOTO:'+(f.ref||f.name||'')+']]').join(' ') : '';
     return '<tr><td '+tdc+'>'+esc(r.data||'')+'</td><td '+tdc+'>'+esc(r.tipo||'')+'</td>'+
-      '<td '+td+'><strong>'+esc(r.titulo||'')+'</strong>'+(r.comentario?'<br>'+esc(r.comentario):'')+'</td>'+
-      '<td '+td+'>'+(nomes||'\u2014')+'</td></tr>';
+      '<td '+td+'><strong>'+esc(r.titulo||'')+'</strong>'+
+        (tarefaNome? '<br><em>Tarefa: '+esc(tarefaNome)+'</em>':'')+
+        (r.comentario?'<br>'+esc(r.comentario):'')+'</td>'+
+      '<td '+td+'>'+(comFotos ? (imgs||'\u2014') : (nomes||'\u2014'))+'</td></tr>';
   }).join('');
   const kpi=(rot,val)=>'<td style="border-left:3px solid #002B5C;background:#eef2f7;padding:6px 9px;font-size:11px">'+
       rot+'<br><strong style="font-size:13px;color:#002B5C">'+val+'</strong></td><td width="8"></td>';
@@ -8767,7 +8824,8 @@ function buildRelatorioPdfHtml(d, sigla, ods){
       '<div style="color:#fff;font-size:19px;font-weight:bold;text-transform:uppercase;margin-top:3px">Painel de Gest\u00e3o do Projeto SISI no COMAER</div>'+
       '<div style="color:#fff;font-size:15px;margin-top:6px"><strong>'+esc(sigla)+(nomeOm? ' \u2014 '+esc(nomeOm):'')+'</strong></div>'+
       '<div style="color:#cfd8e6;font-size:11px;margin-top:2px">'+(ods? 'ODS: '+esc(ods)+' \u00b7 ':'')+
-        'Relat\u00f3rio enviado em '+quando+' \u00b7 Anexo II do MCA 205-5</div>'+
+        'Relat\u00f3rio enviado em '+quando+' \u00b7 Anexo II do MCA 205-5'+
+        (comFotos? ' \u00b7 vers\u00e3o com fotos' : ' \u00b7 vers\u00e3o resumida (sem fotos)')+'</div>'+
     '</td></tr></table>'+
     '<div style="padding:16px 24px">'+
     '<div '+h2+'>Resumo da OM</div>'+
@@ -8784,8 +8842,8 @@ function buildRelatorioPdfHtml(d, sigla, ods){
     '<div '+h2+'>Tarefas (Anexo II do MCA 205-5)</div>'+
     '<table '+tab+'><tr><th '+th+'>M\u00f3dulo</th><th '+th+'>Grupo</th><th '+th+'>Tarefa</th><th '+th+'>N/A</th><th '+th+'>%</th>'+
       '<th '+th+'>Necess\u00e1rio</th><th '+th+'>Empregado</th><th '+th+'>Nec. p/ concluir</th></tr>'+rows+'</table>'+
-    '<div '+h2+'>Registros ('+((d&&d.registros)||[]).length+')</div>'+
-    (regs? '<table '+tab+'><tr><th '+th+'>Data</th><th '+th+'>Tipo</th><th '+th+'>Ocorr\u00eancia</th><th '+th+'>Fotos (arquivos na pasta da OM)</th></tr>'+regs+'</table>'
+    '<div '+h2+'>Registros ('+((d&&d.registros)||[]).length+')'+(comFotos?' \u00b7 com fotos':'')+'</div>'+
+    (regs? '<table '+tab+'><tr><th '+th+'>Data</th><th '+th+'>Tipo</th><th '+th+'>Ocorr\u00eancia</th><th '+th+'>'+(comFotos?'Fotos':'Fotos (arquivos na pasta da OM)')+'</th></tr>'+regs+'</table>'
          : '<p style="font-size:11px">Sem registros lan\u00e7ados.</p>')+
     '<div '+h2+'>Necessidades SISI ('+ex.necessidades.length+')</div>'+
     (necs? '<table '+tab+'><tr><th '+th+'>M\u00f3dulo</th><th '+th+'>Item</th><th '+th+'>ND</th><th '+th+'>Qtd</th><th '+th+'>V. unit.</th><th '+th+'>Total</th></tr>'+necs+'</table>'
@@ -8795,24 +8853,46 @@ function buildRelatorioPdfHtml(d, sigla, ods){
       'Painel de Gest\u00e3o do Projeto SISI no COMAER \u00b7 Documento de Controle Interno \u00b7 '+esc(sigla)+' \u00b7 '+quando+
     '</td></tr></table></body></html>';
 }
+/* u2.12 — nome de arquivo legível a partir do texto (sem acento, sem espaço). */
+function slugArquivo(txt, max){
+  var s=String(txt||'').normalize? String(txt||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'') : String(txt||'');
+  s=s.replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  if(!s) return '';
+  return s.slice(0, max||48).replace(/-+$/,'');
+}
 function buildGasPackage(d, sigla, ods){
   const dd=JSON.parse(JSON.stringify(d||{}));
   const fotos=[];
+  const usados={};
   (dd.registros||[]).forEach(function(r){
     (r.fotos||[]).forEach(function(f, ix){
       const m=/^data:([^;]+);base64,(.+)$/.exec((f&&f.dataUrl)||'');
       if(m){
         const ext=m[1]==='image/png'?'.png':(m[1]==='image/webp'?'.webp':'.jpg');
-        const name=String(r.id||'reg').replace(/[^A-Za-z0-9_-]+/g,'')+'_'+(ix+1)+ext;
-        fotos.push({ name:name, mime:m[1], b64:m[2], registroId:r.id||'', data:r.data||'', titulo:r.titulo||'' });
+        /* u2.12 — nome pela TAREFA da ocorrência (facilita o controle na pasta):
+           <Tarefa>_<Titulo-da-ocorrencia>_<data>_<n>.jpg
+           Sem tarefa vinculada, usa o título; em último caso, o id do registro.
+           O id curto entra quando o nome se repetiria, para não sobrescrever no Drive. */
+        var tarefaNome='';
+        try{ tarefaNome=(r.tarefaId && (leafByIdFor(d, r.tarefaId)||{}).nome) || ''; }catch(e){}
+        var partes=[ slugArquivo(tarefaNome, 46), slugArquivo(r.titulo, 28),
+                     String(r.data||'').slice(0,10) ].filter(Boolean);
+        var base=partes.join('_') || ('Ocorrencia-'+slugArquivo(r.id,12));
+        var name=base+'_'+(ix+1)+ext;
+        if(usados[name]){ name=base+'_'+slugArquivo(r.id,6)+'_'+(ix+1)+ext; }
+        usados[name]=1;
+        fotos.push({ name:name, mime:m[1], b64:m[2], registroId:r.id||'', data:r.data||'',
+                     titulo:r.titulo||'', tarefa:tarefaNome });
         r.fotos[ix]={ ref:name };
       }
     });
   });
-  var relatorio='';
-  try{ relatorio=buildRelatorioPdfHtml(d, sigla, ods); }catch(e){ /* PDF é opcional: não impede o envio */ }
-  return { v:2, om:sigla, omNome:(roster[sigla]||{}).nome||'', ods:ods||'', enviadoEm:new Date().toISOString(),
-           dados:dd, export:omExportData(d, sigla), fotos:fotos, relatorio:relatorio };
+  var relatorio='', relatorioFotos='';
+  try{ relatorio=buildRelatorioPdfHtml(d, sigla, ods, false); }catch(e){ /* PDF é opcional: não impede o envio */ }
+  try{ if(fotos.length) relatorioFotos=buildRelatorioPdfHtml(dd, sigla, ods, true); }catch(e){}
+  return { v:3, om:sigla, omNome:(roster[sigla]||{}).nome||'', ods:ods||'', enviadoEm:new Date().toISOString(),
+           dados:dd, export:omExportData(d, sigla), fotos:fotos,
+           relatorio:relatorio, relatorioFotos:relatorioFotos };
 }
 async function gasEnviar(){
   const cfg=(typeof window!=='undefined'&&window.__gasCfg)||{};
@@ -8836,6 +8916,7 @@ async function gasEnviar(){
     log('Google Drive OK \u2014 planilha: '+(j.sheetUrl||'?')+(j.pdfUrl? ' \u00b7 PDF: '+j.pdfUrl : ' \u00b7 PDF n\u00e3o gerado (verifique o Code.gs v5)')+' \u00b7 pasta: '+(j.folderUrl||'?'));
     alert('Enviado ao servidor!\\nPlanilha da OM: '+(j.sheetUrl||'(ver Drive)')+
           (j.pdfUrl? '\\nRelatório PDF: '+j.pdfUrl : '')+
+          (j.pdfFotosUrl? '\\nRelatório com fotos: '+j.pdfFotosUrl : '')+
           '\\nFotos novas: '+(j.fotosNovas!=null? j.fotosNovas : 'ok'));
   }catch(e){
     log('Falha no envio ao Google Drive: '+e.message);
@@ -9174,12 +9255,18 @@ function bind(){
     renderCtx();
   });
   el('btnRecarregar').addEventListener('click',async ()=>{
-    if(!apiOn()||!perfil||perfil.tipo!=='om') return;
-    if(dirty && !confirm('H\u00e1 altera\u00e7\u00f5es n\u00e3o enviadas que ser\u00e3o substitu\u00eddas. Continuar?')) return;
-    try{ const srv=await apiGetOm(perfil.om);
-      if(srv){ omData=srv; lsSet(LS.om(perfil.om),omData); setDirty(false); refresh(); log('Dados recarregados do servidor.'); }
-      else alert('O servidor ainda n\u00e3o tem dados desta OM.');
-    }catch(e){ alert('Falha: '+e.message); }
+    if(!perfil||perfil.tipo!=='om') return;
+    if(dirty && !confirm('H\u00e1 altera\u00e7\u00f5es n\u00e3o enviadas neste computador que ser\u00e3o substitu\u00eddas pelo que est\u00e1 no servidor. Continuar?')) return;
+    if(apiOn()){
+      try{ const srv=await apiGetOm(perfil.om);
+        if(srv){ omData=srv; lsSet(LS.om(perfil.om),omData); setDirty(false); refresh(); log('Dados recarregados do servidor.'); }
+        else alert('O servidor ainda n\u00e3o tem dados desta OM.');
+      }catch(e){ alert('Falha: '+e.message); }
+      return;
+    }
+    const trocou=await sincronizarOmComServidor(perfil.om, {avisar:true, forcar:true});
+    if(trocou){ setDirty(false); refresh(); alert('Lan\u00e7amentos atualizados com o que est\u00e1 no servidor.'); }
+    else alert('Nada a atualizar: o servidor ainda n\u00e3o tem lan\u00e7amentos desta OM ou houve falha de conex\u00e3o (veja o Registro).');
   });
   el('btnExportOm').addEventListener('click',()=>{
     if(!omData) return; omData.savedAt=omData.savedAt||new Date().toISOString();
