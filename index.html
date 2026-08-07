@@ -4146,7 +4146,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.12 &#183; 04/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.13 &#183; 06/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -7867,6 +7867,27 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
 #pmWorld .wbs-leaf.is-inst{ border-left:3px solid var(--fab-yellow); background:rgba(255,204,0,.06); }
 #pmWorld .wbs-leaf.is-inst .lf-nm::before{ content:'b3 '; color:#8a93a0; }
 #pmWorld .gauge-card, #pmWorld .chart-card{ position:relative; }
+/* u2.13 — tarefas em modo consulta (gestor/ODS) */
+#pmWorld .tv-filtros{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:10px 0 12px; }
+#pmWorld .tv-filtros .btn.mini.on{ background:#002B5C; color:#fff; border-color:#002B5C; }
+#pmWorld .tv-mod{ margin:14px 0 6px; font:600 12px/1 'Roboto Condensed',sans-serif; letter-spacing:.08em;
+  text-transform:uppercase; color:#002B5C; border-bottom:2px solid #FFCC00; padding-bottom:4px; }
+#pmWorld .tv-grp{ margin:10px 0 4px; font:600 11px/1.3 'Roboto',sans-serif; color:#5b6572; }
+#pmWorld .tv-row{ display:grid; grid-template-columns:1fr 92px 150px; gap:10px; align-items:center;
+  padding:6px 8px; border-bottom:1px solid #eceff3; }
+#pmWorld .tv-row:hover{ background:#f6f8fa; }
+#pmWorld .tv-nm{ font-size:12.5px; color:#2b3440; }
+#pmWorld .tv-nm small{ display:block; color:#8a93a0; font-size:10.5px; }
+#pmWorld .tv-pct{ text-align:right; font:600 13px/1 'Roboto Mono',monospace; }
+#pmWorld .tv-bar{ height:8px; background:#e6e9ed; position:relative; }
+#pmWorld .tv-bar i{ position:absolute; left:0; top:0; bottom:0; background:#002B5C; }
+#pmWorld .tv-row.zero .tv-pct{ color:#C8102E; }
+#pmWorld .tv-row.zero .tv-bar i{ background:#C8102E; }
+#pmWorld .tv-row.full .tv-pct{ color:#00600f; }
+#pmWorld .tv-row.full .tv-bar i{ background:#00843D; }
+#pmWorld .tv-row.na{ opacity:.55; }
+#pmWorld .tv-row.na .tv-pct{ color:#8a93a0; font-size:11px; }
+#pmWorld .tv-fin{ font:11px 'Roboto Mono',monospace; color:#5b6572; }
 #pmWorld .g-snap{ position:absolute; top:8px; right:8px; z-index:3; border:1px solid #c8cdd4;
   background:rgba(255,255,255,.94); color:#002B5C; font:600 10px 'Roboto Mono',monospace;
   letter-spacing:.08em; padding:3px 8px; border-radius:3px; cursor:pointer; opacity:.25; transition:opacity .15s; }
@@ -8191,7 +8212,7 @@ let colAberto = {};             // colapso da árvore
 let occAberto = {};             // painel de ocorrências aberto por tarefa (leafId)
 let occDraft = {};               // rascunho do formulário de ocorrência por tarefa {leafId:{data,tipo,titulo,comentario}}
 let pendingFotosLeaf = {};       // fotos pendentes do formulário inline por tarefa {leafId:[...]}
-let gOdsAtual = '', gOmAtual = '';
+let gOdsAtual = '', gOmAtual = ''; let gTvFiltro='todas';
 const LOGS = [];
 
 function log(msg){ const t=new Date().toLocaleTimeString('pt-BR'); LOGS.unshift({t,msg});
@@ -9109,6 +9130,52 @@ function renderGOds(){
     kpiR(fin.saldo<0?'kpi-warn':'kpi-liq','Saldo (tarefas) do ODS', fin.saldo, fin.saldo<0? 'excedeu o necess\u00e1rio lan\u00e7ado' : 'ainda dispon\u00edvel');
   el('gOdsModFinTable').innerHTML = finTableHtml(fin.mods, fin.nec, fin.emp, fin.saldo);
 }
+/* u2.13 — tarefas do Anexo II em modo consulta, para gestor e ODS.
+   Somente leitura: quem lança é a OM. */
+function gTarefasHtml(d, sigla){
+  const ls=leavesFor(d);
+  const linhas=ls.map(function(l){
+    const x=(d.tarefas||{})[l.id]||{};
+    const na=!!x.na;
+    const pct=na?0:(Number(x.pct)||0);
+    return { l:l, na:na, pct:pct, nec:Number(x.nec)||0, emp:Number(x.emp)||0, conc:necConcluirDe(x) };
+  });
+  const cont={ todas:linhas.length,
+    zero:linhas.filter(r=>!r.na && r.pct<=0).length,
+    exec:linhas.filter(r=>!r.na && r.pct>0 && r.pct<100).length,
+    fim:linhas.filter(r=>!r.na && r.pct>=100).length,
+    na:linhas.filter(r=>r.na).length };
+  const f=gTvFiltro;
+  const vis=linhas.filter(function(r){
+    if(f==='zero') return !r.na && r.pct<=0;
+    if(f==='exec') return !r.na && r.pct>0 && r.pct<100;
+    if(f==='fim')  return !r.na && r.pct>=100;
+    if(f==='na')   return r.na;
+    return true;
+  });
+  const bt=(k,rot,n)=>'<button type="button" class="btn mini sec'+(f===k?' on':'')+'" data-tvf="'+k+'">'+rot+' ('+n+')</button>';
+  let html='<div class="tv-filtros"><span class="tv-fin" style="margin-right:4px">mostrar:</span>'+
+    bt('todas','Todas',cont.todas)+bt('zero','N\u00e3o iniciadas',cont.zero)+
+    bt('exec','Em execu\u00e7\u00e3o',cont.exec)+bt('fim','Conclu\u00eddas',cont.fim)+
+    bt('na','N/A',cont.na)+'</div>';
+  if(!vis.length) return html+'<div class="empty-state"><p>Nenhuma tarefa nesta situa\u00e7\u00e3o.</p></div>';
+  let mod='', grp='';
+  vis.forEach(function(r){
+    if(r.l.modNome!==mod){ mod=r.l.modNome; grp=''; html+='<div class="tv-mod">'+esc(mod)+'</div>'; }
+    if((r.l.grp||'')!==grp){ grp=r.l.grp||''; if(grp) html+='<div class="tv-grp">'+esc(grp)+'</div>'; }
+    const cls=r.na?'na':(r.pct<=0?'zero':(r.pct>=100?'full':''));
+    const fin=[];
+    if(r.nec) fin.push('Nec. R$ '+fmtBRL2(r.nec));
+    if(r.emp) fin.push('Empr. R$ '+fmtBRL2(r.emp));
+    if(r.conc) fin.push('P/ concluir R$ '+fmtBRL2(r.conc));
+    html+='<div class="tv-row '+cls+'">'+
+      '<div class="tv-nm">'+esc(r.l.nome)+(fin.length?'<small>'+fin.join(' \u00b7 ')+'</small>':'')+'</div>'+
+      '<div class="tv-pct">'+(r.na?'N/A':fmtPct(r.pct,0))+'</div>'+
+      '<div class="tv-bar"><i style="width:'+(r.na?0:Math.max(0,Math.min(100,r.pct)))+'%"></i></div>'+
+    '</div>';
+  });
+  return html;
+}
 function renderGOm(){
   const sel=el('gOmSel');
   const travado = perfil && perfil.tipo==='ods';
@@ -9144,6 +9211,8 @@ function renderGOm(){
     finTableHtml(c.mods, c.finNec, c.finEmp, c.finSaldo)+
     '<div style="margin:12px 0"><button type="button" class="btn mini sec" data-omrel="'+esc(gOmAtual)+'">Relat\u00f3rio (PDF)</button> '+
     '<button type="button" class="btn mini sec" data-omxlsx="'+esc(gOmAtual)+'">Exportar Excel</button></div>'+
+    '<h2 class="section-title" style="margin-top:24px"><span>Tarefas (Anexo II) de '+esc(gOmAtual)+'</span><span class="count">'+c.conc+' de '+c.n+' conclu\u00edda(s)</span></h2>'+
+    gTarefasHtml(d, gOmAtual)+
     '<h2 class="section-title" style="margin-top:24px"><span>Registros de '+esc(gOmAtual)+'</span><span class="count">'+regs.length+' registro(s)</span></h2>'+
     (regs.length? regs.map(r=>regCardHtml(r,true,d)).join('') : '<div class="empty-state"><p>Sem registros.</p></div>')+
     '<h2 class="section-title" style="margin-top:24px"><span>Necessidades de '+esc(gOmAtual)+'</span><span class="count">'+nec.length+' item(ns)</span></h2>'+
@@ -9410,6 +9479,8 @@ function bind(){
 
   // Gestor e ODS — navegação por clique
   document.body.addEventListener('click',e=>{
+    const tvf=e.target.closest('[data-tvf]');
+    if(tvf){ gTvFiltro=tvf.dataset.tvf; renderGOm(); return; }
     const g1=e.target.closest('[data-gods]'); if(g1 && perfil && perfil.tipo==='gestor'){ gOdsAtual=g1.dataset.gods; showView('g-ods'); return; }
     const g2=e.target.closest('[data-gom]'); if(g2 && perfil && (perfil.tipo==='gestor'||perfil.tipo==='ods')){ gOmAtual=g2.dataset.gom; showView('g-om'); return; }
     if(e.target.dataset && e.target.dataset.foto && perfil && (perfil.tipo==='gestor'||perfil.tipo==='ods')){ el('fotoViewImg').src=e.target.src; el('fotoView').classList.remove('hidden'); }
