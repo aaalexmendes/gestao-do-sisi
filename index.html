@@ -4146,7 +4146,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.13 &#183; 06/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.14 &#183; 06/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4375,6 +4375,37 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
           <div class="admin-config-status" id="adminPlanStatus">Usando o planejamento embutido no arquivo (nenhum upload aplicado).</div>
           <div class="admin-preview-actions" style="border-top:none;padding-top:8px;">
             <button class="admin-btn admin-btn-secondary" id="adminClearPlanBtn" type="button">Restaurar planejamento embutido</button>
+          </div>
+        </div>
+        <div class="admin-section" data-adm="dados">
+          <h3>Upload da planilha de Restos a Pagar</h3>
+          <p>Envie a planilha <strong>Acompanhamento SISI_RESTOS A PAGAR</strong> exportada do Tesouro Gerencial.
+             As colunas s&#227;o reconhecidas <strong>pelo nome do cabe&#231;alho</strong>: UG Respons&#225;vel, Natureza Despesa e os
+             saldos de <em>Processados</em> (Inscritos, Pagos) e <em>N&#227;o Processados</em> (Inscritos, Reinscritos,
+             Cancelados, A Liquidar, Liquidados, Pagos). Quando houver v&#225;rias abas, a aba <strong>Total</strong> &#233; usada;
+             na falta dela, a &#250;ltima aba de m&#234;s. Os dados substituem a aba <strong>Restos a Pagar</strong> e s&#227;o
+             enviados ao JSONBin automaticamente.</p>
+          <div class="admin-upload-grid">
+            <label class="admin-upload-card xlsx" id="adminRapCard">
+              <span class="icon">XLS</span>
+              <strong>Selecionar planilha de Restos a Pagar</strong>
+              <span class="ext">.xlsx</span>
+              <input type="file" id="adminRapInput" accept=".xlsx,.xlsm" style="display:none;">
+            </label>
+          </div>
+          <div class="admin-preview-box hidden" id="adminRapPreviewBox">
+            <div class="admin-preview-title">Pr&#233;-visualiza&#231;&#227;o dos Restos a Pagar</div>
+            <div class="admin-preview-origin" id="adminRapPreviewOrigin"></div>
+            <div class="admin-preview-cards-grid" id="adminRapPreviewCards"></div>
+            <div class="admin-preview-msgs" id="adminRapPreviewMsgs"></div>
+            <div class="admin-preview-actions">
+              <button class="admin-btn admin-btn-secondary" id="adminRapCancelBtn" type="button">Cancelar</button>
+              <button class="admin-btn admin-btn-success" id="adminRapApplyBtn" type="button">Aplicar e sincronizar</button>
+            </div>
+          </div>
+          <div class="admin-config-status" id="adminRapStatus" style="margin-top:10px;">Usando os Restos a Pagar embutidos no arquivo.</div>
+          <div class="admin-preview-actions" style="border-top:none;padding-top:8px;">
+            <button class="admin-btn admin-btn-secondary" id="adminClearRapBtn" type="button">Restaurar Restos a Pagar embutidos</button>
           </div>
         </div>
         <div class="admin-section" data-adm="dados">
@@ -6489,7 +6520,7 @@ function refresh(){
     state.view='corrente'; state.ano='2026';
     document.querySelectorAll('#mainTabs .view-tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='corrente'));
     refresh();
-    $('adminModalBackdrop').classList.remove('open');
+    sincronizarAposUpload('Execução 2026');
   }
 
   function loadMeta(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||{}; }catch(e){ return {}; } }
@@ -6511,7 +6542,22 @@ function refresh(){
     refresh();
   }
 
-  $('adminFooterBtn').addEventListener('click',()=>{ $('adminModalBackdrop').classList.add('open'); update2026Status(); });
+  $('adminFooterBtn').addEventListener('click',()=>{
+    $('adminModalBackdrop').classList.add('open');
+    /* u2.14 — quem entrou no painel com senha de Gestor não digita a senha de novo:
+       a autenticação da entrada já é a mesma credencial. */
+    const s=(typeof window!=='undefined')&&window.SESS;
+    if(s && (s.tipo==='gestor' || s.baseGestor)){
+      $('adminLoginView').style.display='none';
+      $('adminPanelView').classList.add('open');
+      $('adminLogoutBtn').style.display='';
+      $('adminLoginError').classList.remove('show');
+      const t=$('adminModalTitle');
+      const n=((s.posto? s.posto+' ':'')+(s.nome||'')).trim()||s.rotulo||'';
+      if(t) t.textContent='Área Administrativa'+(n? ' · '+n : '');
+    }
+    update2026Status();
+  });
   $('adminModalCloseBtn').addEventListener('click',()=>$('adminModalBackdrop').classList.remove('open'));
   /* u2.5: o painel Admin fecha apenas pelo X ou pelo Sair — clique/seleção fora do cartão não fecha mais. */
   function tryLogin(){
@@ -6527,7 +6573,12 @@ function refresh(){
     } else { $('adminLoginError').classList.add('show'); } }
   $('adminLoginBtn').addEventListener('click',tryLogin);
   $('adminPasswordInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryLogin(); });
-  $('adminLogoutBtn').addEventListener('click',()=>{ $('adminPanelView').classList.remove('open'); $('adminLoginView').style.display='block'; $('adminLogoutBtn').style.display='none'; $('adminPasswordInput').value=''; });
+  $('adminLogoutBtn').addEventListener('click',()=>{
+    const s=(typeof window!=='undefined')&&window.SESS;
+    if(s && (s.tipo==='gestor' || s.baseGestor)){ $('adminModalBackdrop').classList.remove('open'); return; }
+    $('adminPanelView').classList.remove('open'); $('adminLoginView').style.display='block';
+    $('adminLogoutBtn').style.display='none'; $('adminPasswordInput').value='';
+  });
   $('adminXlsxInput').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) onFile(f); e.target.value=''; });
   $('adminSheetSelect').addEventListener('change',e=>{ if(wb) buildPreview(e.target.value); });
   $('adminCancelBtn').addEventListener('click',()=>{ $('adminPreviewBox').classList.add('hidden'); pendingRows=null; });
@@ -6722,7 +6773,7 @@ function refresh(){
     state.view='plan';
     document.querySelectorAll('#mainTabs .view-tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='plan'));
     refresh();
-    $('adminModalBackdrop').classList.remove('open');
+    sincronizarAposUpload('Planejamento 2026');
   }
 
   function restoreEmbedded(){
@@ -6746,6 +6797,210 @@ function refresh(){
   const rb=$('adminClearPlanBtn'); if(rb) rb.addEventListener('click',restoreEmbedded);
   updatePlanStatus();
 })();
+
+
+// ==================== ADMIN · RESTOS A PAGAR ====================
+(function adminRapInit(){
+  const LS_KEY='sisi_rap_v1';
+  const $=id=>document.getElementById(id);
+  let pending=null, fileName='', abaUsada='';
+  const RAP_EMBUTIDO = DATA.rap.slice();
+
+  function alog(msg,type='info'){ const el=$('adminLog'); if(!el) return;
+    const e0=el.querySelector('.admin-log-empty'); if(e0) el.innerHTML='';
+    const d=document.createElement('div'); d.className='admin-log-entry '+(type==='err'?'err':(type==='ok'?'ok':'info'));
+    d.innerHTML=`<span class="ts">${new Date().toLocaleTimeString('pt-BR')}</span><span class="msg"></span>`;
+    d.querySelector('.msg').textContent='[RaP] '+msg; el.prepend(d); }
+
+  const CAMPOS=[
+    {k:'rap_proc_inscritos',    proc:true,  chaves:['PROCESSADOS INSCRITOS']},
+    {k:'rap_proc_pagos',        proc:true,  chaves:['PROCESSADOS PAGOS']},
+    {k:'rap_nproc_inscritos',   proc:false, chaves:['NAO PROCESSADOS INSCRITOS','NÃO PROCESSADOS INSCRITOS']},
+    {k:'rap_nproc_reinscritos', proc:false, chaves:['REINSCRITOS']},
+    {k:'rap_nproc_cancelados',  proc:false, chaves:['CANCELADOS']},
+    {k:'rap_nproc_a_liquidar',  proc:false, chaves:['A LIQUIDAR']},
+    {k:'rap_nproc_liquidados',  proc:false, chaves:['LIQUIDADOS']},
+    {k:'rap_nproc_pagos',       proc:false, chaves:['NAO PROCESSADOS PAGOS','NÃO PROCESSADOS PAGOS']}
+  ];
+  const norm=s=>String(s==null?'':s).replace(/\s+/g,' ').trim().toUpperCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const num=v=>{ if(v==null||v==='') return 0;
+    if(typeof v==='number') return v;
+    const s=String(v).replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,'');
+    const n=parseFloat(s); return isFinite(n)?n:0; };
+
+  /* Detecta as colunas pelo nome do cabeçalho (linha que contém "UG Responsável"),
+     tolerando cabeçalho em duas linhas e variações de acento/caixa. */
+  function parseAba(ws){
+    const m=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    let hi=-1;
+    for(let i=0;i<Math.min(m.length,25);i++){
+      if(m[i].some(c=>norm(c)==='UG RESPONSAVEL')){ hi=i; break; }
+    }
+    if(hi<0) return {rows:[],avisos:['Não encontrei a linha de cabeçalho com "UG Responsável".'],mapa:{}};
+    const head=m[hi].map(norm);
+    const mapa={}; const naoEncontrados=[];
+    CAMPOS.forEach(c=>{
+      let idx=-1;
+      for(let j=0;j<head.length;j++){
+        const h=head[j];
+        if(!h) continue;
+        const ehProc = h.indexOf('NAO PROCESS')<0 && h.indexOf('PROCESS')>=0;
+        const ehNProc= h.indexOf('NAO PROCESS')>=0;
+        if(c.proc && !ehProc) continue;
+        if(!c.proc && !ehNProc) continue;
+        if(c.chaves.some(k=>h.indexOf(norm(k))>=0)){ idx=j; break; }
+      }
+      if(idx>=0) mapa[c.k]=idx; else naoEncontrados.push(c.k);
+    });
+    let iOm=head.findIndex(h=>h==='UG RESPONSAVEL');
+    let iNd=-1;
+    for(let i=hi;i<Math.min(m.length,hi+3);i++){
+      const l=(m[i]||[]).map(norm);
+      const j=l.findIndex(h=>h.indexOf('NATUREZA DESPESA')>=0 || h==='ITEM INFORMACAO');
+      if(j>=0){ iNd=j; break; }
+    }
+    if(iNd<0) iNd=1;
+    const rows=[]; let om='';
+    for(let i=hi+1;i<m.length;i++){
+      const l=m[i]||[];
+      const c0=String(l[iOm]==null?'':l[iOm]).trim();
+      if(c0 && !/^(Páginas|Mês|Acompanhamento|Total geral)/i.test(c0)) om=c0;
+      const nd=String(l[iNd]==null?'':l[iNd]).trim();
+      if(!/^\d{6}$/.test(nd)) continue;
+      if(!om) continue;
+      const r={ om:om, nd:nd };
+      let soma=0;
+      CAMPOS.forEach(c=>{ const v=(mapa[c.k]!=null)? num(l[mapa[c.k]]) : 0; r[c.k]=v; soma+=Math.abs(v); });
+      if(soma>0) rows.push(r);
+    }
+    const avisos=[];
+    if(naoEncontrados.length) avisos.push('Colunas não localizadas pelo cabeçalho: '+naoEncontrados.join(', ')+'. Esses valores entrarão como zero.');
+    return {rows:rows, avisos:avisos, mapa:mapa};
+  }
+
+  function escolherAba(wb){
+    const nomes=wb.SheetNames;
+    const total=nomes.find(n=>norm(n)==='TOTAL');
+    if(total) return total;
+    const meses={JAN:1,FEV:2,MAR:3,ABR:4,MAI:5,JUN:6,JUL:7,AGO:8,SET:9,OUT:10,NOV:11,DEZ:12};
+    let melhor=null, melhorPeso=-1;
+    nomes.forEach(n=>{ const m=/^([A-Z]{3})(\d{4})$/.exec(norm(n));
+      if(m && meses[m[1]]){ const peso=Number(m[2])*100+meses[m[1]]; if(peso>melhorPeso){ melhorPeso=peso; melhor=n; } } });
+    return melhor||nomes[0];
+  }
+
+  async function onFile(file){
+    try{
+      const buf=await file.arrayBuffer();
+      const wb=XLSX.read(buf,{type:'array'});
+      fileName=file.name;
+      abaUsada=escolherAba(wb);
+      const parsed=parseAba(wb.Sheets[abaUsada]);
+      $('adminRapPreviewOrigin').textContent=`Arquivo: ${fileName} · aba usada: ${abaUsada} · abas no arquivo: ${wb.SheetNames.join(', ')}`;
+      if(!parsed.rows.length){
+        $('adminRapPreviewCards').innerHTML='';
+        $('adminRapPreviewMsgs').innerHTML=(parsed.avisos.map(a=>`<div class="admin-msg warn">${a}</div>`).join(''))+
+          '<div class="admin-msg err">Nenhuma linha reconhecida. Esperado: coluna "UG Responsável", "Natureza Despesa" (6 dígitos) e as colunas de saldo de Restos a Pagar.</div>';
+        $('adminRapPreviewBox').classList.remove('hidden'); pending=null; return;
+      }
+      pending=parsed.rows;
+      const som=k=>parsed.rows.reduce((s,r)=>s+(r[k]||0),0);
+      const oms=new Set(parsed.rows.map(r=>r.om));
+      const nds=[...new Set(parsed.rows.map(r=>r.nd))].sort();
+      const naoProcSaldo=som('rap_nproc_inscritos')+som('rap_nproc_reinscritos')-som('rap_nproc_cancelados');
+      $('adminRapPreviewCards').innerHTML=[
+        ['Linhas', String(parsed.rows.length)],
+        ['OMs', String(oms.size)],
+        ['Insc. não processados','R$ '+fmtBRL0(som('rap_nproc_inscritos'))],
+        ['A liquidar','R$ '+fmtBRL0(som('rap_nproc_a_liquidar'))],
+        ['Liquidados','R$ '+fmtBRL0(som('rap_nproc_liquidados'))],
+        ['Pagos','R$ '+fmtBRL0(som('rap_nproc_pagos'))],
+        ['Cancelados','R$ '+fmtBRL0(som('rap_nproc_cancelados'))],
+        ['Processados insc.','R$ '+fmtBRL0(som('rap_proc_inscritos'))]
+      ].map(([l,v])=>`<div class="admin-preview-card"><div class="lbl">${l}</div><div class="val">${v}</div></div>`).join('');
+      const msgs=[];
+      msgs.push(['info',`NDs encontradas: ${nds.join(', ')}. Base dos não processados (inscritos + reinscritos − cancelados): R$ ${fmtBRL0(naoProcSaldo)}.`]);
+      const atual=DATA.rap.reduce((s,r)=>s+(r.rap_nproc_inscritos||0),0);
+      const novo=som('rap_nproc_inscritos');
+      if(atual) msgs.push(['info',`Inscritos não processados — atual no painel: R$ ${fmtBRL0(atual)} · novo: R$ ${fmtBRL0(novo)} (diferença R$ ${fmtBRL0(novo-atual)}).`]);
+      parsed.avisos.forEach(a=>msgs.push(['warn',a]));
+      msgs.push(['info','Confira os totais antes de aplicar. Ao aplicar, os dados substituem a aba Restos a Pagar e são enviados ao JSONBin.']);
+      $('adminRapPreviewMsgs').innerHTML=msgs.map(([t,m])=>`<div class="admin-msg ${t}">${m}</div>`).join('');
+      $('adminRapPreviewBox').classList.remove('hidden');
+      alog(`Arquivo lido: ${parsed.rows.length} linha(s) em ${oms.size} OM(s) — aba ${abaUsada}.`,'ok');
+    }catch(err){ alog('Erro ao ler o arquivo: '+err.message,'err'); }
+  }
+
+  function applyImport(){
+    if(!pending || !pending.length){ alog('Não há dados de Restos a Pagar válidos para aplicar.','err'); return; }
+    DATA.rap=pending.slice();
+    const meta={ rows:DATA.rap, file:fileName, sheet:abaUsada, savedAt:new Date().toISOString() };
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(meta)); }
+    catch(e){ alog('Aviso: não foi possível salvar no navegador ('+e.message+'). Vale só para esta sessão.','err'); }
+    rebuildOmFilter(); rebuildOdsFilter(); updateStatusLine();
+    alog(`Restos a Pagar aplicados (${DATA.rap.length} linhas, aba ${abaUsada}).`,'ok');
+    $('adminRapPreviewBox').classList.add('hidden'); pending=null;
+    state.view='rap';
+    document.querySelectorAll('#mainTabs .view-tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='rap'));
+    refresh();
+    sincronizarAposUpload('Restos a Pagar');
+  }
+
+  function restaurar(){
+    DATA.rap=RAP_EMBUTIDO.slice();
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    rebuildOmFilter(); rebuildOdsFilter(); updateStatusLine(); refresh();
+    alog('Restos a Pagar embutidos restaurados.','ok');
+    sincronizarAposUpload('Restos a Pagar (embutidos)');
+  }
+
+  function updateStatusLine(){
+    const el=$('adminRapStatus'); if(!el) return;
+    let m=null; try{ m=JSON.parse(localStorage.getItem(LS_KEY)||'null'); }catch(e){}
+    if(m && Array.isArray(m.rows) && m.rows.length){
+      el.className='admin-config-status ok';
+      el.innerHTML=`Upload aplicado · ${m.rows.length} linha(s) · aba <strong>${m.sheet||'—'}</strong> · arquivo ${m.file||'—'} · em ${m.savedAt?new Date(m.savedAt).toLocaleString('pt-BR'):'—'}`;
+    } else { el.className='admin-config-status'; el.textContent='Usando os Restos a Pagar embutidos no arquivo.'; }
+  }
+
+  // restauração ao abrir a página
+  (function(){
+    try{ const m=JSON.parse(localStorage.getItem(LS_KEY)||'null');
+      if(m && Array.isArray(m.rows) && m.rows.length){ DATA.rap=m.rows; }
+    }catch(e){}
+  })();
+
+  const inp=$('adminRapInput'); if(inp) inp.addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) onFile(f); e.target.value=''; });
+  const cb=$('adminRapCancelBtn'); if(cb) cb.addEventListener('click',()=>{ $('adminRapPreviewBox').classList.add('hidden'); pending=null; });
+  const ab=$('adminRapApplyBtn'); if(ab) ab.addEventListener('click',applyImport);
+  const rb=$('adminClearRapBtn'); if(rb) rb.addEventListener('click',restaurar);
+  window.__rapTest={ parseAba, escolherAba, applyImport, onFile, get pending(){ return pending; }, set pending(v){ pending=v; } };
+  updateStatusLine();
+})();
+
+// ==================== u2.14 · SINCRONIZAÇÃO APÓS UPLOAD ====================
+/* Depois de aplicar qualquer upload, envia ao JSONBin automaticamente para que
+   ninguém precise lembrar de trocar de aba. A Área Admin permanece aberta. */
+function sincronizarAposUpload(oQue){
+  const el=document.getElementById('adminLog');
+  const alog=(msg,type)=>{ if(!el) return;
+    const e0=el.querySelector('.admin-log-empty'); if(e0) el.innerHTML='';
+    const d=document.createElement('div'); d.className='admin-log-entry '+(type==='err'?'err':(type==='ok'?'ok':'info'));
+    d.innerHTML='<span class="ts">'+new Date().toLocaleTimeString('pt-BR')+'</span><span class="msg"></span>';
+    d.querySelector('.msg').textContent='[Sincronização] '+msg; el.prepend(d); };
+  if(typeof window.__binPublish!=='function'){ alog('Envio automático indisponível nesta página.','err'); return; }
+  alog(oQue+': aplicado. Enviando ao JSONBin…','info');
+  try{
+    Promise.resolve(window.__binPublish()).then(function(){
+      alog('Envio ao JSONBin concluído — os demais usuários receberão na próxima abertura.','ok');
+    }).catch(function(e){
+      alog('Falha no envio automático ('+(e&&e.message||e)+'). Use "Enviar dados ao JSONBin" na aba Sincronização.','err');
+    });
+  }catch(e){
+    alog('Falha no envio automático ('+e.message+'). Use "Enviar dados ao JSONBin" na aba Sincronização.','err');
+  }
+}
 
 // ==================== ADMIN · PRAZOS DOS EMPENHOS ====================
 (function adminPrazosInit(){
@@ -6804,7 +7059,7 @@ function refresh(){
     state.view='corrente'; state.ano='2026';
     document.querySelectorAll('#mainTabs .view-tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='corrente'));
     refresh();
-    $('adminModalBackdrop').classList.remove('open');
+    sincronizarAposUpload('Prazos dos empenhos');
   }
 
   function clearPrazos(){
@@ -6923,6 +7178,13 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
           blog(`Janela de atualização anual: ${data.ciclo.aberto?'ABERTA':'fechada'} (${data.ciclo.ano}).`,'info');
         }
       }catch(e){}
+    }
+    if(data.rap && Array.isArray(data.rap.rows) && data.rap.rows.length){
+      if(remoteIsNewer(data.rap,'sisi_rap_v1')){
+        DATA.rap=data.rap.rows;
+        try{ localStorage.setItem('sisi_rap_v1', JSON.stringify(data.rap)); }catch(e){}
+        blog(`Restos a Pagar atualizados a partir do bin (${data.rap.rows.length} linhas, aba ${data.rap.sheet||'?'}).`,'info');
+      }
     }
     if(data.msgs && (Array.isArray(data.msgs.avisos)||Array.isArray(data.msgs.diretas))){
       try{
@@ -7065,6 +7327,8 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
     return null;
   }
 
+  /* u2.14 — usado pelos uploads: aplica e já envia ao bin, sem fechar a Área Admin. */
+  window.__binPublish = function(){ return publish(); };
   async function publish(){
     const cfg=getCfg();
     const btn=$('adminBinPublishBtn');
@@ -7092,6 +7356,8 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
       ciclo: (window.__cicloForPayload ? window.__cicloForPayload() : null),
       gas: (window.__gasForPayload ? window.__gasForPayload() : null),
       msgs: (window.__msgsForPayload ? window.__msgsForPayload() : null),
+      rap: (function(){ try{ const m=JSON.parse(localStorage.getItem('sisi_rap_v1')||'null');
+              return (m && Array.isArray(m.rows) && m.rows.length)? m : null; }catch(e){ return null; } })(),
       exec2026: execGz?null:exec, exec2026_gz: execGz,
       execPrev2026: prevGz?null:execPrevRaw, execPrev2026_gz: prevGz,
       plan2026: planGz?null:plan, plan2026_gz: planGz,
@@ -9717,7 +9983,19 @@ window.__scopeOms = function(list){
 window.applySessionLocks = function(){
   var s=window.SESS;
   var fb=el('adminFooterBtn');
-  if(fb) fb.style.display=(!s||s.tipo==='gestor'||s.baseGestor)?'':'none';
+  var ehGestor = (!s||s.tipo==='gestor'||s.baseGestor);
+  if(fb) fb.style.display=ehGestor?'':'none';
+  /* u2.14 — sem isso, a Área Admin aberta por um gestor continuaria destravada
+     na mesma aba depois que outro perfil entrasse. */
+  if(!ehGestor){
+    var bd=el('adminModalBackdrop'), pv=el('adminPanelView'), lv=el('adminLoginView'),
+        lo=el('adminLogoutBtn'), pw=el('adminPasswordInput');
+    if(bd) bd.classList.remove('open');
+    if(pv) pv.classList.remove('open');
+    if(lv) lv.style.display='block';
+    if(lo) lo.style.display='none';
+    if(pw) pw.value='';
+  }
   function grp(id){ var e=el(id); if(!e) return null; return (e.closest&&e.closest('.filter-group'))||e; }
   function show(node,v){ if(node) node.style.display=v?'':'none'; }
   if(!s){ show(grp('ms-om'),true); show(grp('ms-ods'),true); show(grp('ms-guarnicao'),true); return; }
