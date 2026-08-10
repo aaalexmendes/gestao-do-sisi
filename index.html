@@ -3305,6 +3305,31 @@
       </div>
     </section>
 
+    <!-- ANDAMENTO DOS RESTOS A PAGAR (cruzamento com a planilha de RaP) -->
+    <section id="sec-rapx" style="display:none">
+      <h2 class="section-title">
+        <span>Andamento dos Restos a Pagar inscritos em <span id="rapxAno">&#8212;</span><span class="info-ico" tabindex="0" data-tip="Cruzamento entre o hist&#243;rico e a planilha de Restos a Pagar. O valor descentralizado e o empenhado do exerc&#237;cio n&#227;o mudam; o que evolui &#233; a liquida&#231;&#227;o dos empenhos inscritos em restos a pagar. Aqui voc&#234; v&#234;, por OM, quanto daquele saldo j&#225; virou liquida&#231;&#227;o e pagamento, quanto foi cancelado e quanto ainda est&#225; pendente. O v&#237;nculo com o exerc&#237;cio &#233; verificado par a par (OM e natureza de despesa) contra os valores inscritos do ano.">i</span></span>
+        <span class="count" id="rapxCount"></span>
+      </h2>
+      <div class="rapx-note" id="rapxNote"></div>
+      <div class="kpi-grid" id="rapxKpis"></div>
+      <div class="chart-card" style="margin-top:14px">
+        <h3>Liquida&#231;&#227;o dos restos por OM</h3>
+        <div class="chart-sub">percentual do saldo inscrito que j&#225; foi liquidado &#183; &#8599; clique para detalhar</div>
+        <div class="sort-ctl">ordenar por: <span class="sort-lbl active" data-sort="rapx" data-sortkey="pct" id="rapxSort-pct">% liquidado</span><span class="sort-lbl" data-sort="rapx" data-sortkey="v" id="rapxSort-v">Valor liquidado</span></div>
+        <div class="bar-chart" id="rapxChart"></div>
+      </div>
+      <div class="table-wrap" style="margin-top:14px">
+        <table id="rapxTable">
+          <thead><tr>
+            <th>OM</th><th class="num">Inscrito em restos</th><th class="num">Cancelado</th>
+            <th class="num">Liquidado</th><th class="num">Pago</th><th class="num">A liquidar</th><th class="num">% liquidado</th>
+          </tr></thead>
+          <tbody id="rapxTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- TABELA EXEC -->
     <div id="section-tabela-exec">
     <h2 class="section-title">
@@ -3540,6 +3565,20 @@
         <div class="bar-chart" id="rapChart"></div>
       </div>
     </section>
+
+    <!-- COMPARATIVO COM A PLANILHA ANTERIOR -->
+    <section id="sec-rapcomp" style="display:none">
+        <h2 class="section-title">
+          <span>Evolu&#231;&#227;o desde a planilha anterior<span class="info-ico" tabindex="0" data-tip="Compara a planilha de Restos a Pagar carregada agora com a anterior, no mesmo modelo da varia&#231;&#227;o semanal da aba do ano corrente. Mostra o que foi liquidado, pago e cancelado no intervalo e quais OMs avan&#231;aram. A planilha anterior &#233; arquivada automaticamente a cada novo upload.">i</span></span>
+          <span class="count" id="rapCompRef"></span>
+        </h2>
+        <div class="kpi-grid" id="rapCompKpis"></div>
+        <div class="chart-card" style="margin-top:14px">
+          <h3>OMs que mais liquidaram no per&#237;odo</h3>
+          <div class="chart-sub">diferen&#231;a de valor liquidado entre as duas planilhas &#183; &#8599; clique para detalhar</div>
+          <div class="bar-chart" id="rapCompChart"></div>
+        </div>
+      </section>
 
     <h2 class="section-title"><span>Análise Estatística &#183; Restos a Pagar</span><span class="count">composição por situação e por natureza</span></h2>
     <section class="charts-row r-2">
@@ -4146,7 +4185,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.14 &#183; 06/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.16 &#183; 06/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4575,6 +4614,30 @@ function aggExecRaw(raw){
 function execRowsPrev2026(){ return filterRows(aggExecRaw(DATA.executionPrev['2026']||[])); }
 function hasPrevWeek(){ return Array.isArray(DATA.executionPrev['2026']) && DATA.executionPrev['2026'].length>0; }
 
+// ---------- Planilha anterior de Restos a Pagar (comparativo) ----------
+DATA.rapPrev = DATA.rapPrev || null;
+DATA.rapMeta = DATA.rapMeta || {};
+(function loadRapPrev(){
+  try{
+    const raw=localStorage.getItem('sisi_rap_prev_v1');
+    if(raw){ const o=JSON.parse(raw); if(o && Array.isArray(o.rows) && o.rows.length){ DATA.rapPrev=o.rows; DATA.rapMeta.prev=o; } }
+    const cur=localStorage.getItem('sisi_rap_v1');
+    if(cur){ const o=JSON.parse(cur); if(o) DATA.rapMeta.cur=o; }
+  }catch(e){ /* ignora */ }
+})();
+function hasRapPrev(){ return Array.isArray(DATA.rapPrev) && DATA.rapPrev.length>0; }
+/* Mesma regra de filtro da aba RaP, aplicada à planilha anterior. */
+function rapRowsPrev(){
+  return (DATA.rapPrev||[]).filter(r=>
+    (!state.om.size||state.om.has(r.om)) &&
+    (!state.natureza.size||state.natureza.has(r.nd)) &&
+    (!state.ods.size||state.ods.has(odsOf(r.om))) );
+}
+function rapPrevRef(){
+  const m=DATA.rapMeta.prev||{};
+  return m.sheet? ('planilha anterior · aba '+m.sheet) : 'planilha anterior';
+}
+
 // Badge de variação: delta absoluto + % sobre a semana anterior (base=prev).
 function deltaBadge(delta, prev){
   if(Math.abs(delta)<0.005) return '<span class="wk-delta flat">— sem variação</span>';
@@ -4988,10 +5051,172 @@ function renderExec(){
   // Eficiência por OM (liquidado ÷ recebido bruto)
   renderEficiencia(rows);
 
+  // Andamento dos restos a pagar do exercício (cruzamento com a planilha de RaP)
+  renderRapx();
+
   // Tabela
   renderExecTable(rows);
 }
 
+/* ============================================================
+   u2.15 - Cruzamento Restos a Pagar x historico
+   A planilha de RaP nao traz o ano de inscricao. O exercicio e descoberto
+   comparando, par a par (OM + natureza de despesa), os valores inscritos do
+   RaP com a coluna "inscritas em restos" de cada ano do historico.
+   ============================================================ */
+/* u2.16 — variação de cada situação em relação à planilha anterior de RaP. */
+function renderRapComp(){
+  const sec=document.getElementById('sec-rapcomp'); if(!sec) return;
+  if(!hasRapPrev()){ sec.style.display='none'; return; }
+  sec.style.display='';
+  const cur=rapRows(), prev=rapRowsPrev();
+  const somaK=(arr,k)=>arr.reduce((s,r)=>s+(r[k]||0),0);
+  const pagos=arr=>arr.reduce((s,r)=>s+(r.rap_nproc_pagos||0)+(r.rap_proc_pagos||0),0);
+  const dLiq = somaK(cur,'rap_nproc_liquidados') - somaK(prev,'rap_nproc_liquidados');
+  const dPag = pagos(cur) - pagos(prev);
+  const dAli = somaK(cur,'rap_nproc_a_liquidar') - somaK(prev,'rap_nproc_a_liquidar');
+  const dCan = somaK(cur,'rap_nproc_cancelados') - somaK(prev,'rap_nproc_cancelados');
+  const m=DATA.rapMeta.prev||{}, mc=DATA.rapMeta.cur||{};
+  document.getElementById('rapCompRef').textContent =
+    (m.sheet? 'de '+m.sheet : 'planilha anterior') + (mc.sheet? ' para '+mc.sheet : '');
+  const card=(cls,rot,val,sub)=>'<div class="kpi '+cls+'"><div class="kpi-label">'+rot+'</div>'+
+    '<div class="kpi-value">'+(val>=0?'+':'\u2212')+' R$ '+fmtBRL0(Math.abs(val))+'</div>'+
+    '<div class="kpi-sub">'+sub+'</div></div>';
+  document.getElementById('rapCompKpis').innerHTML=
+    card('kpi-liq','Liquidado no per\u00edodo', dLiq, dLiq>0?'empenhos que sa\u00edram do a liquidar':'sem avan\u00e7o de liquida\u00e7\u00e3o')+
+    card('kpi-pag','Pago no per\u00edodo', dPag, 'desembolso efetivo no intervalo')+
+    card(dAli<0?'kpi-disp':'kpi-warn','Saldo a liquidar', dAli, dAli<0?'pend\u00eancia reduzida':'pend\u00eancia aumentou')+
+    card('kpi-nec','Cancelado no per\u00edodo', dCan, 'empenhos baixados sem liquida\u00e7\u00e3o');
+  // ranking das OMs por avanço de liquidação
+  const porOm={};
+  cur.forEach(r=>{ const o=porOm[r.om]||(porOm[r.om]={om:r.om,cur:0,prev:0}); o.cur+=(r.rap_nproc_liquidados||0); });
+  prev.forEach(r=>{ const o=porOm[r.om]||(porOm[r.om]={om:r.om,cur:0,prev:0}); o.prev+=(r.rap_nproc_liquidados||0); });
+  const arr=Object.values(porOm).map(o=>Object.assign(o,{d:o.cur-o.prev}))
+    .filter(o=>Math.abs(o.d)>0.005).sort((a,b)=>b.d-a.d).slice(0,12);
+  const max=arr.length? Math.max(...arr.map(o=>Math.abs(o.d)),1):1;
+  document.getElementById('rapCompChart').innerHTML = arr.length? arr.map(o=>
+    '<div class="bar-row clickable" data-drill="rapom" data-key="'+o.om.replace(/"/g,'&quot;')+'" title="Clique para ver por ND">'+
+      '<div class="bar-label"><span class="code-tag">'+o.om+'</span></div>'+
+      '<div class="bar-value">'+(o.d>=0?'▲':'▼')+' R$ '+fmtBRL0(Math.abs(o.d))+'</div>'+
+      '<div class="bar-track"><div class="bar-fill '+(o.d>=0?'green':'')+'" style="width:'+Math.max(2,(Math.abs(o.d)/max)*100)+'%"></div></div>'+
+    '</div>').join('')
+    : '<div class="empty-state"><div class="glyph">\u2205</div><p>Nenhuma OM mudou de liquida\u00e7\u00e3o entre as duas planilhas</p></div>';
+}
+function rapDeltaSit(k){
+  if(!hasRapPrev()) return '';
+  const val=r=> k==='inscr' ? ((r.rap_nproc_inscritos||0)+(r.rap_nproc_reinscritos||0))
+            : k==='pagos'  ? ((r.rap_nproc_pagos||0)+(r.rap_proc_pagos||0))
+            : (r[k]||0);
+  const atual=rapRows().reduce((s,r)=>s+val(r),0);
+  const ant=rapRowsPrev().reduce((s,r)=>s+val(r),0);
+  const d=atual-ant;
+  if(Math.abs(d)<0.005) return ' <span class="wk-delta flat">— igual</span>';
+  const up=d>0;
+  return ' <span class="wk-delta '+(up?'up':'down')+'">'+(up?'▲':'▼')+' R$ '+fmtBRL0(Math.abs(d))+
+         (ant>0.005? ' · '+fmtPct(Math.abs(d)/ant*100,1):'')+'</span>';
+}
+function rapxDetectarAno(){
+  const insc={};
+  DATA.rap.forEach(r=>{ const k=r.om+'|'+r.nd; insc[k]=(insc[k]||0)+(r.rap_nproc_inscritos||0); });
+  const totRap=Object.values(insc).reduce((s,v)=>s+v,0);
+  if(totRap<=0) return null;
+  let melhor=null;
+  ['2023','2024','2025'].forEach(ano=>{
+    const ins={};
+    (DATA.execution[ano]||[]).forEach(r=>{ if(r.inscritas_rp){ const k=r.om+'|'+r.nd; ins[k]=(ins[k]||0)+r.inscritas_rp; } });
+    let inter=0; Object.keys(insc).forEach(k=>{ inter+=Math.min(ins[k]||0, insc[k]); });
+    const ader=inter/totRap;
+    if(!melhor || ader>melhor.ader) melhor={ano:ano, ader:ader};
+  });
+  return (melhor && melhor.ader>=0.5) ? melhor : null;
+}
+function rapxDados(){
+  const det=rapxDetectarAno();
+  if(!det) return null;
+  const porOm={};
+  DATA.rap.forEach(r=>{
+    const o=porOm[r.om]||(porOm[r.om]={om:r.om, insc:0, reinsc:0, canc:0, liq:0, pago:0, aliq:0});
+    o.insc  += r.rap_nproc_inscritos||0;
+    o.reinsc+= r.rap_nproc_reinscritos||0;
+    o.canc  += r.rap_nproc_cancelados||0;
+    o.liq   += r.rap_nproc_liquidados||0;
+    o.pago  += r.rap_nproc_pagos||0;
+    o.aliq  += r.rap_nproc_a_liquidar||0;
+  });
+  const lista=Object.values(porOm).map(o=>{
+    const base=o.insc+o.reinsc-o.canc;
+    return Object.assign(o,{ base:base, pct: base>0 ? (o.liq/base*100) : 0, misto: o.reinsc>0 });
+  });
+  return { ano:det.ano, aderencia:det.ader, lista:lista };
+}
+function rapxDrawer(om){
+  const linhas=DATA.rap.filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
+  if(!linhas.length) return;
+  const items=linhas.map(r=>{
+    const base=(r.rap_nproc_inscritos||0)+(r.rap_nproc_reinscritos||0)-(r.rap_nproc_cancelados||0);
+    const liq=r.rap_nproc_liquidados||0;
+    return { label:r.nd+' \u00b7 '+((ndLabel[r.nd]||'').split('\u2014 ')[1]||''),
+      value:liq,
+      sub:(base>0? fmtPct(liq/base*100,0)+' de R$ '+fmtBRL0(base) : '')+
+          ((r.rap_nproc_a_liquidar||0)? ' \u00b7 a liquidar R$ '+fmtBRL0(r.rap_nproc_a_liquidar) : '')+
+          ((r.rap_nproc_reinscritos||0)? ' \u00b7 inclui reinscritos' : '') };
+  });
+  openDrawer('Restos a Pagar \u00b7 '+om, 'Por natureza de despesa \u00b7 barra = valor liquidado',
+    drawerListHtml(items,'ND(s)'));
+}
+function renderRapx(){
+  /* formatador local: fmtBRL2 pertence ao modulo de projeto, nao a esta camada */
+  const brl2=v=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const sec=document.getElementById('sec-rapx');
+  if(!sec) return;
+  const d=rapxDados();
+  const visivel = !!d && state.view==='hist' && d.ano===state.ano;
+  sec.style.display = visivel ? '' : 'none';
+  if(!visivel) return;
+  document.getElementById('rapxAno').textContent=d.ano;
+  const permitidas=new Set(filterRows(execRows(state.ano)).map(r=>r.om));
+  const lista=d.lista.filter(x=>permitidas.has(x.om));
+  const som=k=>lista.reduce((s,x)=>s+x[k],0);
+  const base=som('base'), liq=som('liq'), aliq=som('aliq'), canc=som('canc'), pago=som('pago');
+  const mistas=lista.filter(x=>x.misto);
+  document.getElementById('rapxCount').textContent=lista.length+' OM(s) com restos';
+  document.getElementById('rapxKpis').innerHTML=[
+    ['kpi-apr','Saldo inscrito em restos','R$ '+fmtBRL0(base),'inscritos + reinscritos \u2212 cancelados'],
+    ['kpi-liq','Liquidado','R$ '+fmtBRL0(liq), base>0? fmtPct(liq/base*100,1)+' do saldo inscrito':''],
+    ['kpi-pag','Pago','R$ '+fmtBRL0(pago), liq>0? fmtPct(pago/liq*100,1)+' do liquidado':''],
+    [aliq>0?'kpi-warn':'kpi-disp','Ainda a liquidar','R$ '+fmtBRL0(aliq), base>0? fmtPct(aliq/base*100,1)+' do saldo inscrito':''],
+    ['kpi-nec','Cancelado','R$ '+fmtBRL0(canc),'empenhos baixados sem liquida\u00e7\u00e3o']
+  ].map(([c,l,v,s])=>'<div class="kpi '+c+'"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-sub">'+s+'</div></div>').join('');
+  const ad=Math.round(d.aderencia*100);
+  let nota='Os valores descentralizados e empenhados de <strong>'+d.ano+'</strong> n\u00e3o mudam. '+
+    'O que evolui \u00e9 a liquida\u00e7\u00e3o dos empenhos inscritos em restos a pagar \u2014 \u00e9 isso que esta se\u00e7\u00e3o acompanha, '+
+    'a partir da planilha de Restos a Pagar carregada na \u00c1rea Admin. '+
+    'O v\u00ednculo com o exerc\u00edcio foi verificado par a par (OM + natureza de despesa): <strong>'+ad+'% de ader\u00eancia</strong>.';
+  if(mistas.length) nota+=' <span class="rapx-mix">Aten\u00e7\u00e3o:</span> '+mistas.length+' OM(s) t\u00eam valores <strong>reinscritos</strong> '+
+    '(restos de exerc\u00edcios anteriores trazidos para o ano corrente). Nessas linhas a liquida\u00e7\u00e3o informada pode incluir empenhos de outros anos \u2014 est\u00e3o marcadas na tabela.';
+  document.getElementById('rapxNote').innerHTML=nota;
+  const s=getSort('rapx','pct','desc'); setSortArrow('rapx', s.dir);
+  const arr=topSort(lista.filter(x=>x.base>0), s.key==='pct'?'pct':'liq', s.dir, 15);
+  const max=arr.length? Math.max(...arr.map(x=>s.key==='pct'?x.pct:x.liq),1):1;
+  document.getElementById('rapxChart').innerHTML = arr.length? arr.map(x=>
+    '<div class="bar-row clickable" data-rapxom="'+x.om.replace(/"/g,'&quot;')+'" title="Clique para detalhar '+x.om+'">'+
+      '<div class="bar-label"><span class="code-tag">'+x.om+'</span></div>'+
+      '<div class="bar-value">R$ '+fmtBRL0(x.liq)+' \u00b7 <strong>'+fmtPct(x.pct,0)+'</strong> de R$ '+fmtBRL0(x.base)+
+        (x.misto?'<span class="rapx-tag">reinscritos</span>':'')+'</div>'+
+      '<div class="bar-track"><div class="bar-fill '+(x.pct>=99.5?'green':(x.pct<50?'':'alt'))+'" style="width:'+
+        Math.max(2,((s.key==='pct'?x.pct:x.liq)/max)*100)+'%"></div></div>'+
+    '</div>').join('') : '<div class="empty-state"><div class="glyph">\u2205</div><p>Sem restos a pagar para o filtro atual</p></div>';
+  const ord=[...lista].sort((a,b)=>b.base-a.base);
+  document.getElementById('rapxTbody').innerHTML = ord.length? ord.map(x=>
+    '<tr><td><span class="code-tag">'+x.om+'</span>'+(x.misto?'<span class="rapx-tag" title="Inclui restos reinscritos de exerc\u00edcios anteriores">reinscritos</span>':'')+'</td>'+
+    '<td class="num"><span class="cur">R$</span>'+brl2(x.base)+'</td>'+
+    '<td class="num">'+(x.canc? '<span class="cur">R$</span>'+brl2(x.canc) : '\u2014')+'</td>'+
+    '<td class="num"><span class="cur">R$</span>'+brl2(x.liq)+'</td>'+
+    '<td class="num"><span class="cur">R$</span>'+brl2(x.pago)+'</td>'+
+    '<td class="num">'+(x.aliq? '<span class="cur">R$</span>'+brl2(x.aliq) : '\u2014')+'</td>'+
+    '<td class="num"><strong>'+fmtPct(x.pct,1)+'</strong></td></tr>').join('')
+    : '<tr><td colspan="7" style="text-align:center;color:#8a93a0">Sem dados para o filtro atual</td></tr>';
+}
 function renderEficiencia(rows){
   const byOm={};
   rows.forEach(r=>{ const o=byOm[r.om]||(byOm[r.om]={rec:0,dev:0,liq:0});
@@ -5194,18 +5419,21 @@ function renderRap(){
   set('fr-nc','rap_nproc_cancelados');set('fr-na','rap_nproc_a_liquidar');set('fr-nl','rap_nproc_liquidados');set('fr-np','rap_nproc_pagos');
   document.getElementById('rap-table-count').textContent=`${sorted.length} linha(s)`;
 
+  // ----- Comparativo com a planilha anterior -----
+  renderRapComp();
+
   // ----- Estatística: composição por situação -----
   const sit=[
-    {l:'Inscritos / Reinscritos',v:inscr,c:'var(--fab-blue)'},
-    {l:'A Liquidar',v:sum('rap_nproc_a_liquidar'),c:'var(--fab-yellow-dark)'},
-    {l:'Liquidados',v:sum('rap_nproc_liquidados'),c:'var(--green)'},
-    {l:'Pagos',v:sum('rap_nproc_pagos')+sum('rap_proc_pagos'),c:'var(--fab-blue-mid)'},
-    {l:'Cancelados',v:sum('rap_nproc_cancelados'),c:'var(--gray-400)'}
+    {l:'Inscritos / Reinscritos',v:inscr,c:'var(--fab-blue)',k:'inscr'},
+    {l:'A Liquidar',v:sum('rap_nproc_a_liquidar'),c:'var(--fab-yellow-dark)',k:'rap_nproc_a_liquidar'},
+    {l:'Liquidados',v:sum('rap_nproc_liquidados'),c:'var(--green)',k:'rap_nproc_liquidados'},
+    {l:'Pagos',v:sum('rap_nproc_pagos')+sum('rap_proc_pagos'),c:'var(--fab-blue-mid)',k:'pagos'},
+    {l:'Cancelados',v:sum('rap_nproc_cancelados'),c:'var(--gray-400)',k:'rap_nproc_cancelados'}
   ];
   const sMax=Math.max(1,...sit.map(s=>s.v));
   document.getElementById('rapStatus').innerHTML = sit.map(s=>`
-    <div class="bar-row"><div class="bar-label" style="min-width:130px">${s.l}</div>
-      <div class="bar-value">R$ ${fmtBRL0(s.v)}</div>
+    <div class="bar-row clickable" data-drill="rapsit" data-key="${s.k}" title="Clique para ver as OMs desta situação"><div class="bar-label" style="min-width:130px">${s.l}</div>
+      <div class="bar-value">R$ ${fmtBRL0(s.v)}${rapDeltaSit(s.k)}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${(s.v/sMax)*100}%;background:${s.c}"></div></div></div>`).join('');
 
   // ----- Estatística: RaP por ND (a liquidar / liquidado / pago) -----
@@ -5215,7 +5443,7 @@ function renderRap(){
   const ndMax=Math.max(1,...ndArr.map(x=>x.al+x.li+x.pa));
   document.getElementById('rapNd').innerHTML = ndArr.length? ndArr.map(x=>{
     const tot=x.al+x.li+x.pa; const totPct=(tot/ndMax)*100; const seg=v=>tot>0?(v/tot)*totPct:0;
-    return `<div class="nd-row"><div class="nd-head"><span>${x.nd} · ${(ndLabel[x.nd]||'').split('— ')[1]||''}</span><span class="tot">R$ ${fmtBRL0(tot)}</span></div>
+    return `<div class="nd-row clickable" data-drill="rapnd" data-key="${x.nd}" title="Clique para ver as OMs desta natureza de despesa"><div class="nd-head"><span>${x.nd} · ${(ndLabel[x.nd]||'').split('— ')[1]||''}</span><span class="tot">R$ ${fmtBRL0(tot)}</span></div>
       <div class="nd-bar"><div class="nd-seg" style="width:${seg(x.al)}%;background:var(--fab-yellow-dark)"></div><div class="nd-seg" style="width:${seg(x.li)}%;background:var(--green)"></div><div class="nd-seg" style="width:${seg(x.pa)}%;background:var(--fab-blue)"></div></div>
       <div class="nd-meta"><span>A liquidar: R$ ${fmtBRL0(x.al)}</span><span>Liquidado: R$ ${fmtBRL0(x.li)}</span><span>Pago: R$ ${fmtBRL0(x.pa)}</span></div></div>`;
   }).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
@@ -6245,6 +6473,38 @@ function openDrill(kind, key){
     const byOm={}; rows.forEach(c=>byOm[c.om]=(byOm[c.om]||0)+(c.valor||0));
     const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v}));
     openDrawer('Categoria: '+key, `Módulo ${modRef} · quanto cada OM precisa desta categoria · planejamento 2026 (filtros aplicados)`, drawerListHtml(items,'OM(s)'));
+  } else if(kind==='rapsit'){
+    const rot={inscr:'Inscritos / Reinscritos', rap_nproc_a_liquidar:'A Liquidar',
+      rap_nproc_liquidados:'Liquidados', pagos:'Pagos', rap_nproc_cancelados:'Cancelados'}[key]||key;
+    const val=r=> key==='inscr' ? ((r.rap_nproc_inscritos||0)+(r.rap_nproc_reinscritos||0))
+              : key==='pagos'  ? ((r.rap_nproc_pagos||0)+(r.rap_proc_pagos||0))
+              : (r[key]||0);
+    const byOm={}; rapRows().forEach(r=>{ byOm[r.om]=(byOm[r.om]||0)+val(r); });
+    /* variação em relação à planilha anterior, quando houver */
+    const prevOm={};
+    if(hasRapPrev()) rapRowsPrev().forEach(r=>{ prevOm[r.om]=(prevOm[r.om]||0)+val(r); });
+    const items=Object.entries(byOm).map(([om,v])=>{
+      const p=prevOm[om];
+      const dif=(p==null)?null:(v-p);
+      return {label:om, value:v,
+        sub: (dif==null? '' : (Math.abs(dif)<0.005? 'sem variação'
+              : (dif>0?'▲ ':'▼ ')+'R$ '+fmtBRL0(Math.abs(dif))+' desde a planilha anterior'))};
+    });
+    const tot=Object.values(byOm).reduce((s,v)=>s+v,0);
+    openDrawer('Restos a Pagar · '+rot,
+      'OMs nesta situação · filtros aplicados · total R$ '+fmtBRL0(tot),
+      drawerListHtml(items,'OM(s)'));
+  } else if(kind==='rapnd'){
+    const rows=rapRows().filter(r=>String(r.nd)===String(key));
+    const items=rows.map(r=>{
+      const base=(r.rap_nproc_inscritos||0)+(r.rap_nproc_reinscritos||0)-(r.rap_nproc_cancelados||0);
+      const liq=r.rap_nproc_liquidados||0;
+      return {label:r.om, value:liq,
+        sub:'inscrito '+fmtBRL0(base)+' · a liquidar '+fmtBRL0(r.rap_nproc_a_liquidar||0)+
+            (base>0? ' · '+fmtPct(liq/base*100,0)+' liquidado':''), color:'var(--green)'};
+    });
+    openDrawer('ND '+key+' · '+((ndLabel[key]||'').split('— ')[1]||''),
+      'OMs com restos nesta natureza · barra = valor liquidado', drawerListHtml(items,'OM(s)'));
   } else if(kind==='rapom'){
     const rows=rapRows().filter(r=>r.om===String(key));
     const items=rows.map(r=>{ const base=(r.rap_nproc_inscritos||0)+(r.rap_nproc_reinscritos||0)-(r.rap_nproc_cancelados||0);
@@ -6934,8 +7194,21 @@ function refresh(){
 
   function applyImport(){
     if(!pending || !pending.length){ alog('Não há dados de Restos a Pagar válidos para aplicar.','err'); return; }
+    // Arquiva a planilha atual como "anterior", permitindo o comparativo.
+    try{
+      const antiga=(DATA.rap||[]).slice();
+      if(antiga.length){
+        const mAnt=(DATA.rapMeta&&DATA.rapMeta.cur)||{};
+        const snap={rows:antiga, sheet:mAnt.sheet||'embutida', file:mAnt.file||'(dados embutidos)',
+                    savedAt:mAnt.savedAt||new Date().toISOString()};
+        DATA.rapPrev=antiga; DATA.rapMeta.prev=snap;
+        localStorage.setItem('sisi_rap_prev_v1', JSON.stringify(snap));
+        alog('Planilha anterior arquivada para comparação (aba '+(snap.sheet||'?')+').','info');
+      }
+    }catch(e){ alog('Não foi possível arquivar a planilha anterior ('+e.message+').','err'); }
     DATA.rap=pending.slice();
     const meta={ rows:DATA.rap, file:fileName, sheet:abaUsada, savedAt:new Date().toISOString() };
+    DATA.rapMeta=DATA.rapMeta||{}; DATA.rapMeta.cur=meta;
     try{ localStorage.setItem(LS_KEY, JSON.stringify(meta)); }
     catch(e){ alog('Aviso: não foi possível salvar no navegador ('+e.message+'). Vale só para esta sessão.','err'); }
     rebuildOmFilter(); rebuildOdsFilter(); updateStatusLine();
@@ -6949,7 +7222,8 @@ function refresh(){
 
   function restaurar(){
     DATA.rap=RAP_EMBUTIDO.slice();
-    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    DATA.rapPrev=null; DATA.rapMeta={};
+    try{ localStorage.removeItem(LS_KEY); localStorage.removeItem('sisi_rap_prev_v1'); }catch(e){}
     rebuildOmFilter(); rebuildOdsFilter(); updateStatusLine(); refresh();
     alog('Restos a Pagar embutidos restaurados.','ok');
     sincronizarAposUpload('Restos a Pagar (embutidos)');
@@ -7179,9 +7453,15 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
         }
       }catch(e){}
     }
+    if(data.rapPrev && Array.isArray(data.rapPrev.rows) && data.rapPrev.rows.length){
+      if(remoteIsNewer(data.rapPrev,'sisi_rap_prev_v1')){
+        DATA.rapPrev=data.rapPrev.rows; DATA.rapMeta=DATA.rapMeta||{}; DATA.rapMeta.prev=data.rapPrev;
+        try{ localStorage.setItem('sisi_rap_prev_v1', JSON.stringify(data.rapPrev)); }catch(e){}
+      }
+    }
     if(data.rap && Array.isArray(data.rap.rows) && data.rap.rows.length){
       if(remoteIsNewer(data.rap,'sisi_rap_v1')){
-        DATA.rap=data.rap.rows;
+        DATA.rap=data.rap.rows; DATA.rapMeta=DATA.rapMeta||{}; DATA.rapMeta.cur=data.rap;
         try{ localStorage.setItem('sisi_rap_v1', JSON.stringify(data.rap)); }catch(e){}
         blog(`Restos a Pagar atualizados a partir do bin (${data.rap.rows.length} linhas, aba ${data.rap.sheet||'?'}).`,'info');
       }
@@ -7357,6 +7637,8 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
       gas: (window.__gasForPayload ? window.__gasForPayload() : null),
       msgs: (window.__msgsForPayload ? window.__msgsForPayload() : null),
       rap: (function(){ try{ const m=JSON.parse(localStorage.getItem('sisi_rap_v1')||'null');
+              return (m && Array.isArray(m.rows) && m.rows.length)? m : null; }catch(e){ return null; } })(),
+      rapPrev: (function(){ try{ const m=JSON.parse(localStorage.getItem('sisi_rap_prev_v1')||'null');
               return (m && Array.isArray(m.rows) && m.rows.length)? m : null; }catch(e){ return null; } })(),
       exec2026: execGz?null:exec, exec2026_gz: execGz,
       execPrev2026: prevGz?null:execPrevRaw, execPrev2026_gz: prevGz,
@@ -8221,6 +8503,13 @@ body.entry-locked { overflow:hidden; }
 .cred-acoes{ white-space:normal; display:flex; flex-wrap:wrap; gap:4px; min-width:112px; }
 .cred-acoes .admin-btn{ padding:4px 8px; font-size:11px; }
 th.cred-sort{ cursor:pointer; user-select:none; white-space:nowrap; }
+/* u2.15 - andamento dos restos a pagar cruzado com o historico */
+.rapx-note{ font:11.5px/1.5 'Roboto',sans-serif; color:#5b6572; background:#f2f5f8;
+  border-left:3px solid #002B5C; padding:8px 12px; margin:0 0 12px; }
+.rapx-note strong{ color:#002B5C; }
+.rapx-tag{ display:inline-block; font:600 9.5px/1 'Roboto Mono',monospace; letter-spacing:.06em;
+  background:#FFCC00; color:#3d2c00; padding:3px 6px; margin-left:6px; vertical-align:middle; }
+.rapx-mix{ color:#8C4D00; font-weight:600; }
 th.cred-sort:hover{ color:#002B5C; }
 /* ===== u2.5 — Pop-up de boas-vindas / avisos / mensagens ===== */
 #msgOverlay{ display:none; position:fixed; inset:0; background:rgba(0,26,61,.62); z-index:9600;
@@ -9747,6 +10036,8 @@ function bind(){
   document.body.addEventListener('click',e=>{
     const tvf=e.target.closest('[data-tvf]');
     if(tvf){ gTvFiltro=tvf.dataset.tvf; renderGOm(); return; }
+    const rx=e.target.closest('[data-rapxom]');
+    if(rx){ rapxDrawer(rx.dataset.rapxom); return; }
     const g1=e.target.closest('[data-gods]'); if(g1 && perfil && perfil.tipo==='gestor'){ gOdsAtual=g1.dataset.gods; showView('g-ods'); return; }
     const g2=e.target.closest('[data-gom]'); if(g2 && perfil && (perfil.tipo==='gestor'||perfil.tipo==='ods')){ gOmAtual=g2.dataset.gom; showView('g-om'); return; }
     if(e.target.dataset && e.target.dataset.foto && perfil && (perfil.tipo==='gestor'||perfil.tipo==='ods')){ el('fotoViewImg').src=e.target.src; el('fotoView').classList.remove('hidden'); }
