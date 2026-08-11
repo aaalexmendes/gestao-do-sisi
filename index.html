@@ -3230,20 +3230,24 @@
 
     <section class="charts-row r-1" id="secEvolucao" style="display:none;">
       <div class="chart-card">
-        <h3>Evolução Semanal &#183; variação vs. semana anterior<span class="info-ico" tabindex="0" data-tip="Compara a semana atual (último upload) com a semana anterior, por OM. 'Δ Crédito Liberado' = variação do total descentralizado à OM (disponível + bloqueado + empenhos a liquidar) — quanto de crédito novo entrou. 'Δ Empenhos a Liquidar' = variação dos empenhos ainda não liquidados (aumenta com novos empenhos, diminui com liquidações). O percentual é sobre o valor da semana anterior. Respeita os filtros de OM/ND/ODS.">i</span></h3>
+        <h3>Evolução Semanal &#183; variação vs. semana anterior<span class="info-ico" tabindex="0" data-tip="Compara a semana atual (último upload) com a semana anterior, por OM. 'Descentralizado' = tudo o que está na UGR (disponível + bloqueado + empenhos a liquidar + liquidados a pagar + pagos) — inclui a parcela retida. 'Liberado à OM' = o descentralizado MENOS o bloqueado (disponível + empenhos a liquidar + liquidados a pagar + pagos): é o que a OM pôde de fato empenhar. 'Bloqueado' = crédito retido para controle interno, indisponível para empenho. 'Empenhos a Liquidar' = empenhos emitidos e ainda não liquidados. O percentual é sobre o valor da semana anterior. Respeita os filtros de OM/ND/ODS.">i</span></h3>
         <div class="chart-sub" id="evolSub">envie duas semanas de execução (dois uploads) para ver a variação</div>
-        <div id="evolKpis" class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin:14px 0 4px;"></div>
+        <div id="evolKpis" class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin:14px 0 4px;"></div>
         <div class="sort-ctl" id="evolSortCtl" style="display:none;">ordenar por:
-          <span class="sort-lbl active" data-evolsort="libD">Δ Crédito Liberado</span>
+          <span class="sort-lbl" data-evolsort="descD">Δ Descentralizado</span>
+          <span class="sort-lbl active" data-evolsort="libD">Δ Liberado à OM</span>
+          <span class="sort-lbl" data-evolsort="blqD">Δ Bloqueado</span>
           <span class="sort-lbl" data-evolsort="ealD">Δ Empenhos a Liquidar</span>
           <span class="sort-lbl" data-evolsort="om">OM</span>
         </div>
         <div class="table-wrap" id="evolTableWrap" style="max-height:520px;display:none;">
-          <table style="min-width:920px;" id="evolTable">
+          <table style="min-width:1080px;" id="evolTable">
             <thead><tr>
               <th>OM (UGR)</th>
-              <th class="num">Liberado ant.</th><th class="num">Liberado atual</th><th class="num">&#916; Liberado</th>
-              <th class="num">Emp. Liq. ant.</th><th class="num">Emp. Liq. atual</th><th class="num">&#916; Emp. Liq.</th>
+              <th class="num">Descentralizado</th><th class="num">&#916; Descentr.</th>
+              <th class="num">Liberado &#224; OM</th><th class="num">&#916; Liberado</th>
+              <th class="num">Bloqueado</th><th class="num">&#916; Bloqueado</th>
+              <th class="num">Emp. a Liquidar</th><th class="num">&#916; Emp. Liq.</th>
             </tr></thead>
             <tbody id="evolTbody"></tbody>
           </table>
@@ -3281,7 +3285,7 @@
         </div>
       </div>
       <div class="chart-card">
-        <h3 class="sortable" data-sort="topoms" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Top OMs<span class="sort-arrow" id="sa-topoms"></span><span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada nos botões abaixo. Cada barra mostra o valor e o percentual que ele representa da base da OM: em 2023–2025, do crédito recebido bruto (movimento devedor); em 2026, do crédito total da OM na semana (disponível + bloqueado + empenhos a liquidar). Ordene por Valor (quem executou mais em R$) ou por percentual (quem foi mais eficiente com o que recebeu). Clique no título para inverter a ordem; clique numa barra para detalhar por natureza de despesa.">i</span></h3>
+        <h3 class="sortable" data-sort="topoms" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Top OMs<span class="sort-arrow" id="sa-topoms"></span><span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada nos botões abaixo. Cada barra mostra o valor e o percentual que ele representa da base da OM: em 2023–2025, do crédito recebido bruto (movimento devedor); em 2026, do crédito DESCENTRALIZADO à OM na semana (soma das cinco colunas da planilha) — base que inclui a parcela bloqueada, portanto o percentual não mede o uso do crédito efetivamente liberado. Ordene por Valor (quem executou mais em R$) ou por percentual. Clique no título para inverter a ordem; clique numa barra para detalhar por natureza de despesa.">i</span></h3>
         <div class="chart-sub" id="omChartSub">Ranking &#183; valor e % da base da OM &#183; &#8599; clique para detalhar</div>
         <div class="toggle-row" id="omToggle">
           <button class="toggle-btn active" data-metric="saldo">Destaque receb.</button>
@@ -3461,15 +3465,15 @@
 
   <!-- ============ ABA: 2026 (ANO CORRENTE) · PLANEJADO × EXECUTADO ============ -->
   <div class="view-section" id="sec-liberar">
-    <h2 class="section-title"><span>Planejado × Executado · 2026</span><span class="count">aprovado &#8594; descentralizado &#8594; empenhado</span></h2>
+    <h2 class="section-title"><span>Planejado × Executado · 2026</span><span class="count">aprovado &#8594; descentralizado &#8594; liberado &#8594; empenhado</span></h2>
     <section class="charts-row r-2">
       <div class="chart-card">
-        <h3>Execução do Aprovado · 2026<span class="info-ico" tabindex="0" data-tip="Caminho do crédito aprovado (descentralizado) para 2026: do aprovado para o ano, ao que já foi descentralizado/recebido pelas OMs, até os empenhos a liquidar. Percentuais sobre o Aprovado.">i</span></h3>
-        <div class="chart-sub">Aprovado p/ o ano &#8594; Liberado (na OM) &#8594; Empenhos a Liquidar</div>
+        <h3>Execução do Aprovado · 2026<span class="info-ico" tabindex="0" data-tip="Caminho do crédito em 2026, com percentuais sobre o Aprovado. ATENÇÃO: descentralizado NÃO é o mesmo que liberado. 'Descentralizado à UGR' é todo o crédito que chegou à OM, inclusive a parcela bloqueada para controle interno — é a soma das cinco colunas da planilha semanal. 'Liberado à OM' é o descentralizado menos o bloqueado: disponível + empenhos a liquidar + liquidados a pagar + pagos.">i</span></h3>
+        <div class="chart-sub" id="liberarSub">Aprovado &#8594; Descentralizado (c/ bloqueio) &#8594; Liberado &#224; OM &#8594; Bloqueado &#8594; Empenhos a Liquidar</div>
         <div class="funnel" id="liberarFunnel"></div>
       </div>
       <div class="chart-card">
-        <h3>Situação do Crédito que está na OM<span class="info-ico" tabindex="0" data-tip="Do crédito já na OM em 2026: quanto está disponível, quanto está bloqueado para controle interno e quanto já virou empenho a liquidar.">i</span></h3>
+        <h3>Situação do Crédito que está na OM<span class="info-ico" tabindex="0" data-tip="Situação do crédito descentralizado à UGR em 2026: quanto está disponível, quanto está bloqueado para controle interno, quanto virou empenho a liquidar e — a partir de JUL/2026 — quanto já foi liquidado a pagar e pago. Tudo o que não está bloqueado foi liberado à OM.">i</span></h3>
         <div class="chart-sub">Disponível · Bloqueado · Empenhos a Liquidar</div>
         <div class="funnel" id="liberarStatus"></div>
       </div>
@@ -4185,7 +4189,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.16 &#183; 06/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.19 &#183; 11/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4603,12 +4607,23 @@ DATA.execMeta = DATA.execMeta || {};
     if(rawc){ const o=JSON.parse(rawc); DATA.execMeta.cur=o; }
   }catch(e){ /* ignora */ }
 })();
+// ---------- Situação do crédito 2026: as CINCO colunas da planilha semanal ----------
+// A planilha traz Disponível, Bloqueado, Empenhos a Liquidar e — a partir de JUL/2026 —
+// Empenhos Liquidados a Pagar e Empenhos Pagos. A soma das cinco é o crédito
+// DESCENTRALIZADO à UGR (= o aprovado do exercício, R$ 3.400.000).
+// LIBERADO à OM = descentralizado − bloqueado (o que a OM pôde de fato empenhar).
+// Abas antigas (até JUN/2026) não têm as duas últimas colunas: valem zero.
+const descentralizadoDe = r => (r.disponivel||0)+(r.bloqueado||0)+(r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
+const liberadoDe        = r => (r.disponivel||0)+(r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
+const empenhadoDe       = r => (r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
+const somaPor = (rows,f) => (rows||[]).reduce((a,r)=>a+f(r),0);
 // Agrega uma lista bruta de execução 2026 por (OM,ND), no mesmo formato do execRows.
 function aggExecRaw(raw){
   const map={};
   (raw||[]).forEach(r=>{ const k=r.om+'|'+r.nd;
-    const o=map[k]||(map[k]={om:r.om,nd:r.nd,ods:odsOf(r.om),disponivel:0,bloqueado:0,emp_a_liquidar:0});
-    o.disponivel+=(r.credito_disponivel||0); o.bloqueado+=(r.credito_bloqueado||0); o.emp_a_liquidar+=(r.empenhos_a_liquidar||0); });
+    const o=map[k]||(map[k]={om:r.om,nd:r.nd,ods:odsOf(r.om),disponivel:0,bloqueado:0,emp_a_liquidar:0,liq_a_pagar:0,pago:0});
+    o.disponivel+=(r.credito_disponivel||0); o.bloqueado+=(r.credito_bloqueado||0); o.emp_a_liquidar+=(r.empenhos_a_liquidar||0);
+    o.liq_a_pagar+=(r.liquidadas_a_pagar||0); o.pago+=(r.pagas||0); });
   return Object.values(map);
 }
 function execRowsPrev2026(){ return filterRows(aggExecRaw(DATA.executionPrev['2026']||[])); }
@@ -4855,7 +4870,7 @@ function execRows(ano){
     (DATA.execution[y]||[]).forEach(r=>{ const o=get(r.om,r.nd);
       o.saldo+=r.destaque_recebido; o.disponivel+=r.credito_disponivel; o.empenhado+=r.empenhadas;
       o.bloqueado+=(r.credito_bloqueado||0); o.emp_a_liquidar+=(r.empenhos_a_liquidar||0);
-      o.liquidado+=r.liquidadas; o.liq_a_pagar+=r.liquidadas_a_pagar; o.inscrito_rp+=r.inscritas_rp; o.pago+=r.pagas; });
+      o.liquidado+=(r.liquidadas||0); o.liq_a_pagar+=(r.liquidadas_a_pagar||0); o.inscrito_rp+=(r.inscritas_rp||0); o.pago+=(r.pagas||0); });
     (DATA.movim[y]||[]).forEach(r=>{ const o=get(r.om,r.nd); o.recebido+=r.mov_devedor; o.devolvido+=r.mov_credor; });
   });
   return Object.values(map);
@@ -4890,6 +4905,7 @@ const ICO = tip => `<span class="info-ico" tabindex="0" data-tip="${String(tip).
 let _execChrome='';
 function setExecChrome(mode){ if(_execChrome===mode) return; _execChrome=mode; (mode==='2026'?setExecChrome2026:setExecChromeLegacy)(); }
 function setExecChromeLegacy(){
+  { const kg=document.getElementById('exec-kpis'); if(kg) kg.style.gridTemplateColumns=''; }
   { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display=''; }
   { const rb=document.getElementById('odsReportBar'); if(rb) rb.style.display='none'; }
   { const se=document.getElementById('secEvolucao'); if(se) se.style.display='none'; }
@@ -4907,21 +4923,22 @@ function setExecChromeLegacy(){
   document.getElementById('execTfoot').innerHTML='<tr><td colspan="2">Total Filtrado</td><td class="num"><span class="cur">R$</span><span id="fe-sal">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-dev">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-emp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-liq">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-lap">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-rp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe-pag">0</span></td></tr>';
 }
 function setExecChrome2026(){
+  { const kg=document.getElementById('exec-kpis'); if(kg) kg.style.gridTemplateColumns='repeat(3,1fr)'; } // 6 KPIs em 2 linhas de 3
   { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display='none'; }
   { const rb=document.getElementById('odsReportBar'); if(rb) rb.style.display='flex'; }
   { const se=document.getElementById('secEvolucao'); if(se) se.style.display=''; }
-  document.getElementById('execCard1H3').innerHTML='Situação do Crédito · 2026'+ICO('No exercício corrente, a planilha semanal traz a situação do crédito: disponível, bloqueado para controle interno e empenhos ainda a liquidar.');
-  document.getElementById('execCard1Sub').innerHTML='Crédito Disponível · Bloqueado · Empenhos a Liquidar';
+  document.getElementById('execCard1H3').innerHTML='Situação do Crédito · 2026'+ICO('Situação do crédito na planilha semanal: disponível, bloqueado para controle interno, empenhos a liquidar, empenhos liquidados a pagar e empenhos pagos. A soma das cinco é o crédito descentralizado à UGR; tudo menos o bloqueado é o que foi liberado à OM.');
+  document.getElementById('execCard1Sub').innerHTML='Disponível · Bloqueado · A Liquidar · Liq. a Pagar · Pagos';
   document.getElementById('execCard2H3').innerHTML='Crédito Disponível por Natureza'+ICO('Participação de cada ND no total de crédito disponível no período filtrado.');
   document.getElementById('execCard2Sub').textContent='Participação de cada ND no crédito disponível';
-  document.getElementById('execCard3H3').innerHTML='Crédito por Natureza de Despesa'+ICO('Para cada ND: crédito disponível, bloqueado para controle interno e empenhos a liquidar.');
-  document.getElementById('execCard3Sub').textContent='Disponível / Bloqueado / Empenhos a liquidar · por ND';
-  document.getElementById('execCard3Legend').innerHTML='<span><span class="sw" style="background:var(--fab-blue)"></span>Disponível</span><span><span class="sw" style="background:var(--gray-400)"></span>Bloqueado</span><span><span class="sw" style="background:var(--fab-yellow-dark)"></span>Empenhos a liquidar</span>';
-  document.getElementById('omToggle').innerHTML='<button class="toggle-btn" data-metric="disponivel">Disponível</button><button class="toggle-btn" data-metric="bloqueado">Bloqueado</button><button class="toggle-btn" data-metric="emp_a_liquidar">Empenhos a Liquidar</button>';
-  if(!['disponivel','bloqueado','emp_a_liquidar'].includes(state.omMetric)) state.omMetric='disponivel';
+  document.getElementById('execCard3H3').innerHTML='Crédito por Natureza de Despesa'+ICO('Para cada ND, as cinco situações da planilha semanal: disponível, bloqueado, empenhos a liquidar, liquidados a pagar e pagos.');
+  document.getElementById('execCard3Sub').textContent='Disponível / Bloqueado / A liquidar / Liq. a pagar / Pagos · por ND';
+  document.getElementById('execCard3Legend').innerHTML='<span><span class="sw" style="background:var(--fab-blue)"></span>Disponível</span><span><span class="sw" style="background:var(--gray-400)"></span>Bloqueado</span><span><span class="sw" style="background:var(--fab-yellow-dark)"></span>A liquidar</span><span><span class="sw" style="background:var(--fab-blue-light)"></span>Liq. a pagar</span><span><span class="sw" style="background:var(--green)"></span>Pagos</span>';
+  document.getElementById('omToggle').innerHTML='<button class="toggle-btn" data-metric="disponivel">Disponível</button><button class="toggle-btn" data-metric="bloqueado">Bloqueado</button><button class="toggle-btn" data-metric="emp_a_liquidar">Empenhos a Liquidar</button><button class="toggle-btn" data-metric="liq_a_pagar">Liq. a Pagar</button><button class="toggle-btn" data-metric="pago">Pagos</button>';
+  if(!['disponivel','bloqueado','emp_a_liquidar','liq_a_pagar','pago'].includes(state.omMetric)) state.omMetric='disponivel';
   document.querySelectorAll('#omToggle .toggle-btn').forEach(x=>x.classList.toggle('active',x.dataset.metric===state.omMetric));
-  document.getElementById('execThead').innerHTML='<tr><th>OM</th><th>ND</th><th class="num">Crédito Disponível</th><th class="num">Crédito Bloqueado</th><th class="num">Empenhos a Liquidar</th></tr>';
-  document.getElementById('execTfoot').innerHTML='<tr><td colspan="2">Total Filtrado</td><td class="num"><span class="cur">R$</span><span id="fe26-disp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-blq">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-eal">0</span></td></tr>';
+  document.getElementById('execThead').innerHTML='<tr><th>OM</th><th>ND</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">Emp. a Liquidar</th><th class="num">Liq. a Pagar</th><th class="num">Pagos</th><th class="num">Liberado à OM</th></tr>';
+  document.getElementById('execTfoot').innerHTML='<tr><td colspan="2">Total Filtrado</td><td class="num"><span class="cur">R$</span><span id="fe26-disp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-blq">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-eal">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-lap">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-pag">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-lib">0</span></td></tr>';
 }
 function dispUGESplit(){
   const raw=(DATA.execUGE&&DATA.execUGE['2026'])||[];
@@ -4931,50 +4948,65 @@ function dispUGESplit(){
   return {hasUGE:true, diref:d, outra:o};
 }
 function aprovadoAno(){
+  // Fonte primária: a PLANILHA SEMANAL DE EXECUÇÃO. O total por (OM,ND) —
+  // disponível + bloqueado + empenhos a liquidar — é o crédito aprovado e já
+  // descentralizado do exercício; soma R$ 3.400.000 e responde aos filtros de
+  // OM/ND/ODS. Retaguarda (CREDDATA/planejamento) só quando não há planilha de
+  // execução carregada ou quando há filtro de Guarnição, que a execução não conhece.
+  if(!state.guarnicao.size){
+    const ex=filterRows(execRows('2026'));
+    if(ex.length) return somaPor(ex, descentralizadoDe);
+  }
   const semFiltro = !state.om.size && !state.ods.size && !state.guarnicao.size;
   if(semFiltro && CREDDATA.teto>0) return CREDDATA.teto;
   return planRows().reduce((s,r)=>s+(r.aprovado||0),0);
 }
 function renderExec2026(rows){
   const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
-  const disp=T.disponivel||0, blq=T.bloqueado||0, eal=T.emp_a_liquidar||0;
+  const disp=T.disponivel||0, blq=T.bloqueado||0, eal=T.emp_a_liquidar||0, lap=T.liq_a_pagar||0, pag=T.pago||0;
+  const desc=disp+blq+eal+lap+pag, lib=desc-blq;
   const apr=aprovadoAno();
-  const liberado=disp+blq+eal;
   const sp=dispUGESplit();
+  const pctDe=v=>desc>0?' · '+fmtPct(v/desc*100,1)+' do descentralizado':'';
   document.getElementById('exec-kpis').innerHTML =
-    kpi('kpi-apr','Aprovado · 2026',apr,'descentralizado para o ano','Crédito aprovado para o exercício de 2026: R$ 3.400.000 (valor fixado no planejamento do ano). Com filtros de OM/ODS ativos, mostra a soma do aprovado das OMs filtradas.') +
+    kpi('kpi-apr','Aprovado · 2026',apr,'= descentralizado à UGR','Crédito aprovado e já descentralizado para o exercício de 2026, apurado na própria planilha semanal: disponível + bloqueado + empenhos a liquidar + liquidados a pagar + pagos = R$ 3.400.000. Responde aos filtros de OM/ND/ODS. Sem planilha de execução carregada, recai sobre o teto do planejamento.') +
+    kpi('kpi-rec','Liberado à OM',lib, 'desbloqueado'+pctDe(lib),'O que a OM pôde de fato empenhar: o descentralizado MENOS o bloqueado para controle interno. Equivale a disponível + empenhos a liquidar + liquidados a pagar + pagos.') +
+    kpi('kpi-warn','Crédito Bloqueado',blq, wkBlqSub(rows) || ('controle interno'+pctDe(blq)),'Crédito bloqueado para controle interno — indisponível para empenho no momento. Quando há semana anterior, mostra a variação.') +
     kpi('kpi-disp','Disponível na OM · p/ uso', sp.hasUGE?sp.outra:disp, sp.hasUGE?'em UGE que não é a DIREF':'total — envie a planilha p/ separar','Crédito disponível que está em UGE diferente da DIREF: efetivamente na OM/executora, pronto para uso pela UGR.') +
-    kpi('kpi-rec','Disponível na DIREF · a descentralizar', sp.hasUGE?sp.diref:0, sp.hasUGE?'descentralizar antes do uso':'requer upload da planilha','Crédito disponível retido na UGE DIREF: precisa ser descentralizado para a UGR antes de poder ser utilizado.') +
-    kpi('kpi-warn','Crédito Bloqueado',blq, wkBlqSub(rows) || 'controle interno','Crédito bloqueado para controle interno — indisponível para empenho no momento. Quando há semana anterior, mostra a variação.') +
-    kpi('kpi-emp','Empenhos a Liquidar',eal, wkEalSub(rows) || 'obrigações pendentes','Empenhos já emitidos e ainda não liquidados. Quando há semana anterior, mostra a variação (aumenta com novos empenhos, diminui com liquidações).');
+    kpi('kpi-emp','Empenhos a Liquidar',eal, wkEalSub(rows) || 'obrigações pendentes','Empenhos já emitidos e ainda não liquidados. Quando há semana anterior, mostra a variação (aumenta com novos empenhos, diminui com liquidações).') +
+    kpi('kpi-liq','Liquidado',lap+pag, (pag>0.005?('pago R$ '+fmtBRL0(pag)+' · '):'')+'a pagar R$ '+fmtBRL0(lap),'Empenhos já liquidados no exercício: a parcela ainda a pagar somada à já paga. Colunas presentes na planilha a partir de JUL/2026.');
   document.getElementById('exec-sub-count').textContent=`${rows.length} combinação(ões) OM×ND · ${new Set(rows.map(r=>r.om)).size} OM(s)`;
   // "funil" reaproveitado como 3 barras de situação do crédito
   const stages=[{l:'Crédito Disponível',v:disp,c:'var(--fab-blue)',k:'disponivel'},{l:'Crédito Bloqueado',v:blq,c:'var(--gray-400)',k:'bloqueado'},{l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'}];
-  const fmax=Math.max(disp,blq,eal,1);
+  if(lap>0.005||pag>0.005){ stages.push({l:'Emp. Liquidados a Pagar',v:lap,c:'var(--fab-blue-light)',k:'liq_a_pagar'});
+                            stages.push({l:'Empenhos Pagos',v:pag,c:'var(--green)',k:'pago'}); }
+  const fmax=Math.max(disp,blq,eal,lap,pag,1);
   document.getElementById('funnelExec').innerHTML=stages.map(s=>{ const w=Math.max(2,(s.v/fmax)*100);
     return `<div class="funnel-row" data-drill="sit" data-key="${s.k}" title="Clique para ver as OMs"><div class="funnel-head"><span>${s.l}</span><span class="pct">R$ ${fmtBRL0(s.v)}</span></div><div class="funnel-track"><div class="funnel-fill" style="width:${w}%;background:${s.c}">${w>20?'R$ '+fmtBRLc(s.v):''}</div></div></div>`; }).join('');
   // donut: disponível por ND
   const byNd={}; NDS.forEach(nd=>byNd[nd]=0); rows.forEach(r=>byNd[r.nd]=(byNd[r.nd]||0)+r.disponivel);
   renderDonut('donut-nd','legend-nd', NDS.map(nd=>({k:nd,label:nd,val:byNd[nd],color:ndColor[nd]})),'DISPON.');
   // barras por ND
-  const ndAgg={}; NDS.forEach(nd=>ndAgg[nd]={disp:0,blq:0,eal:0}); rows.forEach(r=>{const a=ndAgg[r.nd]; if(!a)return; a.disp+=r.disponivel; a.blq+=r.bloqueado; a.eal+=r.emp_a_liquidar;});
-  const ndArr=NDS.map(nd=>({nd,...ndAgg[nd]})).filter(x=>x.disp||x.blq||x.eal);
-  const ndMax=Math.max(1,...ndArr.map(x=>x.disp+x.blq+x.eal));
+  const ndAgg={}; NDS.forEach(nd=>ndAgg[nd]={disp:0,blq:0,eal:0,lap:0,pag:0}); rows.forEach(r=>{const a=ndAgg[r.nd]; if(!a)return; a.disp+=r.disponivel; a.blq+=r.bloqueado; a.eal+=r.emp_a_liquidar; a.lap+=(r.liq_a_pagar||0); a.pag+=(r.pago||0);});
+  const ndArr=NDS.map(nd=>({nd,...ndAgg[nd]})).filter(x=>x.disp||x.blq||x.eal||x.lap||x.pag);
+  const ndMax=Math.max(1,...ndArr.map(x=>x.disp+x.blq+x.eal+x.lap+x.pag));
   document.getElementById('ndExec').innerHTML = ndArr.length? ndArr.map(x=>{
-    const tot=x.disp+x.blq+x.eal; const totPct=(tot/ndMax)*100; const seg=v=>tot>0?(v/tot)*totPct:0;
+    const tot=x.disp+x.blq+x.eal+x.lap+x.pag; const totPct=(tot/ndMax)*100; const seg=v=>tot>0?(v/tot)*totPct:0;
+    const extra=(x.lap>0.005||x.pag>0.005)?`<span>Liq. a pagar: R$ ${fmtBRL0(x.lap)}</span><span>Pagos: R$ ${fmtBRL0(x.pag)}</span>`:'';
     return `<div class="nd-row"><div class="nd-head"><span>${x.nd} · ${(ndLabel[x.nd]||'').split('— ')[1]||''}</span><span class="tot">R$ ${fmtBRL0(tot)}</span></div>
-      <div class="nd-bar"><div class="nd-seg" style="width:${seg(x.disp)}%;background:var(--fab-blue)"></div><div class="nd-seg" style="width:${seg(x.blq)}%;background:var(--gray-400)"></div><div class="nd-seg" style="width:${seg(x.eal)}%;background:var(--fab-yellow-dark)"></div></div>
-      <div class="nd-meta"><span>Disp.: R$ ${fmtBRL0(x.disp)}</span><span>Bloq.: R$ ${fmtBRL0(x.blq)}</span><span>A liquidar: R$ ${fmtBRL0(x.eal)}</span></div></div>`;
+      <div class="nd-bar"><div class="nd-seg" style="width:${seg(x.disp)}%;background:var(--fab-blue)"></div><div class="nd-seg" style="width:${seg(x.blq)}%;background:var(--gray-400)"></div><div class="nd-seg" style="width:${seg(x.eal)}%;background:var(--fab-yellow-dark)"></div><div class="nd-seg" style="width:${seg(x.lap)}%;background:var(--fab-blue-light)"></div><div class="nd-seg" style="width:${seg(x.pag)}%;background:var(--green)"></div></div>
+      <div class="nd-meta"><span>Disp.: R$ ${fmtBRL0(x.disp)}</span><span>Bloq.: R$ ${fmtBRL0(x.blq)}</span><span>A liquidar: R$ ${fmtBRL0(x.eal)}</span>${extra}</div></div>`;
   }).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
   renderEvolucao(rows);
   renderTopOms(rows);
   // tabela 2026
   const sorted=[...rows].sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
   const num=v=>`<td class="num ${v===0?'zero':''}"><span class="cur">R$</span>${fmtBRL0(v)}</td>`;
-  document.getElementById('execTbody').innerHTML = sorted.length? sorted.map(r=>`<tr data-om="${r.om.replace(/"/g,'&quot;')}" title="Clique para ver a OM"><td class="code">${r.om}</td><td><span class="badge">${r.nd}</span></td>${num(r.disponivel)}${num(r.bloqueado)}${num(r.emp_a_liquidar)}</tr>`).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="glyph">∅</div><p>Sem registros para os filtros.</p></div></td></tr>`;
+  document.getElementById('execTbody').innerHTML = sorted.length? sorted.map(r=>`<tr data-om="${r.om.replace(/"/g,'&quot;')}" title="Clique para ver a OM"><td class="code">${r.om}</td><td><span class="badge">${r.nd}</span></td>${num(r.disponivel)}${num(r.bloqueado)}${num(r.emp_a_liquidar)}${num(r.liq_a_pagar||0)}${num(r.pago||0)}${num(liberadoDe(r))}</tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><div class="glyph">∅</div><p>Sem registros para os filtros.</p></div></td></tr>`;
   const sum=k=>sorted.reduce((s,r)=>s+(r[k]||0),0);
   const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=fmtBRL0(v); };
   set('fe26-disp',sum('disponivel')); set('fe26-blq',sum('bloqueado')); set('fe26-eal',sum('emp_a_liquidar'));
+  set('fe26-lap',sum('liq_a_pagar')); set('fe26-pag',sum('pago')); set('fe26-lib',somaPor(sorted,liberadoDe));
   document.getElementById('exec-table-count').textContent=`${sorted.length} linha(s)`;
 }
 function renderExec(){
@@ -5261,24 +5293,37 @@ function renderEvolucao(rowsCur){
     return;
   }
   const prevRows=execRowsPrev2026();
-  const pMap={}; prevRows.forEach(r=>{ (pMap[r.om]=pMap[r.om]||{lib:0,eal:0,disp:0,blq:0});
-    pMap[r.om].lib+=(r.disponivel+r.bloqueado+r.emp_a_liquidar); pMap[r.om].eal+=r.emp_a_liquidar;
-    pMap[r.om].disp+=r.disponivel; pMap[r.om].blq+=r.bloqueado; });
-  const cMap={}; rowsCur.forEach(r=>{ (cMap[r.om]=cMap[r.om]||{lib:0,eal:0,disp:0,blq:0});
-    cMap[r.om].lib+=(r.disponivel+r.bloqueado+r.emp_a_liquidar); cMap[r.om].eal+=r.emp_a_liquidar;
-    cMap[r.om].disp+=r.disponivel; cMap[r.om].blq+=r.bloqueado; });
+  // desc = descentralizado à UGR (disponível + bloqueado + empenhos a liquidar)
+  // lib  = LIBERADO à OM = desc − bloqueado = disponível + empenhos a liquidar
+  const zero=()=>({desc:0,lib:0,blq:0,eal:0,disp:0});
+  const acc=(m,r)=>{ const o=m[r.om]||(m[r.om]=zero());
+    o.desc+= descentralizadoDe(r);
+    o.lib += liberadoDe(r);
+    o.blq += (r.bloqueado||0); o.eal += (r.emp_a_liquidar||0); o.disp += (r.disponivel||0); };
+  const pMap={}; prevRows.forEach(r=>acc(pMap,r));
+  const cMap={}; rowsCur.forEach(r=>acc(cMap,r));
   const oms=[...new Set([...Object.keys(pMap),...Object.keys(cMap)])];
-  const arr=oms.map(om=>{ const c=cMap[om]||{lib:0,eal:0,disp:0,blq:0}, p=pMap[om]||{lib:0,eal:0,disp:0,blq:0};
-    return {om, libCur:c.lib,libPrev:p.lib,libD:c.lib-p.lib, ealCur:c.eal,ealPrev:p.eal,ealD:c.eal-p.eal}; })
-    .filter(x=>Math.abs(x.libD)>=0.005 || Math.abs(x.ealD)>=0.005 || x.libCur>0.005 || x.libPrev>0.005);
+  const arr=oms.map(om=>{ const c=cMap[om]||zero(), p=pMap[om]||zero();
+    return {om,
+      descCur:c.desc,descPrev:p.desc,descD:c.desc-p.desc,
+      libCur:c.lib,  libPrev:p.lib,  libD:c.lib-p.lib,
+      blqCur:c.blq,  blqPrev:p.blq,  blqD:c.blq-p.blq,
+      ealCur:c.eal,  ealPrev:p.eal,  ealD:c.eal-p.eal,
+      dispCur:c.disp,dispPrev:p.disp,dispD:c.disp-p.disp}; })
+    .filter(x=>Math.abs(x.descD)>=0.005 || Math.abs(x.libD)>=0.005 || Math.abs(x.blqD)>=0.005
+             || Math.abs(x.ealD)>=0.005 || x.descCur>0.005 || x.descPrev>0.005);
   // Totais
   const tot=k=>arr.reduce((a,x)=>a+x[k],0);
-  const libC=tot('libCur'),libP=tot('libPrev'),ealC=tot('ealCur'),ealP=tot('ealPrev');
-  const dispC=rowsCur.reduce((a,r)=>a+r.disponivel,0), dispP=prevRows.reduce((a,r)=>a+r.disponivel,0);
+  const descC=tot('descCur'),descP=tot('descPrev');
+  const libC=tot('libCur'),libP=tot('libPrev');
+  const blqC=tot('blqCur'),blqP=tot('blqPrev');
+  const ealC=tot('ealCur'),ealP=tot('ealPrev');
+  const dispC=tot('dispCur'),dispP=tot('dispPrev');
   if(kdiv) kdiv.innerHTML=
-    kpiDelta('Δ Crédito Liberado',libC-libP,libP,'total descentralizado') +
-    kpiDelta('Δ Disponível',dispC-dispP,dispP,'saldo disponível') +
-    kpiDelta('Δ Bloqueado',(libC-ealC-dispC)-(libP-ealP-dispP),(libP-ealP-dispP),'crédito bloqueado') +
+    kpiDelta('Δ Descentralizado',descC-descP,descP,'total na UGR (c/ bloqueio)') +
+    kpiDelta('Δ Liberado à OM',libC-libP,libP,'disponível + emp. a liquidar') +
+    kpiDelta('Δ Bloqueado',blqC-blqP,blqP,'retido p/ controle interno') +
+    kpiDelta('Δ Disponível',dispC-dispP,dispP,'saldo pronto p/ empenho') +
     kpiDelta('Δ Empenhos a Liquidar',ealC-ealP,ealP,'empenhos pendentes');
   // meta de datas
   const cm=DATA.execMeta&&DATA.execMeta.cur, pm=DATA.execMeta&&DATA.execMeta.prev;
@@ -5296,9 +5341,11 @@ function renderEvolucao(rowsCur){
   if(twrap) twrap.style.display='';
   if(tb) tb.innerHTML= sorted.length? sorted.map(x=>`<tr data-om="${x.om.replace(/"/g,'&quot;')}" title="Clique para abrir o painel da OM">
     <td class="code">${x.om}</td>
-    ${cell(x.libPrev)}${cell(x.libCur)}${dcell(x.libD,x.libPrev)}
-    ${cell(x.ealPrev)}${cell(x.ealCur)}${dcell(x.ealD,x.ealPrev)}</tr>`).join('')
-    : `<tr><td colspan="7"><div class="empty-state" style="padding:14px"><p>Sem variação entre as duas semanas para os filtros atuais.</p></div></td></tr>`;
+    ${cell(x.descCur)}${dcell(x.descD,x.descPrev)}
+    ${cell(x.libCur)}${dcell(x.libD,x.libPrev)}
+    ${cell(x.blqCur)}${dcell(x.blqD,x.blqPrev)}
+    ${cell(x.ealCur)}${dcell(x.ealD,x.ealPrev)}</tr>`).join('')
+    : `<tr><td colspan="9"><div class="empty-state" style="padding:14px"><p>Sem variação entre as duas semanas para os filtros atuais.</p></div></td></tr>`;
 }
 function kpiDelta(label, delta, prev, hint){
   const up=Math.abs(delta)<0.005?null:delta>0;
@@ -5326,7 +5373,7 @@ function renderTopOms(rows){
   // Base de comparação da OM: 2023–2025 = recebido bruto (movimento devedor);
   // 2026 = crédito total da OM na semana (disponível + bloqueado + empenhos a liquidar).
   const baseDe = r => ehCorrente
-    ? ((r.disponivel||0)+(r.bloqueado||0)+(r.emp_a_liquidar||0))
+    ? descentralizadoDe(r)
     : ((r.recebido||0) || ((r.saldo||0)+(r.devolvido||0)));
   const byOm={};
   rows.forEach(r=>{ const o=byOm[r.om]||(byOm[r.om]={v:0,base:0});
@@ -5339,7 +5386,7 @@ function renderTopOms(rows){
   const arr=topSort(all, s.key==='pct'?'pct':'v', s.dir, 12);
   const max=arr.length?Math.max(...arr.map(x=>x[s.key==='pct'?'pct':'v']),1):1;
   const cls = m==='liquidado'?'green':(m==='devolvido'?'':'alt');
-  const lblPct = ehCorrente ? '% do crédito da OM' : '% do recebido';
+  const lblPct = ehCorrente ? '% do descentralizado' : '% do recebido';
   ['v','pct'].forEach(k=>{ const e=document.getElementById('omSort-'+k);
     if(e){ e.classList.toggle('active', s.key===k);
            e.textContent=(k==='v'?'Valor':lblPct)+(s.key===k?' '+sortArrow(s.dir):''); } });
@@ -5592,16 +5639,20 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&modal.classList.co
 function omPanel2026Data(om){
   const rows=execRows('2026').filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
   const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
-  const sub=`Crédito disponível R$ ${fmtBRL0(T.disponivel||0)} · bloqueado R$ ${fmtBRL0(T.bloqueado||0)} · ${rows.length} ND`;
+  const _desc=somaPor(rows,descentralizadoDe), _lib=somaPor(rows,liberadoDe);
+  const sub=`Descentralizado R$ ${fmtBRL0(_desc)} · liberado à OM R$ ${fmtBRL0(_lib)} · bloqueado R$ ${fmtBRL0(T.bloqueado||0)} · ${rows.length} ND`;
   const fin=`<div class="modal-finance">
-      <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.disponivel||0)}</div></div>
+      <div class="mfin apr"><div class="mfin-lbl">Descentralizado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(_desc)}</div></div>
+      <div class="mfin disp"><div class="mfin-lbl">Liberado à OM</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(_lib)}</div></div>
       <div class="mfin"><div class="mfin-lbl">Crédito Bloqueado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.bloqueado||0)}</div></div>
+      <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.disponivel||0)}</div></div>
       <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.emp_a_liquidar||0)}</div></div>
+      <div class="mfin"><div class="mfin-lbl">Liquidado (a pagar + pago)</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0((T.liq_a_pagar||0)+(T.pago||0))}</div></div>
     </div>`;
     let body=fin+`<div class="modal-solicitacoes-head"><h3>Por Natureza de Despesa</h3><span class="count">${rows.length} ND</span></div>`;
     body+= rows.length
-      ? `<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">Empenhos a Liquidar</th></tr></thead><tbody>`+
-        rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.bloqueado)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td></tr>`).join('')+
+      ? `<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">A Liquidar</th><th class="num">Liq. a Pagar</th><th class="num">Pagos</th><th class="num">Liberado à OM</th></tr></thead><tbody>`+
+        rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.bloqueado)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.liq_a_pagar||0)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.pago||0)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(liberadoDe(r))}</td></tr>`).join('')+
         `</tbody></table></div>`
       : `<div class="empty-state" style="padding:14px"><p>Sem linhas de crédito para esta OM na planilha semanal atual.</p></div>`;
     // Variação semanal por ND (só se houver semana anterior)
@@ -5610,16 +5661,20 @@ function omPanel2026Data(om){
       const pMap={}; prevOm.forEach(r=>pMap[r.nd]=r);
       const cMap={}; rows.forEach(r=>cMap[r.nd]=r);
       const nds=[...new Set([...Object.keys(pMap),...Object.keys(cMap)])].sort((a,b)=>ndOrder(a,b));
-      const linhas=nds.map(nd=>{ const c=cMap[nd]||{disponivel:0,bloqueado:0,emp_a_liquidar:0}, p=pMap[nd]||{disponivel:0,bloqueado:0,emp_a_liquidar:0};
-        const libC=c.disponivel+c.bloqueado+c.emp_a_liquidar, libP=p.disponivel+p.bloqueado+p.emp_a_liquidar;
-        return {nd, libD:libC-libP, libP, ealD:c.emp_a_liquidar-p.emp_a_liquidar, ealP:p.emp_a_liquidar}; })
-        .filter(x=>Math.abs(x.libD)>=0.005 || Math.abs(x.ealD)>=0.005);
+      const _z={disponivel:0,bloqueado:0,emp_a_liquidar:0,liq_a_pagar:0,pago:0};
+      const linhas=nds.map(nd=>{ const c=cMap[nd]||_z, p=pMap[nd]||_z;
+        const descC=descentralizadoDe(c), descP=descentralizadoDe(p);
+        const libC=liberadoDe(c),         libP=liberadoDe(p);
+        return {nd, descD:descC-descP, descP, libD:libC-libP, libP,
+                blqD:(c.bloqueado||0)-(p.bloqueado||0), blqP:(p.bloqueado||0),
+                ealD:(c.emp_a_liquidar||0)-(p.emp_a_liquidar||0), ealP:(p.emp_a_liquidar||0)}; })
+        .filter(x=>Math.abs(x.descD)>=0.005 || Math.abs(x.libD)>=0.005 || Math.abs(x.blqD)>=0.005 || Math.abs(x.ealD)>=0.005);
       if(linhas.length){
         const cm=DATA.execMeta&&DATA.execMeta.cur, pm=DATA.execMeta&&DATA.execMeta.prev;
         const fdt=m=> m&&m.savedAt?new Date(m.savedAt).toLocaleDateString('pt-BR'):'—';
         body+=`<div class="modal-solicitacoes-head" style="margin-top:20px"><h3>Variação vs. Semana Anterior</h3><span class="count">${fdt(pm)} → ${fdt(cm)}</span></div>`;
-        body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Δ Crédito Liberado</th><th class="num">Δ Empenhos a Liquidar</th></tr></thead><tbody>`+
-          linhas.map(x=>`<tr><td><span class="badge">${x.nd}</span></td><td class="num">${deltaBadge(x.libD,x.libP)}</td><td class="num">${deltaBadge(x.ealD,x.ealP)}</td></tr>`).join('')+
+        body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Δ Descentralizado</th><th class="num">Δ Liberado à OM</th><th class="num">Δ Bloqueado</th><th class="num">Δ Empenhos a Liquidar</th></tr></thead><tbody>`+
+          linhas.map(x=>`<tr><td><span class="badge">${x.nd}</span></td><td class="num">${deltaBadge(x.descD,x.descP)}</td><td class="num">${deltaBadge(x.libD,x.libP)}</td><td class="num">${deltaBadge(x.blqD,x.blqP)}</td><td class="num">${deltaBadge(x.ealD,x.ealP)}</td></tr>`).join('')+
           `</tbody></table></div>`;
       }
     }
@@ -5912,12 +5967,14 @@ async function gerarRelatorioODS(){
     const pdf=new window.jspdf.jsPDF({orientation:'p', unit:'mm', format:'a4'});
 
     // ---- capa: resumo consolidado do ODS ----
-    const agg={disp:0,blq:0,eal:0,rapLiq:0,pzVenc:0,pzVencV:0};
+    const agg={disp:0,blq:0,eal:0,desc:0,lib:0,rapLiq:0,pzVenc:0,pzVencV:0};
     const porOm={};
-    oms.forEach(om=>{ porOm[om]={disp:0,blq:0,eal:0,rapLiq:0,pzV:0}; });
+    oms.forEach(om=>{ porOm[om]={disp:0,blq:0,eal:0,desc:0,lib:0,rapLiq:0,pzV:0}; });
     execRows('2026').forEach(r=>{ if(!porOm[r.om]) return;
       porOm[r.om].disp+=r.disponivel||0; porOm[r.om].blq+=r.bloqueado||0; porOm[r.om].eal+=r.emp_a_liquidar||0;
-      agg.disp+=r.disponivel||0; agg.blq+=r.bloqueado||0; agg.eal+=r.emp_a_liquidar||0; });
+      porOm[r.om].desc+=descentralizadoDe(r); porOm[r.om].lib+=liberadoDe(r);
+      agg.disp+=r.disponivel||0; agg.blq+=r.bloqueado||0; agg.eal+=r.emp_a_liquidar||0;
+      agg.desc+=descentralizadoDe(r); agg.lib+=liberadoDe(r); });
     DATA.rap.forEach(r=>{ if(!porOm[r.om]) return; porOm[r.om].rapLiq+=r.rap_nproc_a_liquidar||0; agg.rapLiq+=r.rap_nproc_a_liquidar||0; });
     if(DATA.prazos2026 && Array.isArray(DATA.prazos2026.rows)){
       computePrazos(DATA.prazos2026.rows.filter(r=>porOm[r.om])).forEach(r=>{
@@ -5929,14 +5986,16 @@ async function gerarRelatorioODS(){
       <div class="rep-sub">${ods} · ${oms.length} OM(s) com dados de 2026 · gerado em ${new Date().toLocaleDateString('pt-BR')}</div></div>
       <div class="rep-body">
       <div class="modal-finance">
-        <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.disp)}</div></div>
+        <div class="mfin apr"><div class="mfin-lbl">Descentralizado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.desc)}</div></div>
+        <div class="mfin disp"><div class="mfin-lbl">Liberado às OMs</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.lib)}</div></div>
         <div class="mfin"><div class="mfin-lbl">Crédito Bloqueado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.blq)}</div></div>
+        <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.disp)}</div></div>
         <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar (exercício)</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.eal)}</div></div>
         <div class="mfin"><div class="mfin-lbl">RaP a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.rapLiq)}</div></div>
       </div>
       <div class="modal-solicitacoes-head" style="margin-top:16px"><h3>Resumo por OM</h3><span class="count">${oms.length} OM(s)</span></div>
-      <div class="table-wrap" style="border:none"><table style="font-size:11px"><thead><tr><th>OM (UGR)</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">Emp. a Liquidar</th><th class="num">RaP a Liquidar</th><th class="num">Prazos Vencidos</th></tr></thead><tbody>${
-        oms.map(om=>{ const x=porOm[om]; return `<tr><td class="code">${om}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.disp)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.blq)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.eal)}</td><td class="num ${x.rapLiq?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(x.rapLiq)}</td><td class="num" style="${x.pzV?'color:var(--red);font-weight:600':''}">${x.pzV||0}</td></tr>`; }).join('')
+      <div class="table-wrap" style="border:none"><table style="font-size:11px"><thead><tr><th>OM (UGR)</th><th class="num">Descentr.</th><th class="num">Liberado</th><th class="num">Bloqueado</th><th class="num">Disponível</th><th class="num">Emp. a Liquidar</th><th class="num">RaP a Liquidar</th><th class="num">Prazos Venc.</th></tr></thead><tbody>${
+        oms.map(om=>{ const x=porOm[om]; return `<tr><td class="code">${om}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.desc)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.lib)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.blq)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.disp)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.eal)}</td><td class="num ${x.rapLiq?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(x.rapLiq)}</td><td class="num" style="${x.pzV?'color:var(--red);font-weight:600':''}">${x.pzV||0}</td></tr>`; }).join('')
       }</tbody></table></div>
       ${agg.pzVenc?`<p style="font-size:11px;color:var(--red);margin-top:10px;font-weight:500">⚠ ${agg.pzVenc} empenho(s) com prazo de liquidação vencido no ODS, somando R$ ${fmtBRL0(agg.pzVencV)} a liquidar. Detalhamento nas páginas seguintes, por OM.</p>`:''}
       </div><div class="rep-foot">${_stampTxt()} · página de resumo — detalhamento por OM nas páginas seguintes</div>`;
@@ -5982,8 +6041,8 @@ document.getElementById('exportExecBtn').addEventListener('click',()=>{
   const rows=filterRows(execRows(state.ano)).sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
   if(state.ano==='2026'){
     downloadCSV(`SISI_Execucao_2026.csv`,
-      ['OM','ND','Credito Disponivel','Credito Bloqueado','Empenhos a Liquidar'],
-      rows.map(r=>[r.om,r.nd,r.disponivel,r.bloqueado,r.emp_a_liquidar]));
+      ['OM','ND','Credito Disponivel','Credito Bloqueado','Empenhos a Liquidar','Emp Liquidados a Pagar','Empenhos Pagos','Descentralizado','Liberado a OM'],
+      rows.map(r=>[r.om,r.nd,r.disponivel,r.bloqueado,r.emp_a_liquidar,r.liq_a_pagar||0,r.pago||0,descentralizadoDe(r),liberadoDe(r)]));
     return;
   }
   downloadCSV(`SISI_Execucao_${state.ano}.csv`,
@@ -6317,20 +6376,37 @@ function renderLiberar2026(){
   const disp=ex.reduce((a,r)=>a+(r.disponivel||0),0);
   const blq=ex.reduce((a,r)=>a+(r.bloqueado||0),0);
   const eal=ex.reduce((a,r)=>a+(r.emp_a_liquidar||0),0);
-  const liberado=disp+blq+eal;
+  const lap=ex.reduce((a,r)=>a+(r.liq_a_pagar||0),0);
+  const pag=ex.reduce((a,r)=>a+(r.pago||0),0);
+  const descentralizado=somaPor(ex,descentralizadoDe);  // tudo na UGR, inclusive o retido
+  const liberado=somaPor(ex,liberadoDe);                // = descentralizado − bloqueado
   const funnel=(stages,base)=>stages.map(s=>{ const w=Math.max(2,(s.v/base)*100); const pct=base>0?fmtPct(s.v/base*100,1):'—';
     const drill=s.k?` data-drill="sit" data-key="${s.k}" title="Clique para ver as OMs"`:'';
     return `<div class="funnel-row"${drill}><div class="funnel-head"><span>${s.l}</span><span class="pct">R$ ${fmtBRL0(s.v)} · ${pct}</span></div><div class="funnel-track"><div class="funnel-fill" style="width:${w}%;background:${s.c}">${w>16?'R$ '+fmtBRLc(s.v):''}</div></div></div>`;}).join('');
-  document.getElementById('liberarFunnel').innerHTML = funnel([
-    {l:'Aprovado (descentralizado p/ o ano)',v:apr,c:'var(--fab-blue)'},
-    {l:'Liberado · na OM',v:liberado,c:'var(--fab-blue-light)'},
-    {l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)'}
-  ], Math.max(apr,1));
-  document.getElementById('liberarStatus').innerHTML = funnel([
+  // Quando o aprovado é apurado na própria planilha de execução, ele COINCIDE com o
+  // descentralizado — repetir a etapa só polui o funil. As duas linhas voltam a
+  // aparecer separadas se algum dia o aprovado deixar de estar todo descentralizado.
+  const tudoDescentralizado = Math.abs(descentralizado-apr) < 0.005;
+  const etapas=[{l: tudoDescentralizado
+      ? 'Aprovado = Descentralizado à UGR (c/ bloqueio)'
+      : 'Aprovado p/ o ano', v:apr, c:'var(--fab-blue)'}];
+  if(!tudoDescentralizado) etapas.push({l:'Descentralizado à UGR (c/ bloqueio)',v:descentralizado,c:'var(--fab-blue-light)'});
+  etapas.push({l:'Liberado à OM (desbloqueado)',v:liberado,c:'var(--fab-blue-light)'});
+  etapas.push({l:'Bloqueado p/ controle interno',v:blq,c:'var(--gray-400)',k:'bloqueado'});
+  etapas.push({l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'});
+  const _sub=document.getElementById('liberarSub');
+  if(_sub) _sub.textContent = tudoDescentralizado
+    ? 'Aprovado (= descentralizado, c/ bloqueio) → Liberado à OM → Bloqueado → Empenhos a Liquidar'
+    : 'Aprovado → Descentralizado (c/ bloqueio) → Liberado à OM → Bloqueado → Empenhos a Liquidar';
+  document.getElementById('liberarFunnel').innerHTML = funnel(etapas, Math.max(apr,1));
+  const sit=[
     {l:'Crédito Disponível',v:disp,c:'var(--fab-blue)',k:'disponivel'},
     {l:'Crédito Bloqueado',v:blq,c:'var(--gray-400)',k:'bloqueado'},
     {l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'}
-  ], Math.max(disp,blq,eal,1));
+  ];
+  if(lap>0.005||pag>0.005){ sit.push({l:'Emp. Liquidados a Pagar',v:lap,c:'var(--fab-blue-light)',k:'liq_a_pagar'});
+                            sit.push({l:'Empenhos Pagos',v:pag,c:'var(--green)',k:'pago'}); }
+  document.getElementById('liberarStatus').innerHTML = funnel(sit, Math.max(disp,blq,eal,lap,pag,1));
 }
 function isDirefUGE(name){
   const s=String(name==null?'':name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
@@ -6443,7 +6519,7 @@ function ugeFilteredRows(){
 }
 function openDrill(kind, key){
   if(kind==='sit'){
-    const lbl={disponivel:'Crédito Disponível',bloqueado:'Crédito Bloqueado',emp_a_liquidar:'Empenhos a Liquidar'}[key]||key;
+    const lbl={disponivel:'Crédito Disponível',bloqueado:'Crédito Bloqueado',emp_a_liquidar:'Empenhos a Liquidar',liq_a_pagar:'Empenhos Liquidados a Pagar',pago:'Empenhos Pagos'}[key]||key;
     const byOm={}; filterRows(execRows('2026')).forEach(r=>{ byOm[r.om]=(byOm[r.om]||0)+(r[key]||0); });
     const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v}));
     openDrawer(lbl+' · 2026', 'OMs com '+lbl.toLowerCase()+' (filtros aplicados)', drawerListHtml(items,'OM(s)'));
@@ -6546,7 +6622,7 @@ function recebidoPorAno(){
 function renderNecRec(){
   const V=planRows();
   const necFwd=V.reduce((s,r)=>s+(r.necessario||0),0);   // necessário a partir de 2026 (planejamento)
-  const apr=V.reduce((s,r)=>s+(r.aprovado||0),0);
+  const apr=aprovadoAno();   // mesma base do funil: planilha de execução (R$ 3.400.000)
   const rec=recebidoPorAno();
   const rec2325=(rec['2023']||0)+(rec['2024']||0)+(rec['2025']||0);
   const necTotal=necFwd+rec2325;                          // total necessário do projeto DESDE 2023
@@ -6556,7 +6632,7 @@ function renderNecRec(){
   document.getElementById('necrec-kpis').innerHTML =
     kpi('kpi-nec','Total Necessário (desde 2023)',necTotal,'R$ 45M (a partir de 2026) + recebido 23–25','Total necessário do Projeto SISI contado desde 2023: o necessário a partir de 2026 (planejamento, ~45 mi) somado ao que já foi recebido em 2023–2025.') +
     kpi('kpi-rec','Recebido Acumulado',totalRec,`${fmtPct(cob,1)} do necessário`,'Soma do recebido em todos os exercícios (2023–2025 = destaque recebido; 2026 = crédito bloqueado para controle interno).') +
-    kpi('kpi-apr','Aprovado 2026',apr, necFwd>0?`${fmtPct(apr/necFwd*100,1)} do necessário 2026`:'—','Crédito aprovado (descentralizado) para o exercício de 2026.') +
+    kpi('kpi-apr','Aprovado 2026',apr, necFwd>0?`${fmtPct(apr/necFwd*100,1)} do necessário 2026`:'—','Crédito aprovado e descentralizado para 2026, na mesma base do funil da aba do ano corrente: a planilha semanal de execução (R$ 3.400.000). A coluna Aprovado do planejamento embutido soma R$ 3.410.000 e será substituída no primeiro upload da planilha de planejamento.') +
     kpi('kpi-warn','Ainda Falta',falta,'p/ cobrir o necessário','Quanto ainda falta receber para cobrir o total necessário do projeto desde 2023.');
   const years=['2023','2024','2025','2026'];
   const maxY=Math.max(1,...years.map(y=>rec[y]));
@@ -6670,10 +6746,15 @@ function refresh(){
     const blqCol  = find(h=>/CREDITO BLOQUEAD/.test(h));
     const ealCol  = find(h=>/EMPENHOS A LIQUIDAR/.test(h));
     const eCol    = find(h=>/DESPESAS EMPENH/.test(h));
-    const liqCol  = find(h=>/LIQUIDAD/.test(h) && !/A PAGAR/.test(h));
-    const lpCol   = find(h=>/A PAGAR/.test(h));
+    const liqCol  = find(h=>/LIQUIDAD/.test(h) && !/A PAGAR/.test(h) && !/EMPENHOS PAGOS/.test(h));
+    // "EMPENHOS LIQUIDADOS A PAGAR" (layout 2026, a partir de JUL) tem prioridade
+    // sobre o genérico /A PAGAR/ usado pelo layout 2023–2025.
+    let lpCol     = find(h=>/EMPENHOS LIQUIDADOS A PAGAR/.test(h));
+    if(lpCol<0) lpCol = find(h=>/A PAGAR/.test(h));
     const rpCol   = find(h=>/INSCRIT/.test(h));
-    const pCol    = find(h=>/\bPAGAS\b/.test(h));
+    // "PAGAS" = layout 2023–2025; "EMPENHOS PAGOS" = layout 2026.
+    let pCol      = find(h=>/\bPAGAS\b/.test(h));
+    if(pCol<0) pCol = find(h=>/EMPENHOS PAGOS/.test(h));
     parseSheet._lastCols = { om:omCol, nd:ndCol, destaque:dCol, disponivel:dispCol, bloqueado:blqCol, emp_a_liquidar:ealCol, empenhado:eCol, liquidado:liqCol, liq_a_pagar:lpCol, inscrito_rp:rpCol, pago:pCol, headerRow:hMain };
     // agrega por (OM, ND) — soma múltiplas UG Executoras da mesma OM
     const map={}, ugeMap={};
@@ -6695,10 +6776,12 @@ function refresh(){
       o.liquidadas_a_pagar += lpCol>=0?n(r[lpCol]):0;
       o.inscritas_rp       += rpCol>=0?n(r[rpCol]):0;
       o.pagas              += pCol>=0?n(r[pCol]):0;
-      if(uge){ const uk=om+'|'+uge+'|'+nd; const uo=ugeMap[uk]||(ugeMap[uk]={ om, uge, nd, disponivel:0, bloqueado:0, emp_a_liquidar:0 });
+      if(uge){ const uk=om+'|'+uge+'|'+nd; const uo=ugeMap[uk]||(ugeMap[uk]={ om, uge, nd, disponivel:0, bloqueado:0, emp_a_liquidar:0, liq_a_pagar:0, pago:0 });
         uo.disponivel   += dispCol>=0?n(r[dispCol]):0;
         uo.bloqueado    += blqCol>=0?n(r[blqCol]):0;
-        uo.emp_a_liquidar+= ealCol>=0?n(r[ealCol]):0; }
+        uo.emp_a_liquidar+= ealCol>=0?n(r[ealCol]):0;
+        uo.liq_a_pagar  += lpCol>=0?n(r[lpCol]):0;
+        uo.pago         += pCol>=0?n(r[pCol]):0; }
     }
     parseSheet._lastUGE = Object.values(ugeMap);
     return Object.values(map);
@@ -6728,8 +6811,12 @@ function refresh(){
     const sum=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
     const cur=DATA.execution['2026']||[]; const curSum=k=>cur.reduce((a,r)=>a+(r[k]||0),0);
     const creditFmt = sum('destaque_recebido')===0 && (sum('credito_bloqueado')!==0 || sum('empenhos_a_liquidar')!==0 || sum('credito_disponivel')!==0);
+    if(creditFmt){
+      const desc5 = sum('credito_disponivel')+sum('credito_bloqueado')+sum('empenhos_a_liquidar')+sum('liquidadas_a_pagar')+sum('pagas');
+      alog(`Total descentralizado da aba (5 colunas) = R$ ${fmtBRL0(desc5)} · liberado às OMs = R$ ${fmtBRL0(desc5-sum('credito_bloqueado'))}.`,'info');
+    }
     const cards = creditFmt
-      ? [['Crédito Disponível','credito_disponivel'],['Crédito Bloqueado','credito_bloqueado'],['Empenhos a Liquidar','empenhos_a_liquidar']]
+      ? [['Crédito Disponível','credito_disponivel'],['Crédito Bloqueado','credito_bloqueado'],['Empenhos a Liquidar','empenhos_a_liquidar'],['Emp. Liquidados a Pagar','liquidadas_a_pagar'],['Empenhos Pagos','pagas']]
       : [['Destaque Recebido','destaque_recebido'],['Crédito Disponível','credito_disponivel'],['Empenhado','empenhadas'],['Liquidado','liquidadas'],['Pago','pagas']];
     $('adminPreviewCards').innerHTML=cards.map(([lbl,k])=>{
       const nv=sum(k); let delta='';
@@ -6745,7 +6832,7 @@ function refresh(){
       msgs.push(['info',`OMs: ${new Set(rows.map(r=>r.om)).size} · Naturezas: ${nds.join(', ')||'—'} · ${rows.length} linha(s) OM×ND (agregadas por OM e ND).`]);
     }
     if(lc){
-      const want=[['om','OM'],['nd','Natureza'],['destaque','Destaque'],['disponivel','Disponível'],['bloqueado','Bloqueado'],['emp_a_liquidar','Empenhos a Liquidar'],['empenhado','Empenhado'],['liquidado','Liquidado'],['liq_a_pagar','Liq. a Pagar'],['inscrito_rp','Inscrito RP'],['pago','Pago']];
+      const want=[['om','OM'],['nd','Natureza'],['destaque','Destaque'],['disponivel','Disponível'],['bloqueado','Bloqueado'],['emp_a_liquidar','Empenhos a Liquidar'],['liq_a_pagar','Emp. Liq. a Pagar'],['pago','Empenhos Pagos'],['empenhado','Empenhado'],['liquidado','Liquidado'],['inscrito_rp','Inscrito RP']];
       const ok=want.filter(([k])=>lc[k]>=0).map(([,l])=>l);
       const miss=want.filter(([k])=>lc[k]<0).map(([,l])=>l);
       msgs.push(['info',`Colunas reconhecidas: ${ok.join(', ')||'—'}.`]);
