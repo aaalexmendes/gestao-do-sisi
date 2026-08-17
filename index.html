@@ -3230,11 +3230,11 @@
 
     <section class="charts-row r-1" id="secEvolucao" style="display:none;">
       <div class="chart-card">
-        <h3>Evolução Semanal &#183; variação vs. semana anterior<span class="info-ico" tabindex="0" data-tip="Compara a semana atual (último upload) com a semana anterior, por OM. 'Descentralizado' = tudo o que está na UGR (disponível + bloqueado + empenhos a liquidar + liquidados a pagar + pagos) — inclui a parcela retida. 'Liberado à OM' = o descentralizado MENOS o bloqueado (disponível + empenhos a liquidar + liquidados a pagar + pagos): é o que a OM pôde de fato empenhar. 'Bloqueado' = crédito retido para controle interno, indisponível para empenho. 'Empenhos a Liquidar' = empenhos emitidos e ainda não liquidados. O percentual é sobre o valor da semana anterior. Respeita os filtros de OM/ND/ODS.">i</span></h3>
+        <h3>Evolução Semanal &#183; variação vs. semana anterior<span class="info-ico" tabindex="0" data-tip="Compara a semana atual (último upload) com a semana anterior, por OM. 'Aprovado p/ 2026' é a linha de base fixa do exercício — não deve variar; se variar, houve suplementação. 'Liberado à OM' = disponível + empenhos a liquidar + liquidados a pagar + pagos: o que a OM pôde de fato empenhar. 'Bloqueado' = aprovado − liberado, ou seja, o que ainda não chegou às mãos da OM (retido para controle interno mais eventual corte). 'Empenhos a Liquidar' = empenhos emitidos e ainda não liquidados. O percentual é sobre o valor da semana anterior. Respeita os filtros de OM/ND/ODS.">i</span></h3>
         <div class="chart-sub" id="evolSub">envie duas semanas de execução (dois uploads) para ver a variação</div>
         <div id="evolKpis" class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin:14px 0 4px;"></div>
         <div class="sort-ctl" id="evolSortCtl" style="display:none;">ordenar por:
-          <span class="sort-lbl" data-evolsort="descD">Δ Descentralizado</span>
+          <span class="sort-lbl" data-evolsort="descD">Δ Aprovado</span>
           <span class="sort-lbl active" data-evolsort="libD">Δ Liberado à OM</span>
           <span class="sort-lbl" data-evolsort="blqD">Δ Bloqueado</span>
           <span class="sort-lbl" data-evolsort="ealD">Δ Empenhos a Liquidar</span>
@@ -3244,7 +3244,7 @@
           <table style="min-width:1080px;" id="evolTable">
             <thead><tr>
               <th>OM (UGR)</th>
-              <th class="num">Descentralizado</th><th class="num">&#916; Descentr.</th>
+              <th class="num">Aprovado p/ 2026</th><th class="num">&#916; Aprov.</th>
               <th class="num">Liberado &#224; OM</th><th class="num">&#916; Liberado</th>
               <th class="num">Bloqueado</th><th class="num">&#916; Bloqueado</th>
               <th class="num">Emp. a Liquidar</th><th class="num">&#916; Emp. Liq.</th>
@@ -3285,7 +3285,7 @@
         </div>
       </div>
       <div class="chart-card">
-        <h3 class="sortable" data-sort="topoms" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Top OMs<span class="sort-arrow" id="sa-topoms"></span><span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada nos botões abaixo. Cada barra mostra o valor e o percentual que ele representa da base da OM: em 2023–2025, do crédito recebido bruto (movimento devedor); em 2026, do crédito DESCENTRALIZADO à OM na semana (soma das cinco colunas da planilha) — base que inclui a parcela bloqueada, portanto o percentual não mede o uso do crédito efetivamente liberado. Ordene por Valor (quem executou mais em R$) ou por percentual. Clique no título para inverter a ordem; clique numa barra para detalhar por natureza de despesa.">i</span></h3>
+        <h3 class="sortable" data-sort="topoms" data-sortkey="v" title="Clique no título para inverter a ordem (crescente/decrescente)">Top OMs<span class="sort-arrow" id="sa-topoms"></span><span class="info-ico" tabindex="0" data-tip="Ranking das OMs pela métrica selecionada nos botões abaixo. Cada barra mostra o valor e o percentual que ele representa da base da OM: em 2023–2025, do crédito recebido bruto (movimento devedor); em 2026, do valor APROVADO para a OM no exercício — base fixa que inclui a parcela bloqueada, portanto o percentual não mede o uso do crédito efetivamente liberado. Ordene por Valor (quem executou mais em R$) ou por percentual. Clique no título para inverter a ordem; clique numa barra para detalhar por natureza de despesa.">i</span></h3>
         <div class="chart-sub" id="omChartSub">Ranking &#183; valor e % da base da OM &#183; &#8599; clique para detalhar</div>
         <div class="toggle-row" id="omToggle">
           <button class="toggle-btn active" data-metric="saldo">Destaque receb.</button>
@@ -3465,15 +3465,15 @@
 
   <!-- ============ ABA: 2026 (ANO CORRENTE) · PLANEJADO × EXECUTADO ============ -->
   <div class="view-section" id="sec-liberar">
-    <h2 class="section-title"><span>Planejado × Executado · 2026</span><span class="count">aprovado &#8594; descentralizado &#8594; liberado &#8594; empenhado</span></h2>
+    <h2 class="section-title"><span>Planejado × Executado · 2026</span><span class="count">aprovado &#8594; liberado &#8594; empenhado</span></h2>
     <section class="charts-row r-2">
       <div class="chart-card">
-        <h3>Execução do Aprovado · 2026<span class="info-ico" tabindex="0" data-tip="Caminho do crédito em 2026, com percentuais sobre o Aprovado. ATENÇÃO: descentralizado NÃO é o mesmo que liberado. 'Descentralizado à UGR' é todo o crédito que chegou à OM, inclusive a parcela bloqueada para controle interno — é a soma das cinco colunas da planilha semanal. 'Liberado à OM' é o descentralizado menos o bloqueado: disponível + empenhos a liquidar + liquidados a pagar + pagos.">i</span></h3>
+        <h3>Execução do Aprovado · 2026<span class="info-ico" tabindex="0" data-tip="Caminho do crédito em 2026, com percentuais sobre o Aprovado. 'Aprovado p/ 2026' é uma linha de base FIXA por OM e ND (R$ 3.400.000) — não muda ao longo do ano. 'Liberado à OM' é o que a OM pôde efetivamente empenhar: disponível + empenhos a liquidar + liquidados a pagar + pagos. O que sobra é bloqueio: a parcela ainda retida para controle interno mais, se houver, o crédito cortado — que some da planilha mas continua contando no aprovado, para que a perda do exercício fique visível.">i</span></h3>
         <div class="chart-sub" id="liberarSub">Aprovado &#8594; Descentralizado (c/ bloqueio) &#8594; Liberado &#224; OM &#8594; Bloqueado &#8594; Empenhos a Liquidar</div>
         <div class="funnel" id="liberarFunnel"></div>
       </div>
       <div class="chart-card">
-        <h3>Situação do Crédito que está na OM<span class="info-ico" tabindex="0" data-tip="Situação do crédito descentralizado à UGR em 2026: quanto está disponível, quanto está bloqueado para controle interno, quanto virou empenho a liquidar e — a partir de JUL/2026 — quanto já foi liquidado a pagar e pago. Tudo o que não está bloqueado foi liberado à OM.">i</span></h3>
+        <h3>Situação do Crédito que está na OM<span class="info-ico" tabindex="0" data-tip="Situação do crédito aprovado em 2026: quanto está disponível, quanto segue bloqueado para controle interno, quanto virou empenho a liquidar e — a partir de JUL/2026 — quanto já foi liquidado a pagar e pago. Se parte do crédito tiver sido cortada, aparece em barra própria. Tudo o que não está bloqueado nem cortado foi liberado à OM.">i</span></h3>
         <div class="chart-sub">Disponível · Bloqueado · Empenhos a Liquidar</div>
         <div class="funnel" id="liberarStatus"></div>
       </div>
@@ -4189,7 +4189,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.19 &#183; 11/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.20 &#183; 11/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4380,6 +4380,15 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
               <button class="admin-btn admin-btn-secondary" id="adminCancelBtn" type="button">Cancelar</button>
               <button class="admin-btn admin-btn-success" id="adminApplyBtn" type="button">Aplicar e salvar 2026</button>
             </div>
+          </div>
+        </div>
+        <div class="admin-section" data-adm="dados">
+          <h3>Aprovado de 2026 &#183; linha de base</h3>
+          <div class="admin-config-status" id="adminAprStatus">&#8212;</div>
+          <p style="font-size:12px;color:var(--gray-600);margin:8px 0 0;">O valor aprovado por OM e natureza de despesa &#233; fixo no exerc&#237;cio. Se o cr&#233;dito for cortado, a diferen&#231;a aparece como bloqueio &#8212; assim a perda fica vis&#237;vel. Redefina apenas quando houver suplementa&#231;&#227;o ou nova aprova&#231;&#227;o oficial.</p>
+          <div class="admin-preview-actions" style="border-top:none;padding-top:8px;">
+            <button class="admin-btn admin-btn-secondary" id="adminAprResetBtn" type="button">Restaurar aprovado embutido</button>
+            <button class="admin-btn admin-btn-secondary" id="adminAprSetBtn" type="button">Redefinir pela planilha atual</button>
           </div>
         </div>
         <div class="admin-section" data-adm="dados">
@@ -4607,16 +4616,60 @@ DATA.execMeta = DATA.execMeta || {};
     if(rawc){ const o=JSON.parse(rawc); DATA.execMeta.cur=o; }
   }catch(e){ /* ignora */ }
 })();
-// ---------- Situação do crédito 2026: as CINCO colunas da planilha semanal ----------
-// A planilha traz Disponível, Bloqueado, Empenhos a Liquidar e — a partir de JUL/2026 —
-// Empenhos Liquidados a Pagar e Empenhos Pagos. A soma das cinco é o crédito
-// DESCENTRALIZADO à UGR (= o aprovado do exercício, R$ 3.400.000).
-// LIBERADO à OM = descentralizado − bloqueado (o que a OM pôde de fato empenhar).
+// ---------- Situação do crédito 2026 ----------
+// A planilha semanal traz Disponível, Bloqueado, Empenhos a Liquidar e — a partir de
+// JUL/2026 — Empenhos Liquidados a Pagar e Empenhos Pagos. A soma das cinco é o valor
+// APROVADO para o exercício (R$ 3.400.000) — NÃO significa que já foi descentralizado
+// à OM: parte está retida para controle interno e só é liberada quando desbloqueada.
+//
+//   APROVADO      = linha de base fixa por OM×ND (não muda ao longo do ano)
+//   LIBERADO à OM = disponível + emp. a liquidar + liquidados a pagar + pagos
+//   BLOQUEADO     = APROVADO − LIBERADO  (retido na planilha + eventual corte)
+//
 // Abas antigas (até JUN/2026) não têm as duas últimas colunas: valem zero.
-const descentralizadoDe = r => (r.disponivel||0)+(r.bloqueado||0)+(r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
-const liberadoDe        = r => (r.disponivel||0)+(r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
-const empenhadoDe       = r => (r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
-const somaPor = (rows,f) => (rows||[]).reduce((a,r)=>a+f(r),0);
+const soma5De    = r => (r.disponivel||0)+(r.bloqueado||0)+(r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
+const liberadoDe = r => (r.disponivel||0)+(r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
+const empenhadoDe= r => (r.emp_a_liquidar||0)+(r.liq_a_pagar||0)+(r.pago||0);
+const somaPor    = (rows,f) => (rows||[]).reduce((a,r)=>a+f(r),0);
+
+// ---------- Linha de base do APROVADO 2026 (fixa no exercício) ----------
+// Congelada a partir da planilha semanal; guardada à parte para que cortes de crédito
+// NÃO reduzam silenciosamente o aprovado. Chave: OM|ND.
+const APROVADO2026_EMBEDDED = [{"om":"ACADEMIA DA FORCA AEREA","nd":"339030","v":22222.22},{"om":"ACADEMIA DA FORCA AEREA","nd":"339039","v":57777.78},{"om":"ACADEMIA DA FORCA AEREA","nd":"449052","v":50000.0},{"om":"BASE AEREA DE ANAPOLIS","nd":"339030","v":5555.56},{"om":"BASE AEREA DE ANAPOLIS","nd":"339039","v":14444.44},{"om":"BASE AEREA DE ANAPOLIS","nd":"449052","v":10000.0},{"om":"BASE AEREA DE BELEM","nd":"339030","v":13888.89},{"om":"BASE AEREA DE BELEM","nd":"339039","v":28888.89},{"om":"BASE AEREA DE BELEM","nd":"449052","v":24166.67},{"om":"BASE AEREA DE BOA VISTA","nd":"339039","v":20000.0},{"om":"BASE AEREA DE BOA VISTA","nd":"449052","v":20000.0},{"om":"BASE AEREA DE BRASILIA","nd":"339039","v":20000.0},{"om":"BASE AEREA DE BRASILIA","nd":"449052","v":20000.0},{"om":"BASE AEREA DE CAMPO GRANDE","nd":"339030","v":11047.37},{"om":"BASE AEREA DE CAMPO GRANDE","nd":"339039","v":14444.44},{"om":"BASE AEREA DE CAMPO GRANDE","nd":"449052","v":25488.2},{"om":"BASE AEREA DE CANOAS","nd":"339039","v":20000.0},{"om":"BASE AEREA DE CANOAS","nd":"449052","v":20000.0},{"om":"BASE AEREA DE MANAUS","nd":"339039","v":20000.0},{"om":"BASE AEREA DE MANAUS","nd":"449052","v":30000.0},{"om":"BASE AEREA DE NATAL","nd":"339039","v":30000.0},{"om":"BASE AEREA DE NATAL","nd":"449052","v":30000.0},{"om":"BASE AEREA DE PORTO VELHO","nd":"339039","v":300000.0},{"om":"BASE AEREA DE PORTO VELHO","nd":"449052","v":20000.0},{"om":"BASE AEREA DE SALVADOR","nd":"339039","v":20000.0},{"om":"BASE AEREA DE SALVADOR","nd":"449052","v":5000.0},{"om":"BASE AEREA DE SANTA CRUZ","nd":"339030","v":13888.89},{"om":"BASE AEREA DE SANTA CRUZ","nd":"339039","v":36111.11},{"om":"BASE AEREA DE SANTA CRUZ","nd":"449052","v":50000.0},{"om":"BASE AEREA DE SANTA MARIA","nd":"339030","v":8333.33},{"om":"BASE AEREA DE SANTA MARIA","nd":"339039","v":21666.67},{"om":"BASE AEREA DE SANTA MARIA","nd":"449052","v":20000.0},{"om":"BASE AEREA DE SANTOS","nd":"339039","v":30000.0},{"om":"BASE AEREA DE SANTOS","nd":"449052","v":15000.0},{"om":"BASE AEREA DE SAO PAULO","nd":"339039","v":50000.0},{"om":"BASE AEREA DE SAO PAULO","nd":"449052","v":30000.0},{"om":"BASE AEREA DO GALEAO","nd":"339039","v":50000.0},{"om":"BASE AEREA DO GALEAO","nd":"449052","v":50000.0},{"om":"BASE AEREA DOS AFONSOS","nd":"339039","v":40000.0},{"om":"BASE AEREA DOS AFONSOS","nd":"449052","v":30000.0},{"om":"CAMPO DE PROVAS BRIGADEIRO VELLOSO","nd":"339039","v":7222.22},{"om":"CAMPO DE PROVAS BRIGADEIRO VELLOSO","nd":"449052","v":10833.33},{"om":"CENTRO DE AQUISICOES ESPECIFICAS","nd":"449052","v":10000.0},{"om":"CENTRO DE INSTR. E ADAPTACAO DA AERONAUTICA","nd":"339030","v":8333.33},{"om":"CENTRO DE INSTR. E ADAPTACAO DA AERONAUTICA","nd":"339039","v":21666.67},{"om":"CENTRO DE INSTR. E ADAPTACAO DA AERONAUTICA","nd":"449052","v":50000.0},{"om":"CENTRO DE LANCAMENTO DA BARREIRA DO INFERNO","nd":"339039","v":15000.0},{"om":"CENTRO DE LANCAMENTO DA BARREIRA DO INFERNO","nd":"449052","v":20000.0},{"om":"CENTRO DE MEDICINA AEROESPACIAL","nd":"339039","v":50000.0},{"om":"CENTRO DE MEDICINA AEROESPACIAL","nd":"449052","v":20000.0},{"om":"COMANDO GERAL DE APOIO","nd":"339039","v":15000.0},{"om":"COMANDO GERAL DE APOIO","nd":"449052","v":20000.0},{"om":"COMISSAO DE AEROPORTOS DA REGIAO AMAZONICA","nd":"339030","v":2777.78},{"om":"COMISSAO DE AEROPORTOS DA REGIAO AMAZONICA","nd":"339039","v":7222.22},{"om":"COMISSAO DE AEROPORTOS DA REGIAO AMAZONICA","nd":"449052","v":10000.0},{"om":"DEPARTAMENTO DE CIENCIA E TECNOL AEROESPACIAL","nd":"339039","v":50000.0},{"om":"DEPARTAMENTO DE CIENCIA E TECNOL AEROESPACIAL","nd":"449052","v":40000.0},{"om":"DIRETORIA DE ADMINISTRACAO DA AERONAUTICA","nd":"449052","v":20000.0},{"om":"DIRETORIA DE ADMINISTRACAO DO PESSOAL","nd":"339039","v":20000.0},{"om":"DIRETORIA DE ADMINISTRACAO DO PESSOAL","nd":"449052","v":20000.0},{"om":"DIRETORIA DE SAUDE","nd":"339039","v":20000.0},{"om":"DIRETORIA DE SAUDE","nd":"449052","v":20000.0},{"om":"ESCOLA DE ESPECIALISTAS DE AERONAUTICA","nd":"339030","v":22222.22},{"om":"ESCOLA DE ESPECIALISTAS DE AERONAUTICA","nd":"339039","v":57777.78},{"om":"ESCOLA DE ESPECIALISTAS DE AERONAUTICA","nd":"449052","v":50000.0},{"om":"ESCOLA PREPARATORIA DE CADETES DO AR","nd":"339039","v":80000.0},{"om":"ESCOLA PREPARATORIA DE CADETES DO AR","nd":"449052","v":50000.0},{"om":"GRUPAMENTO DE APOIO DE BRASILIA","nd":"449052","v":10000.0},{"om":"GRUPAMENTO DE APOIO DO RIO DE JANEIRO","nd":"339039","v":10000.0},{"om":"GRUPAMENTO DE APOIO DO RIO DE JANEIRO","nd":"449052","v":15000.0},{"om":"HOSPITAL CENTRAL AERONAUTICA","nd":"339039","v":30000.0},{"om":"HOSPITAL CENTRAL AERONAUTICA","nd":"449052","v":15000.0},{"om":"HOSPITAL DE AERONAUTICA DE BELEM","nd":"339039","v":50000.0},{"om":"HOSPITAL DE AERONAUTICA DE BELEM","nd":"449052","v":20000.0},{"om":"HOSPITAL DE AERONAUTICA DE RECIFE","nd":"339030","v":9091.2},{"om":"HOSPITAL DE AERONAUTICA DE RECIFE","nd":"339039","v":40908.8},{"om":"HOSPITAL DE AERONAUTICA DE RECIFE","nd":"449052","v":20000.0},{"om":"HOSPITAL DE AERONAUTICA DOS AFONSOS","nd":"339039","v":50000.0},{"om":"HOSPITAL DE AERONAUTICA DOS AFONSOS","nd":"449052","v":20000.0},{"om":"HOSPITAL DE FORCA AEREA DE BRASILIA","nd":"339039","v":50000.0},{"om":"HOSPITAL DE FORCA AEREA DE BRASILIA","nd":"449052","v":20000.0},{"om":"HOSPITAL DE FORCA AEREA DE SAO PAULO","nd":"339039","v":50000.0},{"om":"HOSPITAL DE FORCA AEREA DE SAO PAULO","nd":"449052","v":20000.0},{"om":"HOSPITAL DE FORCA AEREA DO GALEAO","nd":"339030","v":13888.89},{"om":"HOSPITAL DE FORCA AEREA DO GALEAO","nd":"339039","v":36111.11},{"om":"HOSPITAL DE FORCA AEREA DO GALEAO","nd":"449052","v":20000.0},{"om":"PARQUE DE MATERIAL AERONAUTICO DE SAO PAULO","nd":"339030","v":1639.43},{"om":"PARQUE DE MATERIAL AERONAUTICO DE SAO PAULO","nd":"339039","v":18360.57},{"om":"PARQUE DE MATERIAL AERONAUTICO DE SAO PAULO","nd":"449052","v":20000.0},{"om":"PARQUE DE MATERIAL AERONAUTICO DO GALEAO","nd":"339039","v":20000.0},{"om":"PARQUE DE MATERIAL AERONAUTICO DO GALEAO","nd":"449052","v":15000.0},{"om":"PARQUE DE MATERIAL BELICO DA AERONAUTICA","nd":"339039","v":200000.0},{"om":"PARQUE DE MATERIAL BELICO DA AERONAUTICA","nd":"449052","v":50000.0},{"om":"PARQUE MATERIAL AERONAUTICO DE LAGOA SANTA","nd":"339030","v":5555.56},{"om":"PARQUE MATERIAL AERONAUTICO DE LAGOA SANTA","nd":"339039","v":14444.44},{"om":"PARQUE MATERIAL AERONAUTICO DE LAGOA SANTA","nd":"449052","v":15000.0},{"om":"PREFEITURA DE AERONAUTICA DE BELEM","nd":"339039","v":10000.0},{"om":"PREFEITURA DE AERONAUTICA DE BELEM","nd":"449052","v":15000.0},{"om":"PREFEITURA DE AERONAUTICA DE BRASILIA","nd":"339039","v":10000.0},{"om":"PREFEITURA DE AERONAUTICA DE BRASILIA","nd":"449052","v":15000.0},{"om":"PREFEITURA DE AERONAUTICA DO GALEAO","nd":"339039","v":10000.0},{"om":"PREFEITURA DE AERONAUTICA DO GALEAO","nd":"449052","v":15000.0},{"om":"PREFEITURA DE AERONAUTICA DOS AFONSOS","nd":"339039","v":10000.0},{"om":"PREFEITURA DE AERONAUTICA DOS AFONSOS","nd":"449052","v":15000.0},{"om":"PRIMEIRO COMANDO AEREO REGIONAL","nd":"339039","v":20000.0},{"om":"PRIMEIRO COMANDO AEREO REGIONAL","nd":"449052","v":20000.0},{"om":"QUARTO COMANDO AEREO REGIONAL","nd":"339030","v":5555.56},{"om":"QUARTO COMANDO AEREO REGIONAL","nd":"339039","v":14444.44},{"om":"QUARTO COMANDO AEREO REGIONAL","nd":"449052","v":20000.0},{"om":"QUINTO COMANDO AEREO REGIONAL","nd":"339030","v":63.75},{"om":"QUINTO COMANDO AEREO REGIONAL","nd":"339039","v":14444.44},{"om":"QUINTO COMANDO AEREO REGIONAL","nd":"449052","v":14511.8},{"om":"SEGUNDO COMANDO AEREO REGIONAL","nd":"339039","v":20000.0},{"om":"SEGUNDO COMANDO AEREO REGIONAL","nd":"449052","v":20000.0},{"om":"SETIMO COMANDO AEREO REGIONAL","nd":"339039","v":20000.0},{"om":"SETIMO COMANDO AEREO REGIONAL","nd":"449052","v":20000.0},{"om":"SEXTO COMANDO AEREO REGIONAL","nd":"339039","v":20000.0},{"om":"SEXTO COMANDO AEREO REGIONAL","nd":"449052","v":50000.0},{"om":"TERCEIRO COMANDO AEREO REGIONAL","nd":"339039","v":20000.0},{"om":"TERCEIRO COMANDO AEREO REGIONAL","nd":"449052","v":20000.0},{"om":"UNIVERSIDADE DA FORCA AEREA","nd":"339030","v":924.0},{"om":"UNIVERSIDADE DA FORCA AEREA","nd":"339039","v":99076.0},{"om":"UNIVERSIDADE DA FORCA AEREA","nd":"449052","v":25000.0}];
+const APR26 = (function(){
+  const LSK='sisi_aprovado_2026_v1';
+  let map=null, origem='embutida';
+  function build(arr){ const m={}; (arr||[]).forEach(x=>{ m[x.om+'|'+x.nd]=(m[x.om+'|'+x.nd]||0)+(+x.v||0); }); return m; }
+  function load(){
+    if(map) return map;
+    try{ const raw=localStorage.getItem(LSK);
+      if(raw){ const o=JSON.parse(raw);
+        if(o && Array.isArray(o.rows) && o.rows.length){ map=build(o.rows); origem=o.origem||'personalizada'; return map; } } }catch(e){}
+    map=build(APROVADO2026_EMBEDDED); origem='embutida'; return map;
+  }
+  return {
+    get(om,nd){ return load()[om+'|'+nd]||0; },
+    origem(){ load(); return origem; },
+    total(){ const m=load(); return Object.values(m).reduce((a,v)=>a+v,0); },
+    pares(){ return Object.keys(load()).length; },
+    // Redefine a linha de base a partir de uma lista de linhas de execução.
+    setFrom(rows, rotulo){
+      const arr=[]; (rows||[]).forEach(r=>{ const v=soma5De(r); if(v>0.005) arr.push({om:r.om,nd:r.nd,v:+v.toFixed(2)}); });
+      map=build(arr); origem=rotulo||'personalizada';
+      try{ localStorage.setItem(LSK, JSON.stringify({rows:arr, origem, savedAt:new Date().toISOString()})); }catch(e){}
+      return arr.length;
+    },
+    reset(){ try{ localStorage.removeItem(LSK); }catch(e){} map=null; origem='embutida'; load(); }
+  };
+})();
+// Aprovado da linha: a base fixa; se a planilha trouxer MAIS que a base (suplementação),
+// vale o maior — assim um acréscimo aparece, mas um corte permanece visível como bloqueio.
+const aprovadoDe  = r => Math.max(APR26.get(r.om,r.nd), soma5De(r));
+// Bloqueado = o que foi aprovado e ainda não chegou às mãos da OM.
+const bloqueadoDe = r => Math.max(0, aprovadoDe(r)-liberadoDe(r));
+// Decomposição do bloqueio: retido na planilha × cortado (sumiu da planilha).
+const retidoDe    = r => (r.bloqueado||0);
+const corteDe     = r => Math.max(0, aprovadoDe(r)-soma5De(r));
 // Agrega uma lista bruta de execução 2026 por (OM,ND), no mesmo formato do execRows.
 function aggExecRaw(raw){
   const map={};
@@ -4927,7 +4980,7 @@ function setExecChrome2026(){
   { const se=document.getElementById('sec-eficiencia'); if(se) se.style.display='none'; }
   { const rb=document.getElementById('odsReportBar'); if(rb) rb.style.display='flex'; }
   { const se=document.getElementById('secEvolucao'); if(se) se.style.display=''; }
-  document.getElementById('execCard1H3').innerHTML='Situação do Crédito · 2026'+ICO('Situação do crédito na planilha semanal: disponível, bloqueado para controle interno, empenhos a liquidar, empenhos liquidados a pagar e empenhos pagos. A soma das cinco é o crédito descentralizado à UGR; tudo menos o bloqueado é o que foi liberado à OM.');
+  document.getElementById('execCard1H3').innerHTML='Situação do Crédito · 2026'+ICO('Situação do crédito na planilha semanal: disponível, bloqueado para controle interno, empenhos a liquidar, empenhos liquidados a pagar e empenhos pagos — mais o crédito cortado, quando houver. A soma de tudo é o valor aprovado; tudo menos o bloqueio e o corte é o que foi liberado à OM.');
   document.getElementById('execCard1Sub').innerHTML='Disponível · Bloqueado · A Liquidar · Liq. a Pagar · Pagos';
   document.getElementById('execCard2H3').innerHTML='Crédito Disponível por Natureza'+ICO('Participação de cada ND no total de crédito disponível no período filtrado.');
   document.getElementById('execCard2Sub').textContent='Participação de cada ND no crédito disponível';
@@ -4937,8 +4990,8 @@ function setExecChrome2026(){
   document.getElementById('omToggle').innerHTML='<button class="toggle-btn" data-metric="disponivel">Disponível</button><button class="toggle-btn" data-metric="bloqueado">Bloqueado</button><button class="toggle-btn" data-metric="emp_a_liquidar">Empenhos a Liquidar</button><button class="toggle-btn" data-metric="liq_a_pagar">Liq. a Pagar</button><button class="toggle-btn" data-metric="pago">Pagos</button>';
   if(!['disponivel','bloqueado','emp_a_liquidar','liq_a_pagar','pago'].includes(state.omMetric)) state.omMetric='disponivel';
   document.querySelectorAll('#omToggle .toggle-btn').forEach(x=>x.classList.toggle('active',x.dataset.metric===state.omMetric));
-  document.getElementById('execThead').innerHTML='<tr><th>OM</th><th>ND</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">Emp. a Liquidar</th><th class="num">Liq. a Pagar</th><th class="num">Pagos</th><th class="num">Liberado à OM</th></tr>';
-  document.getElementById('execTfoot').innerHTML='<tr><td colspan="2">Total Filtrado</td><td class="num"><span class="cur">R$</span><span id="fe26-disp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-blq">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-eal">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-lap">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-pag">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-lib">0</span></td></tr>';
+  document.getElementById('execThead').innerHTML='<tr><th>OM</th><th>ND</th><th class="num">Aprovado</th><th class="num">Liberado à OM</th><th class="num">Bloqueado</th><th class="num">Disponível</th><th class="num">Emp. a Liquidar</th><th class="num">Liq. a Pagar</th><th class="num">Pagos</th></tr>';
+  document.getElementById('execTfoot').innerHTML='<tr><td colspan="2">Total Filtrado</td><td class="num"><span class="cur">R$</span><span id="fe26-apr">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-lib">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-blq">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-disp">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-eal">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-lap">0</span></td><td class="num"><span class="cur">R$</span><span id="fe26-pag">0</span></td></tr>';
 }
 function dispUGESplit(){
   const raw=(DATA.execUGE&&DATA.execUGE['2026'])||[];
@@ -4948,14 +5001,14 @@ function dispUGESplit(){
   return {hasUGE:true, diref:d, outra:o};
 }
 function aprovadoAno(){
-  // Fonte primária: a PLANILHA SEMANAL DE EXECUÇÃO. O total por (OM,ND) —
-  // disponível + bloqueado + empenhos a liquidar — é o crédito aprovado e já
-  // descentralizado do exercício; soma R$ 3.400.000 e responde aos filtros de
-  // OM/ND/ODS. Retaguarda (CREDDATA/planejamento) só quando não há planilha de
-  // execução carregada ou quando há filtro de Guarnição, que a execução não conhece.
+  // Fonte primária: a LINHA DE BASE do aprovado 2026 (APR26), fixa no exercício e
+  // congelada da planilha semanal — soma R$ 3.400.000 e responde aos filtros de
+  // OM/ND/ODS. Não usa o total corrente da planilha justamente para que um corte de
+  // crédito não reduza o aprovado sem deixar rastro. Retaguarda (CREDDATA) só quando
+  // não há planilha carregada ou quando há filtro de Guarnição, que a execução ignora.
   if(!state.guarnicao.size){
     const ex=filterRows(execRows('2026'));
-    if(ex.length) return somaPor(ex, descentralizadoDe);
+    if(ex.length) return somaPor(ex, aprovadoDe);
   }
   const semFiltro = !state.om.size && !state.ods.size && !state.guarnicao.size;
   if(semFiltro && CREDDATA.teto>0) return CREDDATA.teto;
@@ -4963,24 +5016,33 @@ function aprovadoAno(){
 }
 function renderExec2026(rows){
   const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
-  const disp=T.disponivel||0, blq=T.bloqueado||0, eal=T.emp_a_liquidar||0, lap=T.liq_a_pagar||0, pag=T.pago||0;
-  const desc=disp+blq+eal+lap+pag, lib=desc-blq;
+  const disp=T.disponivel||0, eal=T.emp_a_liquidar||0, lap=T.liq_a_pagar||0, pag=T.pago||0;
   const apr=aprovadoAno();
+  const lib=somaPor(rows,liberadoDe);
+  const blq=Math.max(0,apr-lib);            // bloqueado = aprovado − liberado
+  const retido=somaPor(rows,retidoDe);      // parcela ainda registrada na planilha
+  const corte=Math.max(0,blq-retido);       // parcela que sumiu da planilha = perda
   const sp=dispUGESplit();
-  const pctDe=v=>desc>0?' · '+fmtPct(v/desc*100,1)+' do descentralizado':'';
+  const pctDe=v=>apr>0?' · '+fmtPct(v/apr*100,1)+' do aprovado':'';
+  const subBlq = corte>0.005
+    ? 'retido R$ '+fmtBRL0(retido)+' · cortado R$ '+fmtBRL0(corte)
+    : (wkBlqSub(rows) || ('controle interno'+pctDe(blq)));
   document.getElementById('exec-kpis').innerHTML =
-    kpi('kpi-apr','Aprovado · 2026',apr,'= descentralizado à UGR','Crédito aprovado e já descentralizado para o exercício de 2026, apurado na própria planilha semanal: disponível + bloqueado + empenhos a liquidar + liquidados a pagar + pagos = R$ 3.400.000. Responde aos filtros de OM/ND/ODS. Sem planilha de execução carregada, recai sobre o teto do planejamento.') +
-    kpi('kpi-rec','Liberado à OM',lib, 'desbloqueado'+pctDe(lib),'O que a OM pôde de fato empenhar: o descentralizado MENOS o bloqueado para controle interno. Equivale a disponível + empenhos a liquidar + liquidados a pagar + pagos.') +
-    kpi('kpi-warn','Crédito Bloqueado',blq, wkBlqSub(rows) || ('controle interno'+pctDe(blq)),'Crédito bloqueado para controle interno — indisponível para empenho no momento. Quando há semana anterior, mostra a variação.') +
+    kpi('kpi-apr','Aprovado · 2026',apr,'fixo no exercício','Valor aprovado para o SISI em 2026: R$ 3.400.000. É uma linha de base FIXA por OM e natureza de despesa, congelada da planilha semanal — não muda ao longo do ano. Se houver corte, o aprovado permanece e a diferença aparece como bloqueio, para que a perda fique visível. Responde aos filtros de OM/ND/ODS.') +
+    kpi('kpi-rec','Liberado à OM',lib, 'na mão da OM'+pctDe(lib),'O que a OM pôde de fato empenhar: disponível + empenhos a liquidar + liquidados a pagar + pagos. É o aprovado MENOS o que está bloqueado.') +
+    kpi('kpi-warn','Bloqueado / não liberado',blq, subBlq,'Parcela do aprovado que ainda não chegou às mãos da OM: crédito retido para controle interno mais, se houver, o que foi cortado (sumiu da planilha sem ter sido empenhado). Bloqueado = Aprovado − Liberado.') +
     kpi('kpi-disp','Disponível na OM · p/ uso', sp.hasUGE?sp.outra:disp, sp.hasUGE?'em UGE que não é a DIREF':'total — envie a planilha p/ separar','Crédito disponível que está em UGE diferente da DIREF: efetivamente na OM/executora, pronto para uso pela UGR.') +
     kpi('kpi-emp','Empenhos a Liquidar',eal, wkEalSub(rows) || 'obrigações pendentes','Empenhos já emitidos e ainda não liquidados. Quando há semana anterior, mostra a variação (aumenta com novos empenhos, diminui com liquidações).') +
     kpi('kpi-liq','Liquidado',lap+pag, (pag>0.005?('pago R$ '+fmtBRL0(pag)+' · '):'')+'a pagar R$ '+fmtBRL0(lap),'Empenhos já liquidados no exercício: a parcela ainda a pagar somada à já paga. Colunas presentes na planilha a partir de JUL/2026.');
   document.getElementById('exec-sub-count').textContent=`${rows.length} combinação(ões) OM×ND · ${new Set(rows.map(r=>r.om)).size} OM(s)`;
   // "funil" reaproveitado como 3 barras de situação do crédito
-  const stages=[{l:'Crédito Disponível',v:disp,c:'var(--fab-blue)',k:'disponivel'},{l:'Crédito Bloqueado',v:blq,c:'var(--gray-400)',k:'bloqueado'},{l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'}];
+  const stages=[{l:'Crédito Disponível',v:disp,c:'var(--fab-blue)',k:'disponivel'},
+    {l: corte>0.005?'Bloqueado · retido':'Crédito Bloqueado',v:retido,c:'var(--gray-400)',k:'bloqueado'}];
+  if(corte>0.005) stages.push({l:'Cortado · não descentralizado',v:corte,c:'var(--red)',k:'corte'});
+  stages.push({l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'});
   if(lap>0.005||pag>0.005){ stages.push({l:'Emp. Liquidados a Pagar',v:lap,c:'var(--fab-blue-light)',k:'liq_a_pagar'});
                             stages.push({l:'Empenhos Pagos',v:pag,c:'var(--green)',k:'pago'}); }
-  const fmax=Math.max(disp,blq,eal,lap,pag,1);
+  const fmax=Math.max(disp,retido,corte,eal,lap,pag,1);
   document.getElementById('funnelExec').innerHTML=stages.map(s=>{ const w=Math.max(2,(s.v/fmax)*100);
     return `<div class="funnel-row" data-drill="sit" data-key="${s.k}" title="Clique para ver as OMs"><div class="funnel-head"><span>${s.l}</span><span class="pct">R$ ${fmtBRL0(s.v)}</span></div><div class="funnel-track"><div class="funnel-fill" style="width:${w}%;background:${s.c}">${w>20?'R$ '+fmtBRLc(s.v):''}</div></div></div>`; }).join('');
   // donut: disponível por ND
@@ -5002,11 +5064,12 @@ function renderExec2026(rows){
   // tabela 2026
   const sorted=[...rows].sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
   const num=v=>`<td class="num ${v===0?'zero':''}"><span class="cur">R$</span>${fmtBRL0(v)}</td>`;
-  document.getElementById('execTbody').innerHTML = sorted.length? sorted.map(r=>`<tr data-om="${r.om.replace(/"/g,'&quot;')}" title="Clique para ver a OM"><td class="code">${r.om}</td><td><span class="badge">${r.nd}</span></td>${num(r.disponivel)}${num(r.bloqueado)}${num(r.emp_a_liquidar)}${num(r.liq_a_pagar||0)}${num(r.pago||0)}${num(liberadoDe(r))}</tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><div class="glyph">∅</div><p>Sem registros para os filtros.</p></div></td></tr>`;
+  document.getElementById('execTbody').innerHTML = sorted.length? sorted.map(r=>`<tr data-om="${r.om.replace(/"/g,'&quot;')}" title="Clique para ver a OM"><td class="code">${r.om}</td><td><span class="badge">${r.nd}</span></td>${num(aprovadoDe(r))}${num(liberadoDe(r))}${num(bloqueadoDe(r))}${num(r.disponivel)}${num(r.emp_a_liquidar)}${num(r.liq_a_pagar||0)}${num(r.pago||0)}</tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><div class="glyph">∅</div><p>Sem registros para os filtros.</p></div></td></tr>`;
   const sum=k=>sorted.reduce((s,r)=>s+(r[k]||0),0);
   const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=fmtBRL0(v); };
-  set('fe26-disp',sum('disponivel')); set('fe26-blq',sum('bloqueado')); set('fe26-eal',sum('emp_a_liquidar'));
-  set('fe26-lap',sum('liq_a_pagar')); set('fe26-pag',sum('pago')); set('fe26-lib',somaPor(sorted,liberadoDe));
+  set('fe26-apr',somaPor(sorted,aprovadoDe)); set('fe26-lib',somaPor(sorted,liberadoDe)); set('fe26-blq',somaPor(sorted,bloqueadoDe));
+  set('fe26-disp',sum('disponivel')); set('fe26-eal',sum('emp_a_liquidar'));
+  set('fe26-lap',sum('liq_a_pagar')); set('fe26-pag',sum('pago'));
   document.getElementById('exec-table-count').textContent=`${sorted.length} linha(s)`;
 }
 function renderExec(){
@@ -5293,13 +5356,13 @@ function renderEvolucao(rowsCur){
     return;
   }
   const prevRows=execRowsPrev2026();
-  // desc = descentralizado à UGR (disponível + bloqueado + empenhos a liquidar)
-  // lib  = LIBERADO à OM = desc − bloqueado = disponível + empenhos a liquidar
+  // apr = APROVADO para o ano (linha de base fixa) · lib = liberado à OM
+  // blq = aprovado − liberado (inclui o que foi retido e o que foi cortado)
   const zero=()=>({desc:0,lib:0,blq:0,eal:0,disp:0});
   const acc=(m,r)=>{ const o=m[r.om]||(m[r.om]=zero());
-    o.desc+= descentralizadoDe(r);
+    o.desc+= aprovadoDe(r);
     o.lib += liberadoDe(r);
-    o.blq += (r.bloqueado||0); o.eal += (r.emp_a_liquidar||0); o.disp += (r.disponivel||0); };
+    o.blq += bloqueadoDe(r); o.eal += (r.emp_a_liquidar||0); o.disp += (r.disponivel||0); };
   const pMap={}; prevRows.forEach(r=>acc(pMap,r));
   const cMap={}; rowsCur.forEach(r=>acc(cMap,r));
   const oms=[...new Set([...Object.keys(pMap),...Object.keys(cMap)])];
@@ -5320,7 +5383,7 @@ function renderEvolucao(rowsCur){
   const ealC=tot('ealCur'),ealP=tot('ealPrev');
   const dispC=tot('dispCur'),dispP=tot('dispPrev');
   if(kdiv) kdiv.innerHTML=
-    kpiDelta('Δ Descentralizado',descC-descP,descP,'total na UGR (c/ bloqueio)') +
+    kpiDelta('Δ Aprovado p/ 2026',descC-descP,descP,'fixo — variação indica corte') +
     kpiDelta('Δ Liberado à OM',libC-libP,libP,'disponível + emp. a liquidar') +
     kpiDelta('Δ Bloqueado',blqC-blqP,blqP,'retido p/ controle interno') +
     kpiDelta('Δ Disponível',dispC-dispP,dispP,'saldo pronto p/ empenho') +
@@ -5371,13 +5434,15 @@ function renderTopOms(rows){
   const m=state.omMetric;
   const ehCorrente = state.ano==='2026';
   // Base de comparação da OM: 2023–2025 = recebido bruto (movimento devedor);
-  // 2026 = crédito total da OM na semana (disponível + bloqueado + empenhos a liquidar).
+  // 2026 = valor APROVADO para a OM no exercício (linha de base fixa).
   const baseDe = r => ehCorrente
-    ? descentralizadoDe(r)
+    ? aprovadoDe(r)
     : ((r.recebido||0) || ((r.saldo||0)+(r.devolvido||0)));
   const byOm={};
+  // Em 2026 a métrica "bloqueado" é a calculada (aprovado − liberado), não a coluna crua.
+  const metricDe = r => (ehCorrente && m==='bloqueado') ? bloqueadoDe(r) : (r[m]||0);
   rows.forEach(r=>{ const o=byOm[r.om]||(byOm[r.om]={v:0,base:0});
-    o.v   += (r[m]||0);
+    o.v   += metricDe(r);
     o.base+= baseDe(r); });
   const s=getSort('topoms','v','desc'); setSortArrow('topoms', s.dir);
   const all=Object.entries(byOm).map(([om,x])=>({om, v:x.v, base:x.base,
@@ -5386,7 +5451,7 @@ function renderTopOms(rows){
   const arr=topSort(all, s.key==='pct'?'pct':'v', s.dir, 12);
   const max=arr.length?Math.max(...arr.map(x=>x[s.key==='pct'?'pct':'v']),1):1;
   const cls = m==='liquidado'?'green':(m==='devolvido'?'':'alt');
-  const lblPct = ehCorrente ? '% do descentralizado' : '% do recebido';
+  const lblPct = ehCorrente ? '% do aprovado' : '% do recebido';
   ['v','pct'].forEach(k=>{ const e=document.getElementById('omSort-'+k);
     if(e){ e.classList.toggle('active', s.key===k);
            e.textContent=(k==='v'?'Valor':lblPct)+(s.key===k?' '+sortArrow(s.dir):''); } });
@@ -5639,20 +5704,21 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&modal.classList.co
 function omPanel2026Data(om){
   const rows=execRows('2026').filter(r=>r.om===om).sort((a,b)=>ndOrder(a.nd,b.nd));
   const T=rows.reduce((a,r)=>{ for(const k in r){ if(typeof r[k]==='number') a[k]=(a[k]||0)+r[k]; } return a; },{});
-  const _desc=somaPor(rows,descentralizadoDe), _lib=somaPor(rows,liberadoDe);
-  const sub=`Descentralizado R$ ${fmtBRL0(_desc)} · liberado à OM R$ ${fmtBRL0(_lib)} · bloqueado R$ ${fmtBRL0(T.bloqueado||0)} · ${rows.length} ND`;
+  const _desc=somaPor(rows,aprovadoDe), _lib=somaPor(rows,liberadoDe), _blq=somaPor(rows,bloqueadoDe);
+  const _ret=somaPor(rows,retidoDe), _cor=Math.max(0,_blq-_ret);
+  const sub=`Aprovado R$ ${fmtBRL0(_desc)} · liberado à OM R$ ${fmtBRL0(_lib)} · bloqueado R$ ${fmtBRL0(_blq)}${_cor>0.005?' (cortado R$ '+fmtBRL0(_cor)+')':''} · ${rows.length} ND`;
   const fin=`<div class="modal-finance">
-      <div class="mfin apr"><div class="mfin-lbl">Descentralizado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(_desc)}</div></div>
+      <div class="mfin apr"><div class="mfin-lbl">Aprovado p/ 2026</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(_desc)}</div></div>
       <div class="mfin disp"><div class="mfin-lbl">Liberado à OM</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(_lib)}</div></div>
-      <div class="mfin"><div class="mfin-lbl">Crédito Bloqueado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.bloqueado||0)}</div></div>
+      <div class="mfin"><div class="mfin-lbl">Bloqueado${_cor>0.005?' (c/ corte)':''}</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(_blq)}</div></div>
       <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.disponivel||0)}</div></div>
       <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.emp_a_liquidar||0)}</div></div>
       <div class="mfin"><div class="mfin-lbl">Liquidado (a pagar + pago)</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0((T.liq_a_pagar||0)+(T.pago||0))}</div></div>
     </div>`;
     let body=fin+`<div class="modal-solicitacoes-head"><h3>Por Natureza de Despesa</h3><span class="count">${rows.length} ND</span></div>`;
     body+= rows.length
-      ? `<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Disponível</th><th class="num">Bloqueado</th><th class="num">A Liquidar</th><th class="num">Liq. a Pagar</th><th class="num">Pagos</th><th class="num">Liberado à OM</th></tr></thead><tbody>`+
-        rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.bloqueado)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.liq_a_pagar||0)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.pago||0)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(liberadoDe(r))}</td></tr>`).join('')+
+      ? `<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Aprovado</th><th class="num">Liberado</th><th class="num">Bloqueado</th><th class="num">Disponível</th><th class="num">A Liquidar</th><th class="num">Liq. a Pagar</th><th class="num">Pagos</th></tr></thead><tbody>`+
+        rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(aprovadoDe(r))}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(liberadoDe(r))}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(bloqueadoDe(r))}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.liq_a_pagar||0)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.pago||0)}</td></tr>`).join('')+
         `</tbody></table></div>`
       : `<div class="empty-state" style="padding:14px"><p>Sem linhas de crédito para esta OM na planilha semanal atual.</p></div>`;
     // Variação semanal por ND (só se houver semana anterior)
@@ -5661,19 +5727,19 @@ function omPanel2026Data(om){
       const pMap={}; prevOm.forEach(r=>pMap[r.nd]=r);
       const cMap={}; rows.forEach(r=>cMap[r.nd]=r);
       const nds=[...new Set([...Object.keys(pMap),...Object.keys(cMap)])].sort((a,b)=>ndOrder(a,b));
-      const _z={disponivel:0,bloqueado:0,emp_a_liquidar:0,liq_a_pagar:0,pago:0};
-      const linhas=nds.map(nd=>{ const c=cMap[nd]||_z, p=pMap[nd]||_z;
-        const descC=descentralizadoDe(c), descP=descentralizadoDe(p);
-        const libC=liberadoDe(c),         libP=liberadoDe(p);
+      const _z={om:om,disponivel:0,bloqueado:0,emp_a_liquidar:0,liq_a_pagar:0,pago:0};
+      const linhas=nds.map(nd=>{ const c=cMap[nd]||{..._z,nd}, p=pMap[nd]||{..._z,nd};
+        const descC=aprovadoDe(c), descP=aprovadoDe(p);
+        const libC=liberadoDe(c),  libP=liberadoDe(p);
         return {nd, descD:descC-descP, descP, libD:libC-libP, libP,
-                blqD:(c.bloqueado||0)-(p.bloqueado||0), blqP:(p.bloqueado||0),
+                blqD:bloqueadoDe(c)-bloqueadoDe(p), blqP:bloqueadoDe(p),
                 ealD:(c.emp_a_liquidar||0)-(p.emp_a_liquidar||0), ealP:(p.emp_a_liquidar||0)}; })
         .filter(x=>Math.abs(x.descD)>=0.005 || Math.abs(x.libD)>=0.005 || Math.abs(x.blqD)>=0.005 || Math.abs(x.ealD)>=0.005);
       if(linhas.length){
         const cm=DATA.execMeta&&DATA.execMeta.cur, pm=DATA.execMeta&&DATA.execMeta.prev;
         const fdt=m=> m&&m.savedAt?new Date(m.savedAt).toLocaleDateString('pt-BR'):'—';
         body+=`<div class="modal-solicitacoes-head" style="margin-top:20px"><h3>Variação vs. Semana Anterior</h3><span class="count">${fdt(pm)} → ${fdt(cm)}</span></div>`;
-        body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Δ Descentralizado</th><th class="num">Δ Liberado à OM</th><th class="num">Δ Bloqueado</th><th class="num">Δ Empenhos a Liquidar</th></tr></thead><tbody>`+
+        body+=`<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Δ Aprovado</th><th class="num">Δ Liberado à OM</th><th class="num">Δ Bloqueado</th><th class="num">Δ Empenhos a Liquidar</th></tr></thead><tbody>`+
           linhas.map(x=>`<tr><td><span class="badge">${x.nd}</span></td><td class="num">${deltaBadge(x.descD,x.descP)}</td><td class="num">${deltaBadge(x.libD,x.libP)}</td><td class="num">${deltaBadge(x.blqD,x.blqP)}</td><td class="num">${deltaBadge(x.ealD,x.ealP)}</td></tr>`).join('')+
           `</tbody></table></div>`;
       }
@@ -5972,9 +6038,9 @@ async function gerarRelatorioODS(){
     oms.forEach(om=>{ porOm[om]={disp:0,blq:0,eal:0,desc:0,lib:0,rapLiq:0,pzV:0}; });
     execRows('2026').forEach(r=>{ if(!porOm[r.om]) return;
       porOm[r.om].disp+=r.disponivel||0; porOm[r.om].blq+=r.bloqueado||0; porOm[r.om].eal+=r.emp_a_liquidar||0;
-      porOm[r.om].desc+=descentralizadoDe(r); porOm[r.om].lib+=liberadoDe(r);
-      agg.disp+=r.disponivel||0; agg.blq+=r.bloqueado||0; agg.eal+=r.emp_a_liquidar||0;
-      agg.desc+=descentralizadoDe(r); agg.lib+=liberadoDe(r); });
+      porOm[r.om].desc+=aprovadoDe(r); porOm[r.om].lib+=liberadoDe(r); porOm[r.om].blqc=(porOm[r.om].blqc||0)+bloqueadoDe(r);
+      agg.disp+=r.disponivel||0; agg.blq+=bloqueadoDe(r); agg.eal+=r.emp_a_liquidar||0;
+      agg.desc+=aprovadoDe(r); agg.lib+=liberadoDe(r); });
     DATA.rap.forEach(r=>{ if(!porOm[r.om]) return; porOm[r.om].rapLiq+=r.rap_nproc_a_liquidar||0; agg.rapLiq+=r.rap_nproc_a_liquidar||0; });
     if(DATA.prazos2026 && Array.isArray(DATA.prazos2026.rows)){
       computePrazos(DATA.prazos2026.rows.filter(r=>porOm[r.om])).forEach(r=>{
@@ -5986,16 +6052,16 @@ async function gerarRelatorioODS(){
       <div class="rep-sub">${ods} · ${oms.length} OM(s) com dados de 2026 · gerado em ${new Date().toLocaleDateString('pt-BR')}</div></div>
       <div class="rep-body">
       <div class="modal-finance">
-        <div class="mfin apr"><div class="mfin-lbl">Descentralizado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.desc)}</div></div>
+        <div class="mfin apr"><div class="mfin-lbl">Aprovado p/ 2026</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.desc)}</div></div>
         <div class="mfin disp"><div class="mfin-lbl">Liberado às OMs</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.lib)}</div></div>
-        <div class="mfin"><div class="mfin-lbl">Crédito Bloqueado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.blq)}</div></div>
+        <div class="mfin"><div class="mfin-lbl">Bloqueado / não liberado</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.blq)}</div></div>
         <div class="mfin disp"><div class="mfin-lbl">Crédito Disponível</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.disp)}</div></div>
         <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar (exercício)</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.eal)}</div></div>
         <div class="mfin"><div class="mfin-lbl">RaP a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(agg.rapLiq)}</div></div>
       </div>
       <div class="modal-solicitacoes-head" style="margin-top:16px"><h3>Resumo por OM</h3><span class="count">${oms.length} OM(s)</span></div>
-      <div class="table-wrap" style="border:none"><table style="font-size:11px"><thead><tr><th>OM (UGR)</th><th class="num">Descentr.</th><th class="num">Liberado</th><th class="num">Bloqueado</th><th class="num">Disponível</th><th class="num">Emp. a Liquidar</th><th class="num">RaP a Liquidar</th><th class="num">Prazos Venc.</th></tr></thead><tbody>${
-        oms.map(om=>{ const x=porOm[om]; return `<tr><td class="code">${om}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.desc)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.lib)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.blq)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.disp)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.eal)}</td><td class="num ${x.rapLiq?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(x.rapLiq)}</td><td class="num" style="${x.pzV?'color:var(--red);font-weight:600':''}">${x.pzV||0}</td></tr>`; }).join('')
+      <div class="table-wrap" style="border:none"><table style="font-size:11px"><thead><tr><th>OM (UGR)</th><th class="num">Aprovado</th><th class="num">Liberado</th><th class="num">Bloqueado</th><th class="num">Disponível</th><th class="num">Emp. a Liquidar</th><th class="num">RaP a Liquidar</th><th class="num">Prazos Venc.</th></tr></thead><tbody>${
+        oms.map(om=>{ const x=porOm[om]; return `<tr><td class="code">${om}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.desc)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.lib)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.blqc||0)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.disp)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.eal)}</td><td class="num ${x.rapLiq?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(x.rapLiq)}</td><td class="num" style="${x.pzV?'color:var(--red);font-weight:600':''}">${x.pzV||0}</td></tr>`; }).join('')
       }</tbody></table></div>
       ${agg.pzVenc?`<p style="font-size:11px;color:var(--red);margin-top:10px;font-weight:500">⚠ ${agg.pzVenc} empenho(s) com prazo de liquidação vencido no ODS, somando R$ ${fmtBRL0(agg.pzVencV)} a liquidar. Detalhamento nas páginas seguintes, por OM.</p>`:''}
       </div><div class="rep-foot">${_stampTxt()} · página de resumo — detalhamento por OM nas páginas seguintes</div>`;
@@ -6041,8 +6107,8 @@ document.getElementById('exportExecBtn').addEventListener('click',()=>{
   const rows=filterRows(execRows(state.ano)).sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
   if(state.ano==='2026'){
     downloadCSV(`SISI_Execucao_2026.csv`,
-      ['OM','ND','Credito Disponivel','Credito Bloqueado','Empenhos a Liquidar','Emp Liquidados a Pagar','Empenhos Pagos','Descentralizado','Liberado a OM'],
-      rows.map(r=>[r.om,r.nd,r.disponivel,r.bloqueado,r.emp_a_liquidar,r.liq_a_pagar||0,r.pago||0,descentralizadoDe(r),liberadoDe(r)]));
+      ['OM','ND','Aprovado 2026','Liberado a OM','Bloqueado','Credito Disponivel','Empenhos a Liquidar','Emp Liquidados a Pagar','Empenhos Pagos','Bloqueio retido na planilha','Cortado'],
+      rows.map(r=>[r.om,r.nd,aprovadoDe(r),liberadoDe(r),bloqueadoDe(r),r.disponivel,r.emp_a_liquidar,r.liq_a_pagar||0,r.pago||0,retidoDe(r),corteDe(r)]));
     return;
   }
   downloadCSV(`SISI_Execucao_${state.ano}.csv`,
@@ -6378,35 +6444,33 @@ function renderLiberar2026(){
   const eal=ex.reduce((a,r)=>a+(r.emp_a_liquidar||0),0);
   const lap=ex.reduce((a,r)=>a+(r.liq_a_pagar||0),0);
   const pag=ex.reduce((a,r)=>a+(r.pago||0),0);
-  const descentralizado=somaPor(ex,descentralizadoDe);  // tudo na UGR, inclusive o retido
-  const liberado=somaPor(ex,liberadoDe);                // = descentralizado − bloqueado
+  const liberado=somaPor(ex,liberadoDe);
+  const bloqueado=Math.max(0,apr-liberado);             // aprovado − liberado
+  const retidoT=somaPor(ex,retidoDe);
+  const corteT=Math.max(0,bloqueado-retidoT);
+  const empLiq=somaPor(ex,empenhadoDe);
   const funnel=(stages,base)=>stages.map(s=>{ const w=Math.max(2,(s.v/base)*100); const pct=base>0?fmtPct(s.v/base*100,1):'—';
     const drill=s.k?` data-drill="sit" data-key="${s.k}" title="Clique para ver as OMs"`:'';
     return `<div class="funnel-row"${drill}><div class="funnel-head"><span>${s.l}</span><span class="pct">R$ ${fmtBRL0(s.v)} · ${pct}</span></div><div class="funnel-track"><div class="funnel-fill" style="width:${w}%;background:${s.c}">${w>16?'R$ '+fmtBRLc(s.v):''}</div></div></div>`;}).join('');
-  // Quando o aprovado é apurado na própria planilha de execução, ele COINCIDE com o
-  // descentralizado — repetir a etapa só polui o funil. As duas linhas voltam a
-  // aparecer separadas se algum dia o aprovado deixar de estar todo descentralizado.
-  const tudoDescentralizado = Math.abs(descentralizado-apr) < 0.005;
-  const etapas=[{l: tudoDescentralizado
-      ? 'Aprovado = Descentralizado à UGR (c/ bloqueio)'
-      : 'Aprovado p/ o ano', v:apr, c:'var(--fab-blue)'}];
-  if(!tudoDescentralizado) etapas.push({l:'Descentralizado à UGR (c/ bloqueio)',v:descentralizado,c:'var(--fab-blue-light)'});
-  etapas.push({l:'Liberado à OM (desbloqueado)',v:liberado,c:'var(--fab-blue-light)'});
-  etapas.push({l:'Bloqueado p/ controle interno',v:blq,c:'var(--gray-400)',k:'bloqueado'});
-  etapas.push({l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'});
+  const etapas=[{l:'Aprovado p/ 2026 (fixo)', v:apr, c:'var(--fab-blue)'},
+    {l:'Liberado à OM', v:liberado, c:'var(--fab-blue-light)'},
+    {l:'Empenhado / liquidado', v:empLiq, c:'var(--fab-yellow-dark)'},
+    {l: corteT>0.005?'Bloqueado · retido':'Bloqueado (não liberado)', v:retidoT, c:'var(--gray-400)', k:'bloqueado'}];
+  if(corteT>0.005) etapas.push({l:'Cortado no exercício',v:corteT,c:'var(--red)',k:'corte'});
   const _sub=document.getElementById('liberarSub');
-  if(_sub) _sub.textContent = tudoDescentralizado
-    ? 'Aprovado (= descentralizado, c/ bloqueio) → Liberado à OM → Bloqueado → Empenhos a Liquidar'
-    : 'Aprovado → Descentralizado (c/ bloqueio) → Liberado à OM → Bloqueado → Empenhos a Liquidar';
+  if(_sub) _sub.textContent = corteT>0.005
+    ? 'Aprovado (fixo) → Liberado à OM → Empenhado/liquidado · bloqueio retido + corte'
+    : 'Aprovado p/ 2026 (fixo) → Liberado à OM → Empenhado/liquidado · restante bloqueado';
   document.getElementById('liberarFunnel').innerHTML = funnel(etapas, Math.max(apr,1));
   const sit=[
     {l:'Crédito Disponível',v:disp,c:'var(--fab-blue)',k:'disponivel'},
-    {l:'Crédito Bloqueado',v:blq,c:'var(--gray-400)',k:'bloqueado'},
-    {l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'}
+    {l: corteT>0.005?'Bloqueado · retido':'Crédito Bloqueado',v:retidoT,c:'var(--gray-400)',k:'bloqueado'}
   ];
+  if(corteT>0.005) sit.push({l:'Cortado · não descentralizado',v:corteT,c:'var(--red)',k:'corte'});
+  sit.push({l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'});
   if(lap>0.005||pag>0.005){ sit.push({l:'Emp. Liquidados a Pagar',v:lap,c:'var(--fab-blue-light)',k:'liq_a_pagar'});
                             sit.push({l:'Empenhos Pagos',v:pag,c:'var(--green)',k:'pago'}); }
-  document.getElementById('liberarStatus').innerHTML = funnel(sit, Math.max(disp,blq,eal,lap,pag,1));
+  document.getElementById('liberarStatus').innerHTML = funnel(sit, Math.max(disp,retidoT,corteT,eal,lap,pag,1));
 }
 function isDirefUGE(name){
   const s=String(name==null?'':name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
@@ -6519,8 +6583,9 @@ function ugeFilteredRows(){
 }
 function openDrill(kind, key){
   if(kind==='sit'){
-    const lbl={disponivel:'Crédito Disponível',bloqueado:'Crédito Bloqueado',emp_a_liquidar:'Empenhos a Liquidar',liq_a_pagar:'Empenhos Liquidados a Pagar',pago:'Empenhos Pagos'}[key]||key;
-    const byOm={}; filterRows(execRows('2026')).forEach(r=>{ byOm[r.om]=(byOm[r.om]||0)+(r[key]||0); });
+    const lbl={disponivel:'Crédito Disponível',bloqueado:'Crédito Bloqueado (retido)',emp_a_liquidar:'Empenhos a Liquidar',liq_a_pagar:'Empenhos Liquidados a Pagar',pago:'Empenhos Pagos',corte:'Crédito Cortado'}[key]||key;
+    const valDe = key==='corte' ? corteDe : (r=>r[key]||0);
+    const byOm={}; filterRows(execRows('2026')).forEach(r=>{ byOm[r.om]=(byOm[r.om]||0)+valDe(r); });
     const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v}));
     openDrawer(lbl+' · 2026', 'OMs com '+lbl.toLowerCase()+' (filtros aplicados)', drawerListHtml(items,'OM(s)'));
   } else if(kind==='uge'){
@@ -6813,7 +6878,10 @@ function refresh(){
     const creditFmt = sum('destaque_recebido')===0 && (sum('credito_bloqueado')!==0 || sum('empenhos_a_liquidar')!==0 || sum('credito_disponivel')!==0);
     if(creditFmt){
       const desc5 = sum('credito_disponivel')+sum('credito_bloqueado')+sum('empenhos_a_liquidar')+sum('liquidadas_a_pagar')+sum('pagas');
-      alog(`Total descentralizado da aba (5 colunas) = R$ ${fmtBRL0(desc5)} · liberado às OMs = R$ ${fmtBRL0(desc5-sum('credito_bloqueado'))}.`,'info');
+      const aprBase=APR26.total();
+      alog(`Total da aba (5 colunas) = R$ ${fmtBRL0(desc5)} · liberado às OMs = R$ ${fmtBRL0(desc5-sum('credito_bloqueado'))}.`,'info');
+      if(aprBase>0 && desc5 < aprBase-0.005) alog(`ATENÇÃO: a aba soma R$ ${fmtBRL0(aprBase-desc5)} A MENOS que o aprovado de 2026 (R$ ${fmtBRL0(aprBase)}). A diferença será tratada como CORTE e aparecerá no bloqueio.`,'err');
+      if(aprBase>0 && desc5 > aprBase+0.005) alog(`A aba soma R$ ${fmtBRL0(desc5-aprBase)} A MAIS que o aprovado de 2026. Se houve suplementação, redefina a linha de base no cartão "Aprovado de 2026".`,'info');
     }
     const cards = creditFmt
       ? [['Crédito Disponível','credito_disponivel'],['Crédito Bloqueado','credito_bloqueado'],['Empenhos a Liquidar','empenhos_a_liquidar'],['Emp. Liquidados a Pagar','liquidadas_a_pagar'],['Empenhos Pagos','pagas']]
@@ -6931,6 +6999,27 @@ function refresh(){
   $('adminCancelBtn').addEventListener('click',()=>{ $('adminPreviewBox').classList.add('hidden'); pendingRows=null; });
   $('adminApplyBtn').addEventListener('click',applyImport);
   $('adminClear2026Btn').addEventListener('click',clear2026);
+  function updateAprStatus(){
+    const el=$('adminAprStatus'); if(!el) return;
+    el.className='admin-config-status ok';
+    el.textContent=`Aprovado 2026: R$ ${fmtBRL0(APR26.total())} · ${APR26.pares()} pares OM×ND · base ${APR26.origem()}`;
+  }
+  $('adminAprSetBtn').addEventListener('click',()=>{
+    const cur=DATA.execution['2026']||[];
+    if(!cur.length){ alog('Não há planilha de 2026 carregada para servir de linha de base.','err'); return; }
+    const rows=aggExecRaw(cur);
+    const novo=somaPor(rows,soma5De), velho=APR26.total();
+    if(!confirm(`Redefinir o aprovado de 2026 para R$ ${fmtBRL0(novo)} (era R$ ${fmtBRL0(velho)})?\n\nUse isto SOMENTE em caso de suplementação ou nova aprovação oficial. Se houve corte, redefinir apaga o registro da perda.`)) return;
+    const k=APR26.setFrom(rows,'planilha '+(loadMeta().sheet||'atual'));
+    alog(`Linha de base do aprovado redefinida: R$ ${fmtBRL0(APR26.total())} em ${k} pares OM×ND.`,'ok');
+    updateAprStatus(); refresh();
+  });
+  $('adminAprResetBtn').addEventListener('click',()=>{
+    if(!confirm('Restaurar a linha de base embutida do aprovado de 2026 (R$ 3.400.000)?')) return;
+    APR26.reset(); alog('Linha de base do aprovado restaurada para a versão embutida.','ok');
+    updateAprStatus(); refresh();
+  });
+  updateAprStatus();
   update2026Status();
 })();
 
