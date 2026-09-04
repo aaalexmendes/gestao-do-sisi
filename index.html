@@ -38,6 +38,127 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ===================== u2.21 · MENU LATERAL (padrão Portal do Militar) ===================== */
+  :root{
+    --pm-side:#2B3F53; --pm-side-2:#36495C; --pm-side-3:#304355; --pm-top:#11212E;
+    --pm-accent:#29BC9C; --pm-txt:#E7E7E7; --pm-txt-2:#CACFD4; --pm-title:#74879B; --pm-link:#1489CA;
+    --pm-w:232px;
+  }
+  body{ padding-left:var(--pm-w); transition:padding-left .18s ease; }
+  body.nav-collapsed{ padding-left:0; }
+  body.entry-locked{ padding-left:0; }
+  body.entry-locked #sideNav, body.entry-locked #topBar{ display:none; }
+  body.capturing #sideNav, body.capturing #topBar{ display:none; }
+  body.capturing{ padding-left:0; }
+
+  #topBar{ position:sticky; top:0; z-index:60; height:44px; background:var(--pm-top); color:#fff;
+    display:flex; align-items:center; gap:14px; padding:0 18px; font-family:'Roboto',sans-serif; }
+  #topBar .tb-burger{ background:none; border:0; color:#8FA3B8; cursor:pointer; font-size:22px; line-height:1; padding:6px; }
+  #topBar .tb-burger:hover{ color:#fff; }
+  #topBar .tb-crumb{ font-size:13px; color:#B9C6D2; letter-spacing:.02em; }
+  #topBar .tb-crumb b{ color:#fff; font-weight:500; }
+  #topBar .tb-sp{ flex:1; }
+  #topBar .tb-ver{ font-size:11px; color:#6F8496; font-family:'Roboto Mono',monospace; }
+
+  #sideNav{ position:fixed; left:0; top:0; bottom:0; width:var(--pm-w); background:var(--pm-side); color:var(--pm-txt);
+    z-index:70; overflow-y:auto; overflow-x:hidden; font-family:'Roboto',sans-serif; transition:transform .18s ease;
+    scrollbar-width:thin; scrollbar-color:#4d6276 var(--pm-side); }
+  body.nav-collapsed #sideNav{ transform:translateX(-100%); }
+  #sideNav .sn-brand{ height:64px; display:flex; align-items:center; gap:10px; padding:0 14px; border-bottom:1px solid rgba(255,255,255,.06); }
+  #sideNav .sn-brand img{ width:36px; height:36px; object-fit:contain; }
+  #sideNav .sn-brand .t{ font-size:17px; color:#fff; font-weight:400; letter-spacing:.01em; line-height:1.1; }
+  #sideNav .sn-brand .t small{ display:block; font-size:9.5px; color:#9DB0C2; letter-spacing:.08em; text-transform:uppercase; }
+  #sideNav .sn-user{ display:flex; align-items:center; gap:12px; padding:14px 14px 16px; border-bottom:1px solid rgba(255,255,255,.06); }
+  #sideNav .sn-user .av{ width:50px; height:50px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center;
+    font-weight:700; color:var(--pm-side); font-size:16px; flex:none; box-shadow:0 0 0 2px rgba(255,255,255,.15); }
+  #sideNav .sn-user .who{ min-width:0; }
+  #sideNav .sn-user .hi{ font-size:12px; color:#B9C6D2; }
+  #sideNav .sn-user .nm{ font-size:14px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #sideNav .sn-user .nm b{ font-weight:700; }
+  #sideNav .sn-user .rl{ font-size:10.5px; color:#8FA3B8; letter-spacing:.06em; text-transform:uppercase; margin-top:1px; }
+  #sideNav .sn-sec{ padding:16px 16px 6px; font-size:10.5px; font-weight:700; letter-spacing:.12em; color:#fff; text-transform:uppercase; }
+  #sideNav .sn-item{ display:flex; align-items:center; gap:12px; padding:12px 16px; color:var(--pm-txt); cursor:pointer; font-size:13.5px;
+    border-left:4px solid transparent; user-select:none; text-decoration:none; }
+  #sideNav .sn-item:hover{ background:var(--pm-side-2); color:#fff; }
+  #sideNav .sn-item .ic{ width:20px; height:18px; flex:none; opacity:.9; }
+  #sideNav .sn-item .ic svg{ width:18px; height:18px; fill:currentColor; }
+  #sideNav .sn-item .lb{ flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #sideNav .sn-item .ch{ width:10px; height:10px; flex:none; transition:transform .15s; opacity:.8; }
+  #sideNav .sn-item .ch svg{ width:10px; height:10px; fill:currentColor; }
+  #sideNav .sn-group.open > .sn-item{ background:var(--pm-side-3); color:#fff; border-left-color:var(--pm-accent); }
+  #sideNav .sn-group.open > .sn-item .ch{ transform:rotate(180deg); }
+  #sideNav .sn-group.active > .sn-item{ border-left-color:var(--pm-accent); }
+  #sideNav .sn-sub{ display:none; background:var(--pm-side); border-left:4px solid var(--pm-accent); }
+  #sideNav .sn-group.open > .sn-sub{ display:block; }
+  #sideNav .sn-sub .sn-item{ padding:9px 16px 9px 22px; font-size:12.5px; color:var(--pm-txt-2); border-left:0; }
+  #sideNav .sn-sub .sn-item::before{ content:''; width:6px; height:6px; border-radius:50%; background:#8FA3B8; flex:none; margin-right:2px; }
+  #sideNav .sn-sub .sn-item:hover{ background:var(--pm-side-2); color:#fff; }
+  #sideNav .sn-sub .sn-item.active{ background:var(--pm-side-2); color:#fff; }
+  #sideNav .sn-sub .sn-item.active::before{ background:#36BAE5; }
+  #sideNav .sn-item.leaf.active{ background:var(--pm-side-3); color:#fff; border-left-color:var(--pm-accent); }
+  #sideNav .sn-item.disabled{ opacity:.45; cursor:default; }
+  #sideNav .sn-foot{ padding:14px 16px 18px; font-size:10px; color:#6F8496; font-family:'Roboto Mono',monospace; }
+
+  /* as abas antigas continuam no DOM (a l\u00f3gica de navega\u00e7\u00e3o depende delas), mas o menu lateral \u00e9 o \u00fanico navegador vis\u00edvel */
+  #mainTabs{ display:none !important; }
+  #pmWorld nav.view-tabs{ display:none !important; }
+
+  @media (max-width: 980px){
+    body{ padding-left:0; }
+    #sideNav{ transform:translateX(-100%); box-shadow:0 0 0 rgba(0,0,0,0); }
+    body.nav-open #sideNav{ transform:none; box-shadow:0 0 40px rgba(0,0,0,.35); }
+    body.nav-collapsed #sideNav{ transform:translateX(-100%); }
+  }
+
+  /* ===================== u2.21 · GOVERNAN\u00c7A ===================== */
+  #sec-gov .gov-card{ background:#fff; border:1px solid var(--gray-100); border-radius:6px; padding:18px 22px; margin-bottom:18px; }
+  #sec-gov .gov-head{ display:flex; align-items:baseline; gap:12px; border-bottom:1px solid var(--gray-100); padding-bottom:10px; margin-bottom:14px; }
+  #sec-gov .gov-head h3{ font-size:16px; font-weight:400; color:var(--pm-title); }
+  #sec-gov .gov-head small{ font-size:11px; color:var(--gray-500); }
+  #sec-gov .gov-grid{ display:grid; grid-template-columns:200px 1fr; gap:10px 14px; align-items:center; max-width:820px; }
+  #sec-gov .gov-grid label{ text-align:right; font-size:12.5px; font-weight:700; color:var(--gray-700); }
+  #sec-gov .gov-grid label small{ display:block; font-weight:400; color:var(--gray-500); font-size:10.5px; }
+  #sec-gov .gov-grid input, #sec-gov .gov-grid select, #sec-gov .gov-grid textarea{ width:100%; max-width:420px; border:1px solid var(--gray-200); border-radius:3px;
+    padding:6px 9px; font-family:'Roboto',sans-serif; font-size:13px; color:var(--gray-900); background:#fff; }
+  #sec-gov .gov-grid input:focus, #sec-gov .gov-grid select:focus, #sec-gov .gov-grid textarea:focus{ outline:2px solid #BFE1F2; border-color:var(--pm-link); }
+  #sec-gov .gov-grid .row{ display:flex; gap:8px; align-items:center; max-width:420px; }
+  #sec-gov .gov-grid .row input{ flex:1; }
+  #sec-gov .gov-grid .row input[type=date]{ flex:0 0 150px; }
+  #sec-gov .gov-grid .full{ grid-column:1 / -1; }
+  #sec-gov .gov-actions{ display:flex; gap:10px; align-items:center; margin-top:16px; padding-top:14px; border-top:1px solid var(--gray-100); flex-wrap:wrap; }
+  #sec-gov .gov-btn{ border:0; border-radius:3px; padding:8px 16px; font-family:'Roboto',sans-serif; font-size:12.5px; font-weight:500; cursor:pointer; }
+  #sec-gov .gov-btn.pri{ background:var(--fab-blue); color:#fff; }
+  #sec-gov .gov-btn.pri:hover{ background:var(--fab-blue-mid); }
+  #sec-gov .gov-btn.sec{ background:#fff; color:var(--fab-blue); border:1px solid var(--gray-200); }
+  #sec-gov .gov-btn.warn{ background:var(--fab-yellow); color:var(--fab-blue-dark); }
+  #sec-gov .gov-msg{ font-size:12px; color:var(--gray-500); }
+  #sec-gov .gov-msg.ok{ color:var(--green); }
+  #sec-gov .gov-msg.err{ color:var(--red); }
+  #sec-gov .gov-flags{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  #sec-gov .gov-flag{ font-size:11.5px; padding:5px 10px; border-radius:3px; border:1px solid; }
+  #sec-gov .gov-flag.ok{ background:#EAF7EF; border-color:#BFE3CB; color:#0B6E3A; }
+  #sec-gov .gov-flag.warn{ background:#FFF6D6; border-color:#F2DE9A; color:#7A5A00; }
+  #sec-gov .gov-flag.err{ background:#FBE8EB; border-color:#F1BEC6; color:#8B1120; }
+  #sec-gov .gov-pill{ display:inline-block; font-size:10.5px; padding:2px 8px; border-radius:10px; font-weight:600; letter-spacing:.02em; white-space:nowrap; }
+  #sec-gov .gov-pill.ok{ background:#DDF3E4; color:#0B6E3A; }
+  #sec-gov .gov-pill.warn{ background:#FFF0B8; color:#7A5A00; }
+  #sec-gov .gov-pill.err{ background:#F8D7DC; color:#8B1120; }
+  #sec-gov .gov-pill.na{ background:var(--gray-100); color:var(--gray-500); }
+  #sec-gov table.gov-table{ width:100%; border-collapse:collapse; font-size:12px; }
+  #sec-gov table.gov-table th{ text-align:left; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--gray-500); padding:8px 8px; border-bottom:2px solid var(--gray-100); white-space:nowrap; }
+  #sec-gov table.gov-table td{ padding:8px 8px; border-bottom:1px solid var(--gray-100); vertical-align:middle; }
+  #sec-gov table.gov-table tr.clk{ cursor:pointer; }
+  #sec-gov table.gov-table tr.clk:hover td{ background:var(--gray-50); }
+  #sec-gov .gov-kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+  #sec-gov .gov-kpi{ background:#fff; border:1px solid var(--gray-100); border-radius:6px; padding:14px 16px; }
+  #sec-gov .gov-kpi .l{ font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--gray-500); }
+  #sec-gov .gov-kpi .v{ font-size:26px; font-weight:300; color:var(--fab-blue); margin-top:2px; }
+  #sec-gov .gov-kpi .s{ font-size:11px; color:var(--gray-500); }
+  #sec-gov .gov-filter{ display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  #sec-gov .gov-filter select, #sec-gov .gov-filter input{ border:1px solid var(--gray-200); border-radius:3px; padding:6px 9px; font-family:'Roboto',sans-serif; font-size:12.5px; }
+  @media (max-width:760px){ #sec-gov .gov-grid{ grid-template-columns:1fr; } #sec-gov .gov-grid label{ text-align:left; } #sec-gov .gov-kpis{ grid-template-columns:repeat(2,1fr); } }
+
   html, body {
     background: var(--off-white);
     color: var(--gray-900);
@@ -3137,6 +3258,30 @@
 </style>
 </head>
 <body>
+<!-- ===================== u2.21 · MENU LATERAL ===================== -->
+<aside id="sideNav" aria-label="Menu principal">
+  <div class="sn-brand">
+    <img id="snEmblem" alt="" src="">
+    <div class="t">Painel SISI<small>COMAER &#183; FAB</small></div>
+  </div>
+  <div class="sn-user">
+    <div class="av" id="snAvatar">&#8212;</div>
+    <div class="who">
+      <div class="hi">Bem-vindo,</div>
+      <div class="nm" id="snName">&#8212;</div>
+      <div class="rl" id="snRole"></div>
+    </div>
+  </div>
+  <div id="snMenu"></div>
+  <div class="sn-foot" id="snFoot"></div>
+</aside>
+<div id="topBar">
+  <button class="tb-burger" id="tbBurger" type="button" title="Mostrar/ocultar menu" aria-label="Menu">&#9776;</button>
+  <span class="tb-crumb" id="tbCrumb"></span>
+  <span class="tb-sp"></span>
+  <span class="tb-ver" id="tbVer"></span>
+</div>
+
 <header class="header">
   <div class="header-inner">
     <div class="brand">
@@ -3166,6 +3311,7 @@
   <div class="view-tab" data-view="rap">Restos a Pagar</div>
   <div class="view-tab" data-view="plan">Necessário × Recebido</div>
   <div class="view-tab" data-view="projeto">Gestão do Projeto</div>
+  <div class="view-tab" data-view="gov">Governança</div>
   <div class="view-tab" data-view="manual">Manual</div>
 </div>
 
@@ -3732,6 +3878,12 @@
     </section>
   </div>
 
+<!-- ===================== u2.21 · GOVERNANÇA ===================== -->
+<div class="view-section" id="sec-gov">
+  <h2 class="section-title"><span id="govTitle">Governan&#231;a de Seguran&#231;a e Defesa</span><span class="count" id="govCount">checklist da OM</span></h2>
+  <div id="govBody"></div>
+</div>
+
 <div class="view-section" id="sec-manual">
 <div class="manual-wrap">
 
@@ -4189,7 +4341,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.20 &#183; 11/08/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.21 &#183; 04/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -5715,7 +5867,24 @@ function omPanel2026Data(om){
       <div class="mfin apr"><div class="mfin-lbl">Empenhos a Liquidar</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0(T.emp_a_liquidar||0)}</div></div>
       <div class="mfin"><div class="mfin-lbl">Liquidado (a pagar + pago)</div><div class="mfin-val"><span class="cur">R$</span>${fmtBRL0((T.liq_a_pagar||0)+(T.pago||0))}</div></div>
     </div>`;
-    let body=fin+`<div class="modal-solicitacoes-head"><h3>Por Natureza de Despesa</h3><span class="count">${rows.length} ND</span></div>`;
+    // u2.21 — onde está o disponível: na DIREF (a descentralizar) ou já na própria OM, por ND
+    const ugeRows=((DATA.execUGE&&DATA.execUGE['2026'])||[]).filter(r=>r.om===om && (r.disponivel||0)>0.005);
+    let ondeHtml='';
+    if(ugeRows.length){
+      const porNd={};
+      ugeRows.forEach(r=>{ const o=porNd[r.nd]||(porNd[r.nd]={diref:0,om:0,uges:{}}); const d=isDirefUGE(r.uge);
+        if(d) o.diref+=r.disponivel; else o.om+=r.disponivel; const uk=(typeof ugeDisplay==="function"?ugeDisplay(r.uge):r.uge); o.uges[uk]=(o.uges[uk]||0)+r.disponivel; });
+      const nds=Object.keys(porNd).sort((a,b)=>ndOrder(a,b));
+      const tD=nds.reduce((a,k)=>a+porNd[k].diref,0), tO=nds.reduce((a,k)=>a+porNd[k].om,0);
+      ondeHtml=`<div class="modal-solicitacoes-head"><h3>Onde est\u00e1 o dispon\u00edvel</h3><span class="count">na DIREF \u00d7 na pr\u00f3pria OM</span></div>
+        <div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num" style="color:var(--fab-blue)">Na DIREF \u00b7 a descentralizar</th><th class="num" style="color:var(--orange)">Na OM \u00b7 pronto p/ uso</th><th class="num">Total dispon\u00edvel</th><th>UGE(s)</th></tr></thead><tbody>`+
+        nds.map(k=>{ const x=porNd[k]; const ug=Object.entries(x.uges).map(([u,v])=>`<span class="badge" title="R$ ${fmtBRL0(v)}">${u}</span>`).join(' ');
+          return `<tr><td><span class="badge">${k}</span> ${(ndLabel[k]||'').split('— ')[1]||''}</td><td class="num ${x.diref?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(x.diref)}</td><td class="num ${x.om?'':'zero'}"><span class="cur">R$</span>${fmtBRL0(x.om)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(x.diref+x.om)}</td><td>${ug}</td></tr>`; }).join('')+
+        `</tbody></table><table style="font-size:11.5px"><tfoot><tr><td>Total</td><td class="num"><span class="cur">R$</span>${fmtBRL0(tD)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(tO)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(tD+tO)}</td><td></td></tr></tfoot></table></div>`;
+    } else if((T.disponivel||0)>0.005){
+      ondeHtml=`<div class="modal-solicitacoes-head"><h3>Onde est\u00e1 o dispon\u00edvel</h3><span class="count">DIREF \u00d7 OM</span></div><div class="empty-state" style="padding:12px"><p>A planilha carregada n\u00e3o traz a UG Executora \u2014 n\u00e3o \u00e9 poss\u00edvel separar o que est\u00e1 na DIREF do que j\u00e1 est\u00e1 na OM. Reenvie a planilha semanal completa.</p></div>`;
+    }
+    let body=fin+ondeHtml+`<div class="modal-solicitacoes-head"><h3>Por Natureza de Despesa</h3><span class="count">${rows.length} ND</span></div>`;
     body+= rows.length
       ? `<div class="table-wrap" style="border:none"><table style="font-size:11.5px"><thead><tr><th>ND</th><th class="num">Aprovado</th><th class="num">Liberado</th><th class="num">Bloqueado</th><th class="num">Disponível</th><th class="num">A Liquidar</th><th class="num">Liq. a Pagar</th><th class="num">Pagos</th></tr></thead><tbody>`+
         rows.map(r=>`<tr><td><span class="badge">${r.nd}</span> ${(ndLabel[r.nd]||'').split('— ')[1]||''}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(aprovadoDe(r))}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(liberadoDe(r))}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(bloqueadoDe(r))}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.disponivel)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.emp_a_liquidar)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.liq_a_pagar||0)}</td><td class="num"><span class="cur">R$</span>${fmtBRL0(r.pago||0)}</td></tr>`).join('')+
@@ -6732,16 +6901,19 @@ function refresh(){
   A('sec-modulos').classList.toggle('active', v==='plan');
   const _sp=A('sec-projeto'); if(_sp) _sp.classList.toggle('active', v==='projeto');
   const _sm=A('sec-manual'); if(_sm) _sm.classList.toggle('active', v==='manual');
-  const _sf=A('sec-filtros'); if(_sf) _sf.style.display = (v==='projeto'||v==='manual') ? 'none' : '';
+  const _sg=A('sec-gov'); if(_sg) _sg.classList.toggle('active', v==='gov');
+  const _sf=A('sec-filtros'); if(_sf) _sf.style.display = (v==='projeto'||v==='manual'||v==='gov') ? 'none' : '';
   A('yearGroup').style.display = (v==='hist') ? '' : 'none';
-  A('header-ano').textContent = v==='hist' ? state.ano : (v==='corrente' ? '2026' : (v==='rap' ? 'Restos a Pagar · 2026' : (v==='plan' ? 'Necessário × Recebido' : (v==='projeto' ? 'Gestão do Projeto' : 'Manual'))));
+  A('header-ano').textContent = v==='hist' ? state.ano : (v==='corrente' ? '2026' : (v==='rap' ? 'Restos a Pagar · 2026' : (v==='plan' ? 'Necessário × Recebido' : (v==='projeto' ? 'Gestão do Projeto' : (v==='gov' ? 'Governança' : 'Manual')))));
   document.querySelectorAll('#yearSeg .year-btn').forEach(x=>x.classList.toggle('active', x.dataset.ano===state.ano));
   if(v==='hist'){ renderExec(); renderComp(); }
   else if(v==='corrente'){ renderExec(); CRED.render(); renderLiberar2026(); renderDisponivelUGE(); renderPrazos(); }
   else if(v==='rap'){ renderRap(); }
   else if(v==='plan'){ renderNecRec(); CRED.render(); }
   else if(v==='projeto'){ if(window.PM && PM.refresh) PM.refresh(); }
+  else if(v==='gov'){ if(window.GOV) GOV.render(); }
   updateStatus();
+  if(window.SideNav) SideNav.sync();
 }
 
 // ---------- MÓDULO ADMIN (upload da planilha de 2026) ----------
@@ -9148,6 +9320,7 @@ function showView(v){
   OM_VIEWS.concat(G_VIEWS).forEach(x=>{ const d=el('view-'+x); if(d) d.classList.toggle('hidden', x!==v); });
   document.querySelectorAll('#pmWorld .view-tab').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
   refresh();
+  if(window.SideNav) SideNav.sync();
 }
 function refresh(){
   if(!perfil) return;
@@ -10298,8 +10471,17 @@ async function enterAs(sess){
   }catch(e){ try{ log('Falha ao montar o mundo de projeto: '+e.message); }catch(_){} }
 }
 
+/* u2.21 — a Governança (fora do mundo do projeto) grava no pacote da OM, que viaja
+   pelo mesmo "Enviar ao servidor" já existente. */
+function saveOmData(){ if(perfil&&perfil.tipo==='om'&&omData){ saveLocalOm(); } }
+async function enviarServidor(){
+  if(!omData) throw new Error('Sem dados da OM.');
+  if(gasAtivo()) return gasEnviar();
+  if(apiOn()){ omData.savedAt=new Date().toISOString(); lsSet(LS.om(perfil.om),omData); await apiSaveOm(omData); setDirty(false); return; }
+  throw new Error('Servidor n\u00e3o configurado \u2014 os dados ficam guardados neste computador.');
+}
 return { enterAs, refresh, sair, showView, getRoster:()=>roster, getPerfil:()=>perfil,
-  importarPacotesObj, getDB:()=>DB,
+  importarPacotesObj, getDB:()=>DB, getOmData:()=>omData, saveOmData, enviarServidor,
   _test:{ addInstancia, renomearInstancia, removerInstancia, leavesFor, leafByIdFor, calc, getOmData:()=>omData,
           omExportData, buildRelatorioHtml, buildRelatorioPdfHtml, buildGasPackage, exportXlsxOm, relatorioPdfOm, gasEnviar } };
 })();
@@ -11506,5 +11688,328 @@ window.__unifiedTest = { sha256Hex:sha256Hex, validate:validate, authGet:authGet
 })();
 
 </script>
+<script id="sideNavScript">
+/* ===================== u2.21 · MENU LATERAL ===================== */
+window.SideNav = (function(){
+  const $ = id=>document.getElementById(id);
+  const ICO = {
+    home:'<svg viewBox="0 0 24 24"><path d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3z"/></svg>',
+    bank:'<svg viewBox="0 0 24 24"><path d="M12 2 2 7v2h20V7zM4 10v8h3v-8zm6.5 0v8h3v-8zM17 10v8h3v-8zM2 20v2h20v-2z"/></svg>',
+    proj:'<svg viewBox="0 0 24 24"><path d="M3 3h18v2H3zm2 4h14v12H5zm2 2v8h3V9zm5 3v5h3v-5z"/></svg>',
+    gov:'<svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.5 3.4 10.3 8 11.5 4.6-1.2 8-6 8-11.5V5zm-1.2 14-3.5-3.5 1.4-1.4 2.1 2.1 4.5-4.5 1.4 1.4z"/></svg>',
+    book:'<svg viewBox="0 0 24 24"><path d="M6 2h12a2 2 0 0 1 2 2v16H8a2 2 0 0 0-2 2zm0 0v16a4 4 0 0 0-2 4V4a2 2 0 0 1 2-2zm3 4v2h7V6z"/></svg>',
+    gear:'<svg viewBox="0 0 24 24"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3H9l-.4 2.7a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L4.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L9 21h6l.4-2.7a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>',
+    out:'<svg viewBox="0 0 24 24"><path d="M10 3H4a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h6v-2H5V5h5zm4 3-1.4 1.4L15.2 10H8v2h7.2l-2.6 2.6L14 16l5-5z"/></svg>',
+    chev:'<svg viewBox="0 0 10 10"><path d="M1 3l4 4 4-4z"/></svg>'
+  };
+  const FIN = [
+    {v:'hist',     l:'2023\u20132025 \u00b7 Hist\u00f3rico'},
+    {v:'corrente', l:'2026 \u00b7 Ano Corrente'},
+    {v:'rap',      l:'Restos a Pagar'},
+    {v:'plan',     l:'Necess\u00e1rio \u00d7 Recebido'}
+  ];
+  const openG = { fin:true, proj:false, gov:false };
+
+  function sess(){ return (typeof window!=='undefined' && window.SESS) || null; }
+  function ehGestor(){ const s=sess(); return !s || s.tipo==='gestor' || !!s.baseGestor; }
+  function ehOm(){ const s=sess(); return !!s && s.tipo==='om'; }
+
+  function pmNavVisivel(){
+    return [...document.querySelectorAll('#pmWorld nav.view-tabs')].find(n=>!n.classList.contains('hidden')) || null;
+  }
+  function pmItens(){
+    const nav=pmNavVisivel();
+    if(!nav) return [{v:'', l:'Entrar na gest\u00e3o do projeto', pm:true}];
+    return [...nav.querySelectorAll('.view-tab')].map(b=>({v:b.dataset.view, l:b.textContent.trim(), pm:true, on:b.classList.contains('active')}));
+  }
+  function govItens(){
+    const it=[];
+    if(ehOm()) it.push({v:'gov-om', l:'Checklist da minha OM', gov:true});
+    else it.push({v:'gov-cons', l:'Consolidado das OMs', gov:true});
+    return it;
+  }
+
+  function item(o, cls){
+    const on=o.on||false;
+    return `<div class="sn-item ${cls||''}${on?' active':''}" data-nav="${o.nav||''}" data-v="${o.v||''}" role="button" tabindex="0"><span class="lb">${o.l}</span></div>`;
+  }
+  function group(key, label, ico, subs, activeAny){
+    return `<div class="sn-group${openG[key]?' open':''}${activeAny?' active':''}" data-g="${key}">
+      <div class="sn-item" data-toggle="${key}" role="button" tabindex="0"><span class="ic">${ICO[ico]}</span><span class="lb">${label}</span><span class="ch">${ICO.chev}</span></div>
+      <div class="sn-sub">${subs}</div></div>`;
+  }
+
+  function build(){
+    const v=(typeof state!=='undefined')?state.view:'';
+    const pm=pmItens();
+    const finSub=FIN.map(f=>item({v:f.v,l:f.l,nav:'main',on:v===f.v})).join('');
+    const pmSub=pm.map(p=>item({v:p.v,l:p.l,nav:'pm',on:v==='projeto'&&p.on})).join('');
+    const govSub=govItens().map(g=>item({v:g.v,l:g.l,nav:'gov',on:v==='gov'})).join('');
+    const finOn=FIN.some(f=>f.v===v);
+    let h='';
+    h+=`<div class="sn-sec">Principal</div>`;
+    h+=`<div class="sn-item leaf${v==='corrente'?' active':''}" data-nav="main" data-v="corrente" role="button" tabindex="0"><span class="ic">${ICO.home}</span><span class="lb">In\u00edcio</span></div>`;
+    h+=`<div class="sn-sec">M\u00f3dulos</div>`;
+    h+=group('fin','Financeiro','bank',finSub,finOn);
+    h+=group('proj','Gest\u00e3o do Projeto','proj',pmSub,v==='projeto');
+    h+=group('gov','Governan\u00e7a','gov',govSub,v==='gov');
+    h+=`<div class="sn-sec">Apoio</div>`;
+    h+=`<div class="sn-item leaf${v==='manual'?' active':''}" data-nav="main" data-v="manual" role="button" tabindex="0"><span class="ic">${ICO.book}</span><span class="lb">Manual</span></div>`;
+    if(ehGestor()) h+=`<div class="sn-item leaf" data-nav="admin" role="button" tabindex="0"><span class="ic">${ICO.gear}</span><span class="lb">\u00c1rea Administrativa</span></div>`;
+    if(sess()) h+=`<div class="sn-item leaf" data-nav="sair" role="button" tabindex="0"><span class="ic">${ICO.out}</span><span class="lb">Sair</span></div>`;
+    $('snMenu').innerHTML=h;
+  }
+
+  function perfil(){
+    const s=sess();
+    const av=$('snAvatar'), nm=$('snName'), rl=$('snRole');
+    if(!s){ av.textContent='\u2014'; nm.textContent='visitante'; rl.textContent=''; return; }
+    const nome=(s.nome||'').trim(), posto=(s.posto||'').trim();
+    const ini=(nome||s.rotulo||s.om||s.ods||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
+    av.textContent=ini;
+    nm.innerHTML= posto ? `<b>${esc(posto)}</b> ${esc(nome||s.rotulo||'')}` : esc(nome||s.rotulo||s.om||s.ods||'');
+    rl.textContent = s.tipo==='gestor' ? 'Gestor \u00b7 COMPREP'
+      : s.tipo==='ods' ? ((s.baseGestor?'Gestor \u00b7 vis\u00e3o ':'ODS \u00b7 ')+s.ods)
+      : ((s.baseGestor?'Gestor \u00b7 vis\u00e3o ':'OM \u00b7 ')+(s.om||''));
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  function crumb(){
+    const v=(typeof state!=='undefined')?state.view:'';
+    let a='', b='';
+    const f=FIN.find(x=>x.v===v);
+    if(f){ a='Financeiro'; b=f.l; }
+    else if(v==='projeto'){ a='Gest\u00e3o do Projeto'; const on=pmItens().find(p=>p.on); b=on?on.l:''; }
+    else if(v==='gov'){ a='Governan\u00e7a'; b=ehOm()?'Checklist da OM':'Consolidado'; }
+    else if(v==='manual'){ a='Apoio'; b='Manual'; }
+    $('tbCrumb').innerHTML = a ? `${esc(a)} &rsaquo; <b>${esc(b)}</b>` : '';
+  }
+
+  function sync(){
+    try{ build(); perfil(); crumb(); }catch(e){ try{ console.warn('SideNav.sync', e); }catch(_){} }
+  }
+
+  function goMain(v){
+    const t=document.querySelector('#mainTabs .view-tab[data-view="'+v+'"]');
+    if(t) t.click(); else { if(typeof state!=='undefined'){ state.view=v; } if(typeof refresh==='function') refresh(); }
+  }
+  function goPm(v){
+    if(typeof state==='undefined' || state.view!=='projeto') goMain('projeto');
+    if(v && window.PM && PM.showView) PM.showView(v);
+    sync();
+  }
+  function goGov(){ goMain('gov'); }
+
+  function onClick(e){
+    const tg=e.target.closest('[data-toggle]');
+    if(tg){ const k=tg.dataset.toggle; openG[k]=!openG[k]; sync(); return; }
+    const it=e.target.closest('.sn-item[data-nav]');
+    if(!it) return;
+    const nav=it.dataset.nav, v=it.dataset.v;
+    if(nav==='main'){ if(FIN.some(f=>f.v===v)) openG.fin=true; goMain(v); }
+    else if(nav==='pm'){ openG.proj=true; goPm(v); }
+    else if(nav==='gov'){ openG.gov=true; goGov(); }
+    else if(nav==='admin'){ const b=$('adminFooterBtn'); if(b) b.click(); }
+    else if(nav==='sair'){ const b=$('sessBarSair'); if(b) b.click(); else if(window.__logoutUnificado) window.__logoutUnificado(); }
+    if(window.innerWidth<=980) document.body.classList.remove('nav-open');
+  }
+
+  function init(){
+    try{ const em=document.querySelector('.header .emblem img'); if(em && $('snEmblem')) $('snEmblem').src=em.src; }catch(e){}
+    try{ const ver=document.getElementById('appVersion'); if(ver){ $('tbVer').textContent=ver.textContent.trim(); $('snFoot').textContent='Painel Unificado SISI \u00b7 '+ver.textContent.trim(); } }catch(e){}
+    $('snMenu').addEventListener('click', onClick);
+    $('snMenu').addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onClick(e); } });
+    $('tbBurger').addEventListener('click', ()=>{
+      if(window.innerWidth<=980) document.body.classList.toggle('nav-open');
+      else document.body.classList.toggle('nav-collapsed');
+    });
+    // o mundo do projeto troca as abas vis\u00edveis conforme o perfil: acompanha essas trocas
+    try{
+      const mo=new MutationObserver(()=>sync());
+      document.querySelectorAll('#pmWorld nav.view-tabs').forEach(n=>mo.observe(n,{attributes:true, attributeFilter:['class'], subtree:true}));
+    }catch(e){}
+    sync();
+  }
+  return { init, sync, goMain, goPm };
+})();
+
+/* ===================== u2.21 · GOVERNAN\u00c7A (checklist SEGDEF por OM) ===================== */
+window.GOV = (function(){
+  const $ = id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const SIT = { nao:'N\u00e3o iniciado', elab:'Em elabora\u00e7\u00e3o', conf:'Confeccionado (sem assinatura)', ass:'Confeccionado e assinado' };
+  const SITF = { nao:'N\u00e3o iniciada', elab:'Em elabora\u00e7\u00e3o', conf:'Confeccionada (sem assinatura)', ass:'Confeccionada e assinada' };
+  const DOCS = [
+    { k:'dsod', l:'DSOD', full:'Diretriz de Seguran\u00e7a Org\u00e2nica e Defesa', fem:true,  hint:'emitida pelo Comandante da GUARNAE (ICA 205-49)' },
+    { k:'psod', l:'PSOD', full:'Plano de Seguran\u00e7a Org\u00e2nica e Defesa', fem:false, hint:'produzido na CSOD; reedi\u00e7\u00e3o a cada 2 anos (ICA 205-49, art. 21)' },
+    { k:'psi',  l:'PSI',  full:'Plano de Seguran\u00e7a Interna',                 fem:false, hint:'elaborado no \u00e2mbito da OM (ICA 205-49)' },
+    { k:'sisi', l:'Projeto SISI', full:'Projeto do Suporte Integrado de Seguran\u00e7a das Instala\u00e7\u00f5es', fem:false, hint:'conforme MCA 205-5' }
+  ];
+  function vazio(){ return { osd:{posto:'',nome:'',tel:'',email:'',bolNum:'',bolData:''}, dsod:{sit:'nao',data:''}, ctsod:{data:''},
+    psod:{sit:'nao',data:''}, psi:{sit:'nao',data:''}, sisi:{sit:'nao',data:''}, obs:'', atualizadoEm:'' }; }
+  function norm(g){ const z=vazio(); g=g||{}; return { osd:Object.assign(z.osd,g.osd||{}), dsod:Object.assign(z.dsod,g.dsod||{}), ctsod:Object.assign(z.ctsod,g.ctsod||{}),
+    psod:Object.assign(z.psod,g.psod||{}), psi:Object.assign(z.psi,g.psi||{}), sisi:Object.assign(z.sisi,g.sisi||{}), obs:g.obs||'', atualizadoEm:g.atualizadoEm||'' }; }
+  function sess(){ return window.SESS||null; }
+  function fmtD(s){ if(!s) return '\u2014'; const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s); return m? `${m[3]}/${m[2]}/${m[1]}` : s; }
+  function meses(s){ if(!s) return null; const d=new Date(s+'T00:00:00'); if(isNaN(d)) return null; const n=new Date(); return (n.getFullYear()-d.getFullYear())*12+(n.getMonth()-d.getMonth()); }
+
+  // ---- avalia\u00e7\u00e3o normativa: lista de {nv:'ok'|'warn'|'err', k, msg}
+  function avaliar(g){
+    g=norm(g); const out=[];
+    const o=g.osd;
+    if(!o.nome) out.push({nv:'err',k:'osd',msg:'OSD n\u00e3o informado'});
+    else if(!o.bolNum||!o.bolData) out.push({nv:'warn',k:'osd',msg:'OSD sem boletim de designa\u00e7\u00e3o (BI ostensivo \u2014 NSCA 205-3)'});
+    else out.push({nv:'ok',k:'osd',msg:'OSD designado \u2014 BI '+o.bolNum+' de '+fmtD(o.bolData)});
+    if(!o.email) out.push({nv:'warn',k:'osd',msg:'OSD sem e-mail funcional'});
+    DOCS.forEach(d=>{ const x=g[d.k]; const L=d.fem?SITF:SIT;
+      if(x.sit==='ass'){
+        if(d.k==='psod'){ const m=meses(x.data); if(m!==null && m>=24) out.push({nv:'warn',k:d.k,msg:`${d.l} assinado h\u00e1 ${Math.floor(m/12)} ano(s) \u2014 reedi\u00e7\u00e3o bienal (ICA 205-49, art. 21)`});
+          else out.push({nv:'ok',k:d.k,msg:`${d.l} ${d.fem?'assinada':'assinado'} em ${fmtD(x.data)}`}); }
+        else out.push({nv:'ok',k:d.k,msg:`${d.l} ${d.fem?'assinada':'assinado'} em ${fmtD(x.data)}`});
+      } else if(x.sit==='conf') out.push({nv:'warn',k:d.k,msg:`${d.l}: ${L.conf.toLowerCase()}`});
+      else if(x.sit==='elab') out.push({nv:'warn',k:d.k,msg:`${d.l}: ${L.elab.toLowerCase()}`});
+      else out.push({nv:'err',k:d.k,msg:`${d.l}: ${L.nao.toLowerCase()}`});
+    });
+    const mc=meses(g.ctsod.data);
+    if(mc===null) out.push({nv:'err',k:'ctsod',msg:'Sem registro de reuni\u00e3o do CTSOD'});
+    else if(mc>6) out.push({nv:'warn',k:'ctsod',msg:`\u00daltimo CTSOD h\u00e1 ${mc} meses \u2014 m\u00ednimo de 2 reuni\u00f5es/ano (ICA 205-49, art. 8\u00ba)`});
+    else out.push({nv:'ok',k:'ctsod',msg:'\u00daltimo CTSOD em '+fmtD(g.ctsod.data)});
+    return out;
+  }
+  function pend(g){ const a=avaliar(g); return { err:a.filter(x=>x.nv==='err').length, warn:a.filter(x=>x.nv==='warn').length, ok:a.filter(x=>x.nv==='ok').length }; }
+  function pill(nv,txt){ return `<span class="gov-pill ${nv}">${esc(txt)}</span>`; }
+  function pillSit(d,x){ const L=d.fem?SITF:SIT; const nv= x.sit==='ass'?'ok': (x.sit==='nao'?'err':'warn'); return pill(nv, x.sit==='ass'? fmtD(x.data) : L[x.sit]||L.nao); }
+
+  // ---- FORMUL\u00c1RIO DA OM
+  function formHtml(sigla, g, nomeOm, somenteLeitura){
+    g=norm(g); const o=g.osd; const ro=somenteLeitura?' disabled':'';
+    const sel=(k,v,fem)=>{ const L=fem?SITF:SIT; return `<select data-f="${k}.sit"${ro}>${Object.keys(L).map(s=>`<option value="${s}"${v===s?' selected':''}>${L[s]}</option>`).join('')}</select>`; };
+    const flags=avaliar(g).map(f=>`<span class="gov-flag ${f.nv}">${esc(f.msg)}</span>`).join('');
+    return `
+    <div class="gov-flags">${flags}</div>
+    <div class="gov-card">
+      <div class="gov-head"><h3>Oficial de Seguran\u00e7a e Defesa (OSD)</h3><small>designado em Boletim Interno Ostensivo \u2014 NSCA 205-3, art. 7\u00ba, V</small></div>
+      <div class="gov-grid">
+        <label>Posto / Gradua\u00e7\u00e3o</label><input type="text" data-f="osd.posto" value="${esc(o.posto)}" placeholder="ex.: Cap"${ro}>
+        <label>Nome</label><input type="text" data-f="osd.nome" value="${esc(o.nome)}" placeholder="nome de guerra / nome completo"${ro}>
+        <label>Contato<small>telefone / ramal</small></label><input type="text" data-f="osd.tel" value="${esc(o.tel)}" placeholder="(61) 0000-0000"${ro}>
+        <label>E-mail funcional</label><input type="email" data-f="osd.email" value="${esc(o.email)}" placeholder="nome@fab.mil.br"${ro}>
+        <label>Boletim de designa\u00e7\u00e3o<small>n\u00famero e data</small></label>
+        <div class="row"><input type="text" data-f="osd.bolNum" value="${esc(o.bolNum)}" placeholder="BI n\u00ba 000"${ro}><input type="date" data-f="osd.bolData" value="${esc(o.bolData)}"${ro}></div>
+      </div>
+    </div>
+    <div class="gov-card">
+      <div class="gov-head"><h3>Documentos e inst\u00e2ncias de SEGDEF</h3><small>situa\u00e7\u00e3o e data de assinatura</small></div>
+      <div class="gov-grid">
+        ${DOCS.map(d=>`<label>${d.l}<small>${esc(d.full)}</small></label>
+          <div class="row">${sel(d.k,g[d.k].sit,d.fem)}<input type="date" data-f="${d.k}.data" value="${esc(g[d.k].data)}" title="data da assinatura"${ro}></div>`).join('')}
+        <label>\u00daltimo CTSOD<small>Comit\u00ea de Seguran\u00e7a Org\u00e2nica e Defesa</small></label>
+        <div class="row"><input type="date" data-f="ctsod.data" value="${esc(g.ctsod.data)}"${ro}><span class="gov-msg">m\u00ednimo 2 reuni\u00f5es/ano (jan\u2013mar e out\u2013dez)</span></div>
+        <label>Observa\u00e7\u00f5es</label><textarea data-f="obs" rows="3"${ro}>${esc(g.obs)}</textarea>
+      </div>
+      <div class="gov-actions">
+        ${somenteLeitura?'':`<button class="gov-btn pri" id="govSalvar" type="button">Salvar</button>
+        <button class="gov-btn warn" id="govEnviar" type="button">Salvar e enviar ao servidor</button>`}
+        <span class="gov-msg" id="govMsg">${g.atualizadoEm?('atualizado em '+new Date(g.atualizadoEm).toLocaleString('pt-BR')):'ainda n\u00e3o preenchido'}</span>
+      </div>
+    </div>`;
+  }
+  function lerForm(base){
+    const g=norm(base);
+    document.querySelectorAll('#govBody [data-f]').forEach(el=>{ const p=el.dataset.f.split('.'); if(p.length===2) g[p[0]][p[1]]=el.value; else g[p[0]]=el.value; });
+    return g;
+  }
+  function renderOm(){
+    const s=sess(); const sigla=s.om;
+    const d=window.PM&&PM.getOmData? PM.getOmData() : null;
+    $('govTitle').textContent='Governan\u00e7a de Seguran\u00e7a e Defesa \u00b7 '+sigla;
+    $('govCount').textContent='checklist da OM';
+    if(!d || d.om!==sigla){ $('govBody').innerHTML='<div class="empty-state" style="padding:24px"><p>Carregando os dados da OM\u2026 abra a Gest\u00e3o do Projeto uma vez se esta mensagem persistir.</p></div>'; return; }
+    $('govBody').innerHTML=formHtml(sigla, d.governanca, s.omNome, false);
+    const salvar=()=>{ const g=lerForm(d.governanca); g.atualizadoEm=new Date().toISOString(); d.governanca=g; PM.saveOmData(); return g; };
+    $('govSalvar').addEventListener('click',()=>{ salvar(); renderOm(); const m=$('govMsg'); if(m){ m.className='gov-msg ok'; m.textContent='Salvo neste computador. Use "Salvar e enviar ao servidor" para consolidar no Drive.'; } });
+    $('govEnviar').addEventListener('click',async()=>{ salvar(); const m=$('govMsg'); if(m){ m.className='gov-msg'; m.textContent='Enviando\u2026'; }
+      try{ await PM.enviarServidor(); renderOm(); const m2=$('govMsg'); if(m2){ m2.className='gov-msg ok'; m2.textContent='Enviado ao servidor.'; } }
+      catch(e){ const m2=$('govMsg'); if(m2){ m2.className='gov-msg err'; m2.textContent='Falha no envio: '+(e&&e.message||e); } } });
+  }
+
+  // ---- CONSOLIDADO (gestor / ODS)
+  let filtro={ods:'', q:'', so:''};
+  let detalhe='';
+  function renderCons(){
+    const s=sess(); const roster=(window.PM&&PM.getRoster)?PM.getRoster():{}; const DB=(window.PM&&PM.getDB)?PM.getDB():{};
+    const odsFix = (s && s.tipo==='ods') ? s.ods : '';
+    let oms=Object.keys(roster);
+    if(odsFix) oms=oms.filter(o=>roster[o].ods===odsFix);
+    if(filtro.ods && !odsFix) oms=oms.filter(o=>roster[o].ods===filtro.ods);
+    if(filtro.q){ const q=filtro.q.toLowerCase(); oms=oms.filter(o=>o.toLowerCase().includes(q)||String(roster[o].nome||'').toLowerCase().includes(q)); }
+    const rows=oms.map(o=>{ const g=(DB[o]&&DB[o].governanca)||null; return {om:o, ods:roster[o].ods, nome:roster[o].nome||'', g, p: g?pend(g):null}; });
+    const comD=rows.filter(r=>r.g).length;
+    const semPend=rows.filter(r=>r.p&&r.p.err===0&&r.p.warn===0).length;
+    const comErr=rows.filter(r=>r.p&&r.p.err>0).length;
+    const semOsd=rows.filter(r=>r.g&&!norm(r.g).osd.nome).length;
+    let list=rows;
+    if(filtro.so==='pend') list=rows.filter(r=>!r.g||r.p.err>0||r.p.warn>0);
+    else if(filtro.so==='sem') list=rows.filter(r=>!r.g);
+    else if(filtro.so==='ok') list=rows.filter(r=>r.p&&r.p.err===0&&r.p.warn===0);
+    list.sort((a,b)=>a.ods.localeCompare(b.ods)||a.om.localeCompare(b.om));
+    const odsList=[...new Set(Object.keys(roster).map(o=>roster[o].ods))].sort();
+    $('govTitle').textContent='Governan\u00e7a de Seguran\u00e7a e Defesa'+(odsFix?' \u00b7 '+odsFix:'');
+    $('govCount').textContent=`${rows.length} OM \u00b7 ${comD} com checklist`;
+    let h=`<div class="gov-kpis">
+      <div class="gov-kpi"><div class="l">OMs com checklist</div><div class="v">${comD}<span style="font-size:14px;color:var(--gray-500)"> / ${rows.length}</span></div><div class="s">preencheram o m\u00f3dulo</div></div>
+      <div class="gov-kpi"><div class="l">Sem pend\u00eancias</div><div class="v" style="color:var(--green)">${semPend}</div><div class="s">documentos assinados e CTSOD em dia</div></div>
+      <div class="gov-kpi"><div class="l">Com pend\u00eancia cr\u00edtica</div><div class="v" style="color:var(--red)">${comErr}</div><div class="s">documento n\u00e3o iniciado ou sem OSD</div></div>
+      <div class="gov-kpi"><div class="l">Sem OSD informado</div><div class="v" style="color:var(--orange)">${semOsd+(rows.length-comD)}</div><div class="s">incluindo OMs sem checklist</div></div>
+    </div>
+    <div class="gov-filter">
+      ${odsFix?'':`<select id="govFOds"><option value="">Todos os ODS</option>${odsList.map(x=>`<option${filtro.ods===x?' selected':''}>${x}</option>`).join('')}</select>`}
+      <select id="govFSo"><option value="">Todas as OM</option><option value="pend"${filtro.so==='pend'?' selected':''}>Com pend\u00eancias</option><option value="sem"${filtro.so==='sem'?' selected':''}>Sem checklist</option><option value="ok"${filtro.so==='ok'?' selected':''}>Em dia</option></select>
+      <input type="text" id="govFQ" placeholder="buscar OM" value="${esc(filtro.q)}">
+      <button class="gov-btn sec" id="govCsv" type="button">Exportar CSV</button>
+    </div>
+    <div class="gov-card" style="padding:0;overflow:auto"><table class="gov-table"><thead><tr>
+      <th>ODS</th><th>OM</th><th>OSD</th><th>Boletim</th><th>DSOD</th><th>PSOD</th><th>PSI</th><th>Projeto SISI</th><th>\u00daltimo CTSOD</th><th>Pend\u00eancias</th><th>Atualizado</th></tr></thead><tbody>`;
+    list.forEach(r=>{
+      if(!r.g){ h+=`<tr><td>${esc(r.ods)}</td><td><b>${esc(r.om)}</b><br><small style="color:var(--gray-500)">${esc(r.nome)}</small></td><td colspan="8">${pill('na','sem checklist preenchido')}</td><td>\u2014</td></tr>`; return; }
+      const g=norm(r.g); const o=g.osd; const mc=meses(g.ctsod.data);
+      const ct = mc===null? pill('err','sem registro') : pill(mc>6?'warn':'ok', fmtD(g.ctsod.data));
+      const pd = r.p.err? pill('err',`${r.p.err} cr\u00edtica(s)`+(r.p.warn?` \u00b7 ${r.p.warn} aten\u00e7\u00e3o`:'')) : (r.p.warn? pill('warn',`${r.p.warn} aten\u00e7\u00e3o`) : pill('ok','em dia'));
+      h+=`<tr class="clk" data-gom="${esc(r.om)}"><td>${esc(r.ods)}</td><td><b>${esc(r.om)}</b><br><small style="color:var(--gray-500)">${esc(r.nome)}</small></td>
+        <td>${o.nome? esc((o.posto?o.posto+' ':'')+o.nome)+(o.email?`<br><small style="color:var(--gray-500)">${esc(o.email)}</small>`:'') : pill('err','n\u00e3o informado')}</td>
+        <td>${o.bolNum? esc(o.bolNum)+'<br><small style="color:var(--gray-500)">'+fmtD(o.bolData)+'</small>' : pill('warn','\u2014')}</td>
+        <td>${pillSit(DOCS[0],g.dsod)}</td><td>${pillSit(DOCS[1],g.psod)}</td><td>${pillSit(DOCS[2],g.psi)}</td><td>${pillSit(DOCS[3],g.sisi)}</td>
+        <td>${ct}</td><td>${pd}</td><td><small>${g.atualizadoEm? new Date(g.atualizadoEm).toLocaleDateString('pt-BR'):'\u2014'}</small></td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+    if(detalhe && DB[detalhe]){ h+=`<h2 class="section-title" style="margin-top:24px"><span>Detalhe \u00b7 ${esc(detalhe)}</span><span class="count">somente leitura \u2014 a OM preenche pelo pr\u00f3prio perfil</span></h2>`+formHtml(detalhe, DB[detalhe].governanca, roster[detalhe]&&roster[detalhe].nome, true); }
+    $('govBody').innerHTML=h;
+    const bind=(id,ev,f)=>{ const e=$(id); if(e) e.addEventListener(ev,f); };
+    bind('govFOds','change',e=>{ filtro.ods=e.target.value; renderCons(); });
+    bind('govFSo','change',e=>{ filtro.so=e.target.value; renderCons(); });
+    bind('govFQ','input',e=>{ filtro.q=e.target.value; renderCons(); const q=$('govFQ'); if(q){ q.focus(); q.setSelectionRange(q.value.length,q.value.length); } });
+    bind('govCsv','click',()=>exportCsv(rows));
+    document.querySelectorAll('#govBody tr.clk[data-gom]').forEach(tr=>tr.addEventListener('click',()=>{ detalhe=tr.dataset.gom; renderCons(); }));
+  }
+  function exportCsv(rows){
+    const head=['ODS','OM','Nome','OSD posto','OSD nome','OSD contato','OSD e-mail','Boletim n\u00ba','Boletim data','DSOD situa\u00e7\u00e3o','DSOD data','PSOD situa\u00e7\u00e3o','PSOD data','PSI situa\u00e7\u00e3o','PSI data','Projeto SISI situa\u00e7\u00e3o','Projeto SISI data','\u00daltimo CTSOD','Pend\u00eancias cr\u00edticas','Pend\u00eancias aten\u00e7\u00e3o','Atualizado em'];
+    const lines=rows.map(r=>{ if(!r.g) return [r.ods,r.om,r.nome,'','','','','','','','','','','','','','','','','','']; const g=norm(r.g),o=g.osd;
+      return [r.ods,r.om,r.nome,o.posto,o.nome,o.tel,o.email,o.bolNum,fmtD(o.bolData),SITF[g.dsod.sit],fmtD(g.dsod.data),SIT[g.psod.sit],fmtD(g.psod.data),SIT[g.psi.sit],fmtD(g.psi.data),SIT[g.sisi.sit],fmtD(g.sisi.data),fmtD(g.ctsod.data),r.p.err,r.p.warn,g.atualizadoEm?new Date(g.atualizadoEm).toLocaleString('pt-BR'):'']; });
+    const csv=[head].concat(lines).map(l=>l.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='SISI_Governanca_SEGDEF.csv'; document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  function render(){
+    const s=sess();
+    if(!s){ $('govBody').innerHTML='<div class="empty-state" style="padding:24px"><p>Entre no painel para acessar a governan\u00e7a.</p></div>'; return; }
+    if(s.tipo==='om') renderOm(); else renderCons();
+  }
+  return { render, avaliar, pend, norm, _docs:DOCS };
+})();
+
+document.addEventListener('DOMContentLoaded', function(){ try{ SideNav.init(); }catch(e){ console.warn(e); } });
+if(document.readyState!=='loading'){ try{ SideNav.init(); }catch(e){} }
+</script>
+
 </body>
 </html>
