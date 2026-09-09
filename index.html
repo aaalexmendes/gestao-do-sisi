@@ -3659,8 +3659,8 @@
     <div class="kpi-grid" id="prazosKpis"></div>
     <section class="charts-row r-1">
       <div class="chart-card">
-        <h3>Empenhos por prazo de liquidação<span class="info-ico" tabindex="0" data-tip="Prazos previstos para liquidação, contados da data de emissão do empenho: 60 dias para as ND 33.90.30 e 44.90.52 e 90 dias para a ND 33.90.39. Situações: Vencido (prazo expirado), Crítico (vence em até 15 dias), Atenção (vence em 16 a 30 dias) e No prazo (mais de 30 dias). Empenhos de ND sem regra definida aparecem marcados como 'sem regra'. Fonte: planilha Acompanhamento SISI_3_Prazos, enviada pela Área Admin.">i</span></h3>
-        <div class="chart-sub" id="prazosSub">envie a planilha de prazos pela Área Admin para ativar este acompanhamento</div>
+        <h3>Empenhos por prazo de liquidação<span class="info-ico" tabindex="0" data-tip="Usa apenas a aba do m&#234;s mais recente da planilha de prazos (as demais s&#227;o retratos anteriores das mesmas notas de empenho). Prazos previstos para liquidação, contados da data de emissão do empenho: 60 dias para as ND 33.90.30 e 44.90.52 e 90 dias para a ND 33.90.39. Situações: Vencido (prazo expirado), Crítico (vence em até 15 dias), Atenção (vence em 16 a 30 dias) e No prazo (mais de 30 dias). Empenhos de ND sem regra definida aparecem marcados como 'sem regra'. Fonte: planilha Acompanhamento SISI_3_Prazos, enviada pela Área Admin.">i</span></h3>
+        <div class="chart-sub" id="prazosSub">envie a planilha de prazos pela &#193;rea Admin para ativar este acompanhamento</div>
         <div class="pz-fil" id="prazosFiltros">
           <label><span>OM (UGR)</span><select id="pzFilOm"><option value="">Todas</option></select></label>
           <label><span>Natureza de Despesa</span><select id="pzFilNd"><option value="">Todas</option></select></label>
@@ -4341,7 +4341,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.21 &#183; 04/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.22 &#183; 04/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4614,7 +4614,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
         </div>
         <div class="admin-section" data-adm="dados">
           <h3>Upload de prazos dos empenhos (Acompanhamento SISI_3_Prazos)</h3>
-          <p>Envie a planilha de prazos dos empenhos — <strong>upload próprio, separado</strong> da planilha semanal de crédito. O formato esperado tem <strong>uma aba por OM (UGR)</strong>, com as colunas <strong>NE CCor - Dia Emissão</strong>, <strong>NE CCor</strong>, <strong>Natureza Despesa Detalhada</strong> e <strong>Valores a Liquidar / Saldo</strong>, reconhecidas pelo nome do cabeçalho. Os prazos aplicados são: <strong>60 dias</strong> para as ND 33.90.30 e 44.90.52 e <strong>90 dias</strong> para a ND 33.90.39, contados da emissão do empenho. Os dados alimentam a seção "Prazos de Liquidação dos Empenhos" da aba Ano Corrente e são substituídos a cada novo upload.</p>
+          <p>Envie a planilha de prazos dos empenhos — <strong>upload próprio, separado</strong> da planilha semanal de crédito. A planilha traz <strong>uma aba por m&#234;s de lan&#231;amento</strong> (0002026, JAN2026 &#8230; SET2026) e cada aba &#233; um retrato completo de todas as OMs; o painel usa <strong>somente a aba do m&#234;s mais recente</strong>, porque somar as demais contaria a mesma nota de empenho v&#225;rias vezes. Tamb&#233;m &#233; aceito o formato antigo, com uma aba por OM. Colunas esperadas: <strong>NE CCor - Dia Emissão</strong>, <strong>NE CCor</strong>, <strong>Natureza Despesa Detalhada</strong> e <strong>Valores a Liquidar / Saldo</strong>, reconhecidas pelo nome do cabeçalho. Os prazos aplicados são: <strong>60 dias</strong> para as ND 33.90.30 e 44.90.52 e <strong>90 dias</strong> para a ND 33.90.39, contados da emissão do empenho. Os dados alimentam a seção "Prazos de Liquidação dos Empenhos" da aba Ano Corrente e são substituídos a cada novo upload.</p>
           <div class="admin-upload-grid">
             <label class="admin-upload-card xlsx" id="adminPrazosCard">
               <span class="icon">XLS</span>
@@ -4755,7 +4755,8 @@ DATA.execUGE = DATA.execUGE || {};
 })();
 
 // ---------- Prazos de liquidação dos empenhos (planilha Acompanhamento SISI_3_Prazos) ----------
-const PRAZOS_ND = { '339030':60, '449052':60, '339039':90 }; // dias, contados da emissão do empenho
+const PRAZOS_ND = { '339030':60, '449052':60, '339039':90, '449051':180 }; // dias, contados da emissão do empenho
+const PRAZOS_TXT = '60 dias (ND 339030 e 449052) · 90 dias (ND 339039) · 180 dias (ND 449051 — obras)';
 
 // ---------- Semana anterior (execução) p/ variação semanal ----------
 DATA.executionPrev = DATA.executionPrev || {};
@@ -4875,8 +4876,32 @@ function deltaBadge(delta, prev){
   }catch(e){ /* ignora */ }
 })();
 
-// Parser genérico do workbook de prazos: uma aba por OM (UGR), cabeçalho por NOME
-// ('NE CCor', 'Natureza Despesa', 'Emissão', 'Valores a Liquidar'/'Saldo').
+// Ordena as abas de um workbook de prazos no formato MENSAL e devolve a mais recente.
+// A planilha do Tesouro traz uma aba por mês de lançamento (0002026, JAN2026 … SET2026),
+// e CADA ABA é um retrato completo de todas as OMs — portanto só a última vale; somar
+// todas multiplicaria o saldo pelo número de meses.
+const PZ_MESES = { JAN:1, FEV:2, MAR:3, ABR:4, MAI:5, JUN:6, JUL:7, AGO:8, SET:9, OUT:10, NOV:11, DEZ:12 };
+function pzAbaMensal(nome){
+  const t = String(nome||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[\s_-]/g,'');
+  let m = t.match(/^([A-Z]{3})(\d{4})$/);
+  if(m && PZ_MESES[m[1]]) return { ano:+m[2], mes:PZ_MESES[m[1]], rotulo:nome };
+  m = t.match(/^0*(\d{1,3})(\d{4})$/);          // '0002026' = sem mês de lançamento
+  if(m){ const mm=+m[1]; if(mm>=0 && mm<=12) return { ano:+m[2], mes:mm, rotulo:nome }; }
+  return null;
+}
+function pzEscolherAba(nomes){
+  const mensais=(nomes||[]).map(nm=>{ const p=pzAbaMensal(nm); return p?Object.assign(p,{nome:nm}):null; }).filter(Boolean);
+  if(mensais.length<2) return null;                 // não é o formato mensal
+  mensais.sort((a,b)=> b.ano-a.ano || b.mes-a.mes);
+  return { escolhida:mensais[0], ignoradas:mensais.slice(1).map(x=>x.nome), todas:mensais };
+}
+
+// Parser do workbook de prazos. Aceita DOIS formatos:
+//   (a) MENSAL  — uma aba por mês, cada uma com todas as OMs (coluna 'UG Responsável').
+//                 Usa apenas a aba do mês mais recente.
+//   (b) POR OM  — uma aba por OM/UGR (formato antigo, mantido por retrocompatibilidade).
+// Em ambos, o cabeçalho é detectado por NOME ('NE CCor', 'Natureza Despesa', 'Emissão',
+// 'Valores a Liquidar'/'Saldo').
 function parsePrazosWorkbook(wb){
   const normS=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
   const toNum=v=>{ if(v==null||v==='') return 0; if(typeof v==='number') return isFinite(v)?v:0;
@@ -4892,14 +4917,21 @@ function parsePrazosWorkbook(wb){
     if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
     return null; };
   const rows=[], avisos=[];
-  (wb.SheetNames||[]).forEach(nm=>{
+  const sel=pzEscolherAba(wb.SheetNames);
+  let abas=wb.SheetNames||[], formato='om', abaUsada='';
+  if(sel){
+    formato='mensal'; abaUsada=sel.escolhida.nome; abas=[abaUsada];
+    avisos.push({t:'ok', m:`Planilha no formato mensal: ${sel.todas.length} abas encontradas. Usando somente a mais recente, "${abaUsada}".`});
+    avisos.push({t:'info', m:`Abas ignoradas (retratos de meses anteriores — somá-las contaria a mesma NE mais de uma vez): ${sel.ignoradas.join(', ')}.`});
+  }
+  abas.forEach(nm=>{
     const aoa=XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1,raw:true,defval:null});
     let om=null;
     for(let i=0;i<Math.min(aoa.length,10);i++){
       const c0=String((aoa[i]||[])[0]||''); const m=c0.match(/^\s*UGR\s*:\s*(.+)$/i);
       if(m){ om=normS(m[1]); break; }
     }
-    if(!om) om=normS(nm);
+    if(!om && formato!=='mensal') om=normS(nm);
     let hi=-1, C={};
     for(let i=0;i<Math.min(aoa.length,15);i++){
       const hdr=(aoa[i]||[]).map(normS);
@@ -4913,26 +4945,39 @@ function parsePrazosWorkbook(wb){
         C.saldo=hdr.findIndex(h=>h.includes('LIQUIDAR')||h.includes('SALDO'));
         const hdr2=(aoa[i+1]||[]).map(normS);
         if(C.saldo<0) C.saldo=hdr2.findIndex(h=>h.includes('SALDO'));
+        // 'UG Responsável': o código fica na coluna rotulada e o NOME na seguinte
+        // (mesmo arranjo da planilha semanal de crédito).
+        C.ug=hdr.findIndex(h=>h.includes('UG RESPONS'));
         break;
       }
     }
-    if(hi<0){ avisos.push(`Aba "${nm}": cabeçalho não reconhecido (coluna "NE CCor" ausente) — aba ignorada.`); return; }
-    if(C.dt<0||C.nd<0||C.saldo<0){ avisos.push(`Aba "${nm}": colunas essenciais ausentes (Emissão/Natureza/Saldo) — aba ignorada.`); return; }
+    if(hi<0){ avisos.push({t:'err', m:`Aba "${nm}": cabeçalho não reconhecido (coluna "NE CCor" ausente) — aba ignorada.`}); return; }
+    if(C.dt<0||C.nd<0||C.saldo<0){ avisos.push({t:'err', m:`Aba "${nm}": colunas essenciais ausentes (Emissão/Natureza/Saldo) — aba ignorada.`}); return; }
+    let semOm=0;
     for(let i=hi+1;i<aoa.length;i++){
       const r=aoa[i]||[];
       const ne=String(r[C.ne]||'').trim();
       if(!/NE\d+/i.test(ne)) continue;
+      // OM da própria linha: código na coluna 'UG Responsável', nome na seguinte.
+      let omLinha=om;
+      if(C.ug>=0){
+        const c0=String(r[C.ug]==null?'':r[C.ug]).trim(), c1=String(r[C.ug+1]==null?'':r[C.ug+1]).trim();
+        const nome = /[A-Za-zÀ-ÿ]/.test(c0) ? c0 : (/[A-Za-zÀ-ÿ]/.test(c1) ? c1 : '');
+        if(nome) omLinha=normS(nome);
+      }
+      if(!omLinha){ semOm++; continue; }
       const iso=toISO(r[C.dt]);
-      if(!iso){ avisos.push(`Aba "${nm}", linha ${i+1}: data de emissão inválida — linha ignorada.`); continue; }
+      if(!iso){ avisos.push({t:'warn', m:`Aba "${nm}", linha ${i+1}: data de emissão inválida — linha ignorada.`}); continue; }
       const ndDet=String(r[C.nd]||'').replace(/\D/g,'');
-      rows.push({ om, ne, data_emissao:iso, nd:ndDet.slice(0,6), nd_det:ndDet,
+      rows.push({ om:omLinha, ne, data_emissao:iso, nd:ndDet.slice(0,6), nd_det:ndDet,
         nd_desc:String((C.nd>=0?r[C.nd+1]:'')||'').trim(),
         acao:C.acao>=0?String(r[C.acao]||'').trim():'',
         pi:C.pi>=0?String(r[C.pi]||'').trim():'',
         saldo:toNum(r[C.saldo]) });
     }
+    if(semOm) avisos.push({t:'warn', m:`Aba "${nm}": ${semOm} linha(s) sem UG Responsável identificável — ignoradas.`});
   });
-  return { rows, avisos };
+  return { rows, avisos, formato, abaUsada, abasIgnoradas: sel?sel.ignoradas:[] };
 }
 
 // Enriquece linhas com prazo, vencimento, dias restantes e situação (data-base = hoje)
@@ -4995,7 +5040,7 @@ function renderPrazos(){
   const buck={vencido:{v:0,n:0},critico:{v:0,n:0},atencao:{v:0,n:0},ok:{v:0,n:0},semregra:{v:0,n:0}};
   loc.forEach(r=>{ buck[r.status].v+=r.saldo; buck[r.status].n++; });
   if(kip) kip.innerHTML =
-    kpi('kpi-venc','Vencidos',buck.vencido.v,`${buck.vencido.n} empenho(s) com prazo expirado`,'Empenhos cujo prazo de liquidação (60/90 dias da emissão) já venceu. Valor = saldo ainda a liquidar.') +
+    kpi('kpi-venc','Vencidos',buck.vencido.v,`${buck.vencido.n} empenho(s) com prazo expirado`,'Empenhos cujo prazo de liquidação, contado da data de emissão, já venceu: '+PRAZOS_TXT+'. Valor = saldo ainda a liquidar (inclui empenhos de exercícios anteriores inscritos em Restos a Pagar).') +
     kpi('kpi-crit','Vence em até 15 dias',buck.critico.v,`${buck.critico.n} empenho(s)`,'Empenhos que vencem nos próximos 15 dias — prioridade de cobrança.') +
     kpi('kpi-aten','Vence em 16 a 30 dias',buck.atencao.v,`${buck.atencao.n} empenho(s)`,'Empenhos que vencem entre 16 e 30 dias.') +
     kpi('kpi-okp','No prazo (>30 dias)',buck.ok.v,`${buck.ok.n} empenho(s)`,'Empenhos com mais de 30 dias até o vencimento do prazo de liquidação.');
@@ -5003,7 +5048,7 @@ function renderPrazos(){
   document.querySelectorAll('#prazosStatusCtl .sort-lbl').forEach(x=>x.classList.toggle('active', x.dataset.pstatus===prazoFiltro));
   const meta=DATA.prazos2026||{};
   const sub=document.getElementById('prazosSub');
-  if(sub) sub.textContent=`referência: hoje, ${new Date().toLocaleDateString('pt-BR')} · 60 dias p/ ND 339030 e 449052 · 90 dias p/ ND 339039 · arquivo: ${meta.file||'—'}${buck.semregra.n?` · ${buck.semregra.n} empenho(s) de ND sem regra de prazo`:''}`;
+  if(sub) sub.textContent=`referência: hoje, ${new Date().toLocaleDateString('pt-BR')} · ${PRAZOS_TXT} · arquivo: ${meta.file||'—'}${meta.abaUsada?` (aba ${meta.abaUsada})`:''}${buck.semregra.n?` · ${buck.semregra.n} empenho(s) de ND sem regra de prazo`:''}`;
   const rs=getSort('prazos','dias','asc');
   const sev={vencido:0,critico:1,atencao:2,ok:3,semregra:4};
   const pzCmp=(a,b)=>{
@@ -7644,7 +7689,7 @@ function sincronizarAposUpload(oQue){
       if(!parsed.rows.length){ alog('Nenhuma linha de empenho reconhecida no arquivo.','err');
         $('adminPrazosPreviewOrigin').textContent=`Arquivo: ${fileName}`;
         $('adminPrazosPreviewCards').innerHTML='';
-        $('adminPrazosPreviewMsgs').innerHTML=parsed.avisos.map(a=>`<div class="admin-msg warn">${a}</div>`).join('')||'<div class="admin-msg err">Estrutura não reconhecida. Esperado: uma aba por OM com colunas "NE CCor", "Natureza Despesa", "Emissão" e "Saldo/Valores a Liquidar".</div>';
+        $('adminPrazosPreviewMsgs').innerHTML=parsed.avisos.map(a=>`<div class="admin-msg ${a.t==='err'?'err':(a.t==='ok'?'ok':(a.t==='info'?'info':'warn'))}">${a.m||a}</div>`).join('')||'<div class="admin-msg err">Estrutura não reconhecida. Esperado: colunas "NE CCor", "Natureza Despesa", "Emissão" e "Saldo/Valores a Liquidar".</div>';
         $('adminPrazosPreviewBox').classList.remove('hidden'); pending=null; return; }
       pending=parsed;
       const oms=new Set(parsed.rows.map(r=>r.om));
@@ -7658,21 +7703,22 @@ function sincronizarAposUpload(oQue){
         ['Vencidos hoje', String(nb('vencido'))], ['Vencem em \u226415 dias', String(nb('critico'))]
       ].map(([l,v])=>`<div class="admin-preview-card"><div class="lbl">${l}</div><div class="val">${v}</div></div>`).join('');
       const msgs=[];
+      parsed.avisos.forEach(a=>msgs.push([a.t||'warn', a.m||a]));
       const nds=[...new Set(parsed.rows.map(r=>r.nd))].sort();
-      msgs.push(['info',`NDs encontradas: ${nds.join(', ')}. Regras: 60 dias (339030, 449052) · 90 dias (339039).`]);
+      msgs.push(['info',`NDs encontradas: ${nds.join(', ')}. Regras: ${PRAZOS_TXT}.`]);
       const semRegra=nds.filter(x=>!PRAZOS_ND[x]);
       if(semRegra.length) msgs.push(['warn',`NDs sem regra de prazo definida: ${semRegra.join(', ')}. Esses empenhos aparecerão como "sem regra" — me avise se houver prazo previsto para elas.`]);
-      parsed.avisos.forEach(a=>msgs.push(['warn',a]));
       msgs.push(['info','Confira os totais antes de aplicar. A detecção é por nome de cabeçalho; se algo ficou de fora, ajuste o cabeçalho ou avise para alinhar o parser.']);
       $('adminPrazosPreviewMsgs').innerHTML=msgs.map(([t,m])=>`<div class="admin-msg ${t}">${m}</div>`).join('');
       $('adminPrazosPreviewBox').classList.remove('hidden');
-      alog(`Arquivo lido: ${parsed.rows.length} empenho(s) em ${oms.size} OM(s).`,'ok');
+      alog(`Arquivo lido: ${parsed.rows.length} empenho(s) em ${oms.size} OM(s)${parsed.abaUsada?` · aba "${parsed.abaUsada}"`:''}.`,'ok');
+      if(parsed.abasIgnoradas && parsed.abasIgnoradas.length) alog(`${parsed.abasIgnoradas.length} aba(s) de meses anteriores ignoradas — só a mais recente é considerada.`,'info');
     }catch(err){ alog('Erro ao ler o arquivo: '+err.message,'err'); }
   }
 
   function applyImport(){
     if(!pending || !pending.rows.length){ alog('Não há dados de prazos válidos para aplicar.','err'); return; }
-    DATA.prazos2026={ rows:pending.rows, file:fileName, savedAt:new Date().toISOString() };
+    DATA.prazos2026={ rows:pending.rows, file:fileName, abaUsada:pending.abaUsada||'', savedAt:new Date().toISOString() };
     try{ localStorage.setItem(LS_KEY, JSON.stringify(DATA.prazos2026)); }
     catch(e){ alog('Aviso: não foi possível salvar no navegador ('+e.message+'). Vale só para esta sessão.','err'); }
     updateStatusLine();
@@ -7695,7 +7741,7 @@ function sincronizarAposUpload(oQue){
     const o=DATA.prazos2026;
     if(o && Array.isArray(o.rows) && o.rows.length){
       el.className='admin-config-status ok';
-      el.textContent=`Carregado · ${o.rows.length} empenho(s) · Saldo a liquidar R$ ${fmtBRL0(o.rows.reduce((s,r)=>s+r.saldo,0))} · arquivo ${o.file||'—'} · atualizado em ${o.savedAt?new Date(o.savedAt).toLocaleString('pt-BR'):'—'}`;
+      el.textContent=`Carregado · ${o.rows.length} empenho(s) · Saldo a liquidar R$ ${fmtBRL0(o.rows.reduce((s,r)=>s+r.saldo,0))} · arquivo ${o.file||'—'}${o.abaUsada?` (aba ${o.abaUsada})`:''} · atualizado em ${o.savedAt?new Date(o.savedAt).toLocaleString('pt-BR'):'—'}`;
     } else { el.className='admin-config-status'; el.textContent='Nenhuma planilha de prazos carregada.'; }
   }
 
