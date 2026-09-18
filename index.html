@@ -46,6 +46,64 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* ===================== u2.24 · CABE\u00c7ALHO INTEGRADO ===================== */
+  /* A barra superior deixa de ter cor pr\u00f3pria: assume o mesmo azul do cabe\u00e7alho,
+     de modo que menu lateral, barra e cabe\u00e7alho leiam como um bloco \u00fanico. */
+  #topBar{ border-bottom:1px solid rgba(255,255,255,.08); }
+  #topBar .tb-burger{ color:#9DB0C2; }
+  #topBar .tb-crumb{ color:#B9C6D2; }
+  #topBar .tb-ver{ color:#7E93A8; }
+  .header{ border-top:0; }
+
+  /* ===================== u2.24 · NAVEGA\u00c7\u00c3O DO PROJETO ===================== */
+  #pmWorld .nav-chips{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 16px; padding:10px 14px;
+    background:var(--gray-50); border:1px solid var(--gray-100); border-radius:6px; }
+  #pmWorld .nav-chips .nc-lbl{ font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--gray-500); margin-right:2px; }
+  #pmWorld .nav-chip{ border:1px solid var(--gray-200); background:#fff; color:var(--gray-700); border-radius:14px;
+    padding:5px 13px; font-size:12px; font-family:'Roboto',sans-serif; cursor:pointer; white-space:nowrap; line-height:1.3; }
+  #pmWorld .nav-chip:hover{ border-color:var(--fab-blue-light); color:var(--fab-blue); }
+  #pmWorld .nav-chip.on{ background:var(--fab-blue); border-color:var(--fab-blue); color:#fff; font-weight:500; }
+  #pmWorld .nav-chip .nc-pct{ font-family:'Roboto Mono',monospace; font-size:10.5px; opacity:.75; margin-left:6px; }
+  #pmWorld .nav-chip.on .nc-pct{ opacity:.9; }
+  #pmWorld .nav-chip.nodata{ opacity:.55; }
+  #pmWorld .nav-back{ display:inline-flex; align-items:center; gap:7px; border:1px solid var(--gray-200); background:#fff;
+    color:var(--fab-blue); border-radius:4px; padding:6px 13px; font-size:12.5px; font-family:'Roboto',sans-serif; cursor:pointer; }
+  #pmWorld .nav-back:hover{ background:var(--fab-blue); color:#fff; border-color:var(--fab-blue); }
+  #pmWorld .nav-back .ar{ font-size:14px; line-height:1; }
+  #pmWorld .nav-crumb{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin:0 0 12px; font-size:12.5px; color:var(--gray-500); }
+  #pmWorld .nav-crumb a{ color:var(--fab-blue-light); cursor:pointer; text-decoration:none; }
+  #pmWorld .nav-crumb a:hover{ text-decoration:underline; }
+  #pmWorld .nav-crumb b{ color:var(--gray-900); font-weight:500; }
+  #pmWorld .nav-updown{ display:flex; gap:6px; margin-left:auto; }
+  #pmWorld .nav-updown button{ border:1px solid var(--gray-200); background:#fff; color:var(--gray-700); border-radius:4px;
+    padding:5px 11px; font-size:12px; cursor:pointer; font-family:'Roboto',sans-serif; }
+  #pmWorld .nav-updown button:hover:not(:disabled){ border-color:var(--fab-blue); color:var(--fab-blue); }
+  #pmWorld .nav-updown button:disabled{ opacity:.4; cursor:default; }
+
+  /* ===================== u2.24 · AUDITORIA ===================== */
+  #sec-gov .au-tl{ list-style:none; margin:0; }
+  #sec-gov .au-tl li{ display:grid; grid-template-columns:132px 150px 1fr; gap:12px; padding:9px 0; border-bottom:1px solid var(--gray-100); font-size:12.5px; align-items:baseline; }
+  #sec-gov .au-tl li .ts{ font-family:'Roboto Mono',monospace; font-size:11px; color:var(--gray-500); }
+  #sec-gov .au-tl li .who{ color:var(--gray-700); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #sec-gov .au-tl li .what b{ color:var(--gray-900); font-weight:500; }
+  #sec-gov .au-tl li .what small{ color:var(--gray-500); display:block; font-size:11px; }
+  #sec-gov .au-ev{ display:inline-block; font-size:10px; letter-spacing:.04em; text-transform:uppercase; padding:1px 7px; border-radius:9px; margin-right:6px; }
+  #sec-gov .au-ev.login{ background:#E7F0F8; color:#1A5F8F; }
+  #sec-gov .au-ev.envio{ background:#DDF3E4; color:#0B6E3A; }
+  #sec-gov .au-ev.edicao{ background:#FFF0B8; color:#7A5A00; }
+  #sec-gov .au-ev.gov{ background:#EDE7F6; color:#4A3B78; }
+  #sec-gov .au-dias{ font-family:'Roboto Mono',monospace; }
+  #sec-gov .au-dias.ok{ color:var(--green); }
+  #sec-gov .au-dias.warn{ color:var(--orange); }
+  #sec-gov .au-dias.err{ color:var(--red); font-weight:600; }
+  #sec-gov .au-nunca{ color:var(--red); font-weight:600; }
+  #drillBody .au-tl li{ grid-template-columns:120px 1fr; }
+  #drillBody .au-tl li .who{ display:none; }
+  #drillBody .au-tl{ list-style:none; }
+  #drillBody .au-tl li{ display:grid; gap:10px; padding:9px 0; border-bottom:1px solid var(--gray-100); font-size:12.5px; }
+  #drillBody .au-tl li .ts{ font-family:'Roboto Mono',monospace; font-size:11px; color:var(--gray-500); }
+
+
   /* ===================== u2.23 · GOVERNAN\u00c7A: ranking, drill e relat\u00f3rio ===================== */
   #sec-gov .gov-tabs{ display:flex; gap:2px; margin-bottom:14px; border-bottom:2px solid var(--gray-100); }
   #sec-gov .gov-tab{ padding:9px 18px; font-size:13px; color:var(--gray-500); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; user-select:none; }
@@ -125,7 +183,7 @@
   body.capturing #sideNav, body.capturing #topBar{ display:none; }
   body.capturing{ padding-left:0; }
 
-  #topBar{ position:sticky; top:0; z-index:60; height:44px; background:var(--pm-top); color:#fff;
+  #topBar{ position:sticky; top:0; z-index:60; height:38px; background:var(--fab-blue); color:#fff;
     display:flex; align-items:center; gap:14px; padding:0 18px; font-family:'Roboto',sans-serif; }
   #topBar .tb-burger{ background:none; border:0; color:#8FA3B8; cursor:pointer; font-size:22px; line-height:1; padding:6px; }
   #topBar .tb-burger:hover{ color:#fff; }
@@ -4271,6 +4329,8 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 
   <!-- ============ GESTOR · POR ODS ============ -->
   <div id="view-g-ods" class="hidden">
+    <div class="nav-crumb" id="gOdsCrumb"></div>
+    <div class="nav-chips" id="gOdsChips"></div>
     <h2 class="section-title"><span>Detalhamento por ODS</span>
       <span><select id="gOdsSel"></select></span></h2>
     <div class="kpi-grid" id="gOdsKpis"></div>
@@ -4298,6 +4358,8 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 
   <!-- ============ GESTOR · POR OM ============ -->
   <div id="view-g-om" class="hidden">
+    <div class="nav-crumb" id="gOmCrumb"></div>
+    <div class="nav-chips" id="gOmChips"></div>
     <h2 class="section-title"><span>Detalhamento por OM</span>
       <span><select id="gOmSel"></select></span></h2>
     <div id="gOmDetail"></div>
@@ -4415,7 +4477,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.23 &#183; 09/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.24 &#183; 10/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -9188,7 +9250,7 @@ function addInstancia(baseId){
   const rotulo=prompt('Nome do novo item (ex.: "'+sug+'", "Portão Norte", "Guarita 3"):', sug);
   if(rotulo===null) return;
   arr.push({sub:sub, rotulo:String(rotulo||'').trim()});
-  saveLocalOm(); renderWbs();
+  saveLocalOm('Instância adicionada', nomeInst||'', 'edicao'); renderWbs();
 }
 function renomearInstancia(id){
   const h=String(id).indexOf('#'); if(h<0 || !omData) return;
@@ -9196,7 +9258,7 @@ function renomearInstancia(id){
   const inst=arr.find(i=>baseId+'#'+i.sub===id); if(!inst) return;
   const novo=prompt('Novo nome do item:', leafByIdFor(omData,id).nome);
   if(novo===null) return;
-  inst.rotulo=String(novo||'').trim(); saveLocalOm(); renderWbs();
+  inst.rotulo=String(novo||'').trim(); saveLocalOm('Instância renomeada', inst.rotulo, 'edicao'); renderWbs();
 }
 function removerInstancia(id){
   const h=String(id).indexOf('#'); if(h<0 || !omData) return;
@@ -9242,7 +9304,61 @@ function log(msg){ const t=new Date().toLocaleTimeString('pt-BR'); LOGS.unshift(
   const b=el('admLog'); if(b) b.innerHTML = LOGS.slice(0,80).map(l=>'<div><span class="lt">'+l.t+'</span> '+esc(l.msg)+'</div>').join(''); }
 
 function novoOmData(sigla){ return {om:sigla, savedAt:null, tarefas:{}, extras:{}, registros:[], necessidades:[]}; }
-function saveLocalOm(){ if(!perfil||perfil.tipo!=='om') return; lsSet(LS.om(perfil.om), omData); setDirty(true); }
+/* ---------- u2.24 · AUDITORIA PERMANENTE POR OM ----------
+   Cada entrada e cada alteração ficam registradas em omData.auditoria, que viaja no
+   mesmo pacote enviado ao Drive/servidor. É um registro append-only: nada é apagado
+   pela interface. Guarda as 400 entradas mais recentes e, das anteriores, mantém uma
+   linha de resumo com a contagem — para o arquivo não crescer sem limite. */
+const AUDIT_MAX = 400;
+function auditQuem(){
+  const s=(typeof window!=='undefined'&&window.SESS)||null;
+  if(!s) return { nome:'', posto:'', rotulo:'', uid:null };
+  return { nome:s.nome||'', posto:s.posto||'', rotulo:s.rotulo||'', uid:s.uid||null };
+}
+function auditPush(alvo, ev, acao, detalhe){
+  if(!alvo) return;
+  if(!Array.isArray(alvo.auditoria)) alvo.auditoria=[];
+  const q=auditQuem();
+  const ent={ ts:new Date().toISOString(), ev:ev||'edicao', acao:acao||'', det:detalhe||'',
+              nome:q.nome, posto:q.posto, uid:q.uid };
+  const ult=alvo.auditoria[alvo.auditoria.length-1];
+  // Edições repetidas do mesmo campo em menos de 90s viram uma entrada só (evita que
+  // digitar num campo numérico gere dezenas de linhas).
+  if(ult && ult.ev===ent.ev && ult.acao===ent.acao && ult.det===ent.det && ult.nome===ent.nome
+     && (new Date(ent.ts)-new Date(ult.ts))<90000){ ult.ts=ent.ts; ult.n=(ult.n||1)+1; }
+  else alvo.auditoria.push(ent);
+  if(alvo.auditoria.length>AUDIT_MAX+40){
+    const corte=alvo.auditoria.length-AUDIT_MAX;
+    const antigas=alvo.auditoria.slice(0,corte);
+    const resumoAnt=antigas.find(x=>x.ev==='resumo');
+    const cont=antigas.reduce((a,x)=>a+(x.ev==='resumo'?(x.qtd||0):1),0);
+    alvo.auditoria=[{ ts:(resumoAnt&&resumoAnt.ts)||antigas[0].ts, ev:'resumo', qtd:cont,
+                      acao:cont+' registro(s) anteriores', det:'entradas mais antigas condensadas',
+                      nome:'', posto:'' }].concat(alvo.auditoria.slice(corte));
+  }
+}
+function audit(acao, detalhe, ev){ if(perfil&&perfil.tipo==='om'&&omData) auditPush(omData, ev||'edicao', acao, detalhe); }
+/* Une dois históricos de auditoria sem perder nada. É necessário porque o pacote da OM
+   pode ser substituído inteiro pelo do servidor (ou o contrário): sem a união, o que foi
+   registrado do outro lado desapareceria — justamente o que um log de auditoria não pode
+   fazer. A chave de deduplicação é o instante + ação + autor. */
+function mergeAuditoria(a, b){
+  const A=Array.isArray(a)?a:[], B=Array.isArray(b)?b:[];
+  if(!A.length) return B.slice();
+  if(!B.length) return A.slice();
+  const vistos={}, out=[];
+  A.concat(B).forEach(x=>{ if(!x||!x.ts) return;
+    const k=x.ts+'|'+(x.ev||'')+'|'+(x.acao||'')+'|'+(x.det||'')+'|'+(x.nome||'');
+    if(vistos[k]){ const p=vistos[k]; if((x.n||1)>(p.n||1)) p.n=x.n; return; }
+    const c=Object.assign({},x); vistos[k]=c; out.push(c); });
+  out.sort((x,y)=>String(x.ts).localeCompare(String(y.ts)));
+  return out;
+}
+function saveLocalOm(acao, detalhe, ev){
+  if(!perfil||perfil.tipo!=='om') return;
+  if(acao) audit(acao, detalhe, ev);
+  lsSet(LS.om(perfil.om), omData); setDirty(true);
+}
 function setDirty(d){ dirty=d; renderCtx(); }
 
 // ================= SINCRONIZAÇÃO (API no servidor da FAB) =================
@@ -9435,7 +9551,12 @@ function renderDonut(svgId, legId, items, centerLabel){
 const OM_VIEWS=['om-resumo','om-tarefas','om-registros','om-nec'];
 const G_VIEWS=['g-panorama','g-ods','g-om','g-nec','g-admin'];
 let viewAtual='';
-function showView(v){
+/* ---------- u2.24 · navegação entre ODS e OM ----------
+   gNavOrigem guarda de onde veio a vista atual, para o botão Voltar ser fiel ao caminho
+   percorrido (Panorama → ODS → OM) em vez de recair sempre no Panorama. */
+let gNavOrigem=null;
+function showView(v, origem){
+  if(origem!==undefined) gNavOrigem=origem;
   viewAtual=v;
   OM_VIEWS.concat(G_VIEWS).forEach(x=>{ const d=el('view-'+x); if(d) d.classList.toggle('hidden', x!==v); });
   document.querySelectorAll('#pmWorld .view-tab').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
@@ -9537,7 +9658,9 @@ async function sincronizarOmComServidor(sigla, opts){
       return false;
     }
     if(!localSaved || (srvSaved && srvSaved>localSaved) || opts.forcar){
-      omData=srv; lsSet(LS.om(sigla),omData); dirty=false;
+      const histUnido=mergeAuditoria(omData&&omData.auditoria, srv.auditoria);
+      omData=srv; omData.auditoria=histUnido;   // o log é unido, nunca substituído
+      lsSet(LS.om(sigla),omData); dirty=false;
       log('Lançamentos de '+sigla+' carregados do servidor ('+fmtDT(srv.savedAt)+').');
       return true;
     }
@@ -9554,7 +9677,14 @@ async function entrarOm(sigla){
   dirty=false;
   if(apiOn()){
     try{ const srv=await apiGetOm(sigla);
-      if(srv && (!omData.savedAt || (srv.savedAt && srv.savedAt>omData.savedAt))){ omData=srv; lsSet(LS.om(sigla),omData); log('Dados de '+sigla+' carregados do servidor.'); }
+      if(srv){
+        const histUnido=mergeAuditoria(omData&&omData.auditoria, srv.auditoria);
+        if(!omData.savedAt || (srv.savedAt && srv.savedAt>omData.savedAt)){
+          omData=srv; log('Dados de '+sigla+' carregados do servidor.');
+        }
+        omData.auditoria=histUnido;   // o log nunca é substituído: é unido
+        lsSet(LS.om(sigla),omData);
+      }
     }catch(e){ log('Sem acesso ao servidor ('+e.message+'). Usando dados locais.'); }
   } else {
     await sincronizarOmComServidor(sigla);   // u2.12 — todos da OM veem o mesmo
@@ -9954,6 +10084,7 @@ async function gasEnviar(){
     const resp=await fetch(cfg.url, { method:'POST', body: JSON.stringify(pkg) });
     const j=await resp.json().catch(function(){ return null; });
     if(!resp.ok || !j || j.ok!==true) throw new Error((j&&j.erro)||('HTTP '+resp.status));
+    auditPush(omData,'envio','Enviado ao servidor', pkg.fotos.length+' foto(s) · pacote de '+Math.round(JSON.stringify(pkg).length/1024)+' KB');
     omData.savedAt=new Date().toISOString();
     lsSet(LS.om(sigla), omData);
     setDirty(false);
@@ -10113,6 +10244,22 @@ function renderPanorama(){
     kpiR(fab.finSaldo<0?'kpi-warn':'kpi-liq','Saldo (tarefas) \u2014 FAB', fab.finSaldo, fab.finSaldo<0? 'excedeu o necess\u00e1rio lan\u00e7ado' : 'ainda dispon\u00edvel');
   el('gModFinTable').innerHTML = finTableHtml(fab.mods, fab.finNec, fab.finEmp, fab.finSaldo);
 }
+/* Lista de OMs navegáveis na vista Por OM, respeitando o perfil e o ODS de origem. */
+function gOmListaNav(){
+  const travado = perfil && perfil.tipo==='ods';
+  let L = travado? omsOrdenadas().filter(om=>roster[om].ods===perfil.ods) : omsOrdenadas();
+  if(gNavOrigem==='g-ods' && gOdsAtual) L=L.filter(om=>roster[om].ods===gOdsAtual);
+  return L;
+}
+function chipsHtml(itens, attr, atual){
+  return itens.map(x=>`<button type="button" class="nav-chip${x.id===atual?' on':''}${x.semDados?' nodata':''}" data-${attr}="${esc(x.id)}" title="${esc(x.titulo||x.id)}">${esc(x.id)}${x.pct!=null?`<span class="nc-pct">${fmtPct(x.pct,0)}</span>`:''}</button>`).join('');
+}
+function navStepHtml(alvo, lista, atual){
+  const i=lista.indexOf(atual);
+  return `<span class="nav-updown">
+    <button type="button" data-navstep="${alvo}:p"${i<=0?' disabled':''} title="Anterior">&#8249; Anterior</button>
+    <button type="button" data-navstep="${alvo}:n"${(i<0||i>=lista.length-1)?' disabled':''} title="Próximo">Próximo &#8250;</button></span>`;
+}
 function renderGOds(){
   const sel=el('gOdsSel');
   const travado = perfil && perfil.tipo==='ods';
@@ -10130,6 +10277,24 @@ function renderGOds(){
     kpiN('kpi-emp','OM com dados','<span>'+comD.length+'</span>','de '+oms.length+' OM do ODS')+
     kpiN(prob?'kpi-warn':'kpi-nec','Problemas em aberto','<span>'+prob+'</span>','no ODS')+
     kpiR('kpi-apr','Necessidades informadas',nec,'soma das OM do ODS');
+  // chips fixos + trilha de navegação
+  const _cr=el('gOdsCrumb'), _ch=el('gOdsChips');
+  if(_ch){
+    if(travado){ _ch.style.display='none'; }
+    else{
+      _ch.style.display='';
+      const itens=lista.map(o=>{ const oms=Object.keys(roster).filter(x=>roster[x].ods===o);
+        const cd=oms.filter(x=>DB[x]);
+        return { id:o, pct: cd.length? cd.reduce((a,x)=>a+calc(DB[x]).geral,0)/cd.length : null,
+                 semDados: !cd.length, titulo:o+' — '+cd.length+' de '+oms.length+' OM com dados' }; });
+      _ch.innerHTML='<span class="nc-lbl">ODS</span>'+chipsHtml(itens,'ods',gOdsAtual)+navStepHtml('ods',lista,gOdsAtual);
+    }
+  }
+  if(_cr){
+    _cr.innerHTML = travado ? ''
+      : `<button type="button" class="nav-back" data-navback="g-panorama"><span class="ar">&#8592;</span> Panorama FAB</button>
+         <span>Panorama FAB &rsaquo; <b>${esc(gOdsAtual)}</b></span>`;
+  }
   el('gOdsGaugeLbl').textContent=gOdsAtual;
   el('gOdsGauge').innerHTML=gaugeSVG(v,false);
   el('gOdsGaugeSub').textContent=comD.length+' de '+oms.length+' OM com dados';
@@ -10211,6 +10376,23 @@ function renderGOm(){
     html+='<option value="'+esc(om)+'"'+(om===gOmAtual?' selected':'')+'>'+esc(om)+'</option>'; });
   if(cur) html+='</optgroup>';
   sel.innerHTML=html;
+  // chips fixos + trilha: volta ao ODS de origem quando foi por ali que se chegou
+  const _nav=gOmListaNav();
+  const _ch=el('gOmChips'), _cr=el('gOmCrumb');
+  if(_ch){
+    const itens=_nav.map(om=>({ id:om, pct: DB[om]? calc(DB[om]).geral : null, semDados: !DB[om],
+      titulo:(roster[om]||{}).nome||om }));
+    const rot = (gNavOrigem==='g-ods' && gOdsAtual && !travado) ? 'OM do '+gOdsAtual : 'OM';
+    _ch.innerHTML='<span class="nc-lbl">'+esc(rot)+'</span>'+chipsHtml(itens,'om',gOmAtual)+navStepHtml('om',_nav,gOmAtual);
+  }
+  if(_cr){
+    const odsDaOm=(roster[gOmAtual]||{}).ods||'';
+    const voltaOds = gNavOrigem==='g-ods' || (perfil && perfil.tipo==='ods');
+    const alvo = voltaOds ? 'g-ods' : (gNavOrigem||'g-panorama');
+    const rotAlvo = alvo==='g-ods' ? ('ODS '+(odsDaOm||gOdsAtual)) : (alvo==='g-nec'?'Necessidades':'Panorama FAB');
+    _cr.innerHTML = `<button type="button" class="nav-back" data-navback="${alvo}"><span class="ar">&#8592;</span> ${esc(rotAlvo)}</button>
+      <span>${(perfil&&perfil.tipo==='ods')?'':'Panorama FAB &rsaquo; '}${odsDaOm?`<a data-gods="${esc(odsDaOm)}">${esc(odsDaOm)}</a> &rsaquo; `:''}<b>${esc(gOmAtual)}</b></span>`;
+  }
   const d=DB[gOmAtual];
   if(!d){ el('gOmDetail').innerHTML='<div class="empty-state"><div class="glyph">\u2205</div><p>'+esc(gOmAtual)+' ainda n\u00e3o enviou dados.</p></div>'; return; }
   const c=calc(d);
@@ -10373,23 +10555,23 @@ function bind(){
     const t=e.target, id=t.dataset.leaf;
     if(id){
       const x=omData.tarefas[id]||(omData.tarefas[id]={pct:0,na:false,nec:0,emp:0});
-      if(t.dataset.f==='na'){ x.na=t.checked; saveLocalOm(); renderWbs(); return; }
+      if(t.dataset.f==='na'){ x.na=t.checked; saveLocalOm('Tarefa marcada como '+(t.checked?'não aplicável':'aplicável'), nomeTarefaAudit(t), 'edicao'); renderWbs(); return; }
       if(t.dataset.f==='necprox'){
-        x.necConcluir=Number(t.value)||0; saveLocalOm();
+        x.necConcluir=Number(t.value)||0; saveLocalOm('Necessário para concluir alterado', nomeTarefaAudit(t)+' → R$ '+(Number(t.value)||0).toLocaleString('pt-BR'), 'edicao');
         try{ const c2=calc(omData);
           el('omTarCount').textContent = leavesFor(omData).length+' tarefas \u00b7 '+c2.na+' N/A \u00b7 geral '+fmtPct(c2.geral,1)+' \u00b7 saldo R$ '+fmtBRL2(c2.finSaldo)+((window.__cicloNec&&(window.__cicloNec.aberto||c2.nec27>0))? ' \u00b7 Nec. p/ concluir: R$ '+fmtBRL2(c2.nec27||0):'');
         }catch(_e){}
         return;
       }
       if(t.dataset.f==='nec'||t.dataset.f==='emp'){
-        x[t.dataset.f]=Number(t.value)||0; saveLocalOm();
+        x[t.dataset.f]=Number(t.value)||0; saveLocalOm('Valor da tarefa alterado', nomeTarefaAudit(t)+' · '+t.dataset.f+' → R$ '+(Number(t.value)||0).toLocaleString('pt-BR'), 'edicao');
         const saldoEl=document.querySelector('[data-saldo="'+id+'"]');
         if(saldoEl){ const s=(Number(x.nec)||0)-(Number(x.emp)||0);
           saldoEl.textContent='Saldo: R$ '+fmtBRL2(s); saldoEl.classList.toggle('neg', s<0); }
         return;
       }
       // % (range ou number) — atualiza o modelo e só o visual desta própria tarefa
-      x.pct=clampPct(t.value); saveLocalOm();
+      x.pct=clampPct(t.value); saveLocalOm('Percentual da tarefa alterado', nomeTarefaAudit(t)+' → '+clampPct(t.value)+'%', 'edicao');
       const leafDiv=document.querySelector('.wbs-leaf[data-leafrow="'+id+'"]');
       if(leafDiv){
         const p=x.pct;
@@ -10463,7 +10645,7 @@ function bind(){
       tarefaId:el('rgTarefa').value||'', titulo, comentario:el('rgComent').value.trim(),
       fotos:pendingFotos, criadoEm:new Date().toISOString()});
     pendingFotos=[]; el('rgPrev').innerHTML=''; el('rgTitulo').value=''; el('rgComent').value='';
-    saveLocalOm(); renderRegistros();
+    saveLocalOm('Ocorrência registrada', (r.tipo||'')+' · '+(r.titulo||''), 'edicao'); renderRegistros();
   });
   el('regList').addEventListener('click',e=>{
     const del=e.target.dataset.regdel; if(del){ excluirRegistroById(del); return; }
@@ -10473,7 +10655,7 @@ function bind(){
   el('fotoView').addEventListener('click',()=>el('fotoView').classList.add('hidden'));
 
   // Necessidades
-  el('btnNecAdd').addEventListener('click',()=>{ omData.necessidades.push(novaLinhaNec()); saveLocalOm(); renderNec(); });
+  el('btnNecAdd').addEventListener('click',()=>{ omData.necessidades.push(novaLinhaNec()); saveLocalOm('Necessidade adicionada','','edicao'); renderNec(); });
   // "input" (digitando): só atualiza o modelo + a célula de total desta linha e o total geral (mantém o foco).
   // "change" (ao sair do campo): recalcula os subtotais por módulo (renderNec completo).
   el('necBody').addEventListener('input',e=>{
@@ -10498,7 +10680,7 @@ function bind(){
   });
   el('necBody').addEventListener('click',e=>{
     const i=e.target.dataset.nrm; if(i===undefined) return;
-    if(confirm('Excluir esta linha?')){ omData.necessidades.splice(Number(i),1); saveLocalOm(); renderNec(); }
+    if(confirm('Excluir esta linha?')){ const _ex=omData.necessidades[Number(i)]||{}; omData.necessidades.splice(Number(i),1); saveLocalOm('Necessidade excluída', _ex.descricao||_ex.item||'', 'edicao'); renderNec(); }
   });
 
   // Gestor e ODS — navegação por clique
@@ -10507,12 +10689,23 @@ function bind(){
     if(tvf){ gTvFiltro=tvf.dataset.tvf; renderGOm(); return; }
     const rx=e.target.closest('[data-rapxom]');
     if(rx){ rapxDrawer(rx.dataset.rapxom); return; }
-    const g1=e.target.closest('[data-gods]'); if(g1 && perfil && perfil.tipo==='gestor'){ gOdsAtual=g1.dataset.gods; showView('g-ods'); return; }
-    const g2=e.target.closest('[data-gom]'); if(g2 && perfil && (perfil.tipo==='gestor'||perfil.tipo==='ods')){ gOmAtual=g2.dataset.gom; showView('g-om'); return; }
+    const g1=e.target.closest('[data-gods]'); if(g1 && perfil && perfil.tipo==='gestor'){ gOdsAtual=g1.dataset.gods; showView('g-ods', viewAtual); return; }
+    const g2=e.target.closest('[data-gom]'); if(g2 && perfil && (perfil.tipo==='gestor'||perfil.tipo==='ods')){ gOmAtual=g2.dataset.gom; showView('g-om', viewAtual); return; }
     if(e.target.dataset && e.target.dataset.foto && perfil && (perfil.tipo==='gestor'||perfil.tipo==='ods')){ el('fotoViewImg').src=e.target.src; el('fotoView').classList.remove('hidden'); }
   });
   el('gOdsSel').addEventListener('change',e=>{ gOdsAtual=e.target.value; renderGOds(); });
   el('gOmSel').addEventListener('change',e=>{ gOmAtual=e.target.value; renderGOm(); });
+  /* chips fixos de ODS / OM, botão Voltar e setas anterior/próxima */
+  document.addEventListener('click',e=>{
+    const c1=e.target.closest('#gOdsChips .nav-chip'); if(c1){ gOdsAtual=c1.dataset.ods; renderGOds(); return; }
+    const c2=e.target.closest('#gOmChips .nav-chip'); if(c2){ gOmAtual=c2.dataset.om; renderGOm(); return; }
+    const bk=e.target.closest('[data-navback]'); if(bk){ showView(bk.dataset.navback, null); return; }
+    const st=e.target.closest('[data-navstep]'); if(st && !st.disabled){
+      const [alvo,sig]=st.dataset.navstep.split(':');
+      if(alvo==='ods'){ const L=odsLista(); const i=L.indexOf(gOdsAtual)+(sig==='n'?1:-1); if(L[i]){ gOdsAtual=L[i]; renderGOds(); } }
+      else { const L=gOmListaNav(); const i=L.indexOf(gOmAtual)+(sig==='n'?1:-1); if(L[i]){ gOmAtual=L[i]; renderGOm(); } }
+      return; }
+  });
   el('appMain').addEventListener('click',e=>{
     const b=e.target.closest('[data-gsnap]'); if(b){ e.preventDefault(); e.stopPropagation(); snapGauge(b); return; }
     const rel=e.target.closest('[data-omrel]'); if(rel){ e.stopPropagation(); relatorioPdfOm(DB[rel.dataset.omrel], rel.dataset.omrel); return; }
@@ -10576,7 +10769,12 @@ async function enterAs(sess){
     if(!sess) return;
     if(sess.tipo==='om'){
       if(!roster[sess.om]) log('Aviso: a OM '+sess.om+' n\u00e3o consta no rol do projeto.');
-      await entrarOm(sess.om); return;
+      await entrarOm(sess.om);
+      try{ const q=auditQuem();
+        audit('Acesso ao painel', ((q.posto?q.posto+' ':'')+(q.nome||q.rotulo||'usuário da OM')).trim(), 'login');
+        lsSet(LS.om(sess.om), omData); setDirty(true);
+      }catch(e){}
+      return;
     }
     if(apiOn()){
       try{
@@ -10593,7 +10791,12 @@ async function enterAs(sess){
 
 /* u2.21 — a Governança (fora do mundo do projeto) grava no pacote da OM, que viaja
    pelo mesmo "Enviar ao servidor" já existente. */
-function saveOmData(){ if(perfil&&perfil.tipo==='om'&&omData){ saveLocalOm(); } }
+function saveOmData(){ if(perfil&&perfil.tipo==='om'&&omData){ saveLocalOm('Checklist de governança salvo','','gov'); } }
+/* Nome legível da tarefa a partir do elemento editado, para o registro de auditoria. */
+function nomeTarefaAudit(t){
+  try{ const id=(t&&t.dataset&&t.dataset.leaf)||'';
+       const nd=leafByIdFor(omData, id); return (nd&&nd.nome)||id||''; }catch(e){ return ''; }
+}
 async function enviarServidor(){
   if(!omData) throw new Error('Sem dados da OM.');
   if(gasAtivo()) return gasEnviar();
@@ -10601,6 +10804,7 @@ async function enviarServidor(){
   throw new Error('Servidor n\u00e3o configurado \u2014 os dados ficam guardados neste computador.');
 }
 return { enterAs, refresh, sair, showView, getRoster:()=>roster, getPerfil:()=>perfil,
+  _audit:auditPush, _mergeAudit:mergeAuditoria, _test:{ buildGasPackage, audit, omAtual:()=>gOmAtual, odsAtual:()=>gOdsAtual, navOrigem:()=>gNavOrigem },
   importarPacotesObj, getDB:()=>DB, getOmData:()=>omData, saveOmData, enviarServidor,
   _test:{ addInstancia, renomearInstancia, removerInstancia, leavesFor, leafByIdFor, calc, getOmData:()=>omData,
           omExportData, buildRelatorioHtml, buildRelatorioPdfHtml, buildGasPackage, exportXlsxOm, relatorioPdfOm, gasEnviar } };
@@ -12182,6 +12386,92 @@ window.GOV = (function(){
     return {html:h+`</tbody></table></div>`, arr};
   }
 
+  // ---------------- ACESSOS E AUDITORIA ----------------
+  const EV_ROT={ login:'acesso', envio:'envio', edicao:'edi\u00e7\u00e3o', gov:'governan\u00e7a', resumo:'resumo' };
+  function auditDe(om){ const d=DBall()[om]; return (d&&Array.isArray(d.auditoria))?d.auditoria:[]; }
+  function ultimoDe(a, ev){ for(let i=a.length-1;i>=0;i--){ if(!ev||a[i].ev===ev) return a[i]; } return null; }
+  function diasDesde(iso){ if(!iso) return null; const d=new Date(iso); if(isNaN(d)) return null;
+    return Math.floor((Date.now()-d.getTime())/86400000); }
+  function quemTxt(e){ if(!e) return ''; const t=((e.posto?e.posto+' ':'')+(e.nome||'')).trim(); return t||'\u2014'; }
+  function clsDias(d){ if(d==null) return 'err'; if(d<=15) return 'ok'; if(d<=45) return 'warn'; return 'err'; }
+  function tabelaAudit(list){
+    const linhas=list.map(r=>{ const a=auditDe(r.om);
+      const ac=ultimoDe(a,'login'), en=ultimoDe(a,'envio'), qq=ultimoDe(a,null);
+      const savedAt=(DBall()[r.om]||{}).savedAt||'';
+      const refEnvio=(en&&en.ts)||savedAt;
+      return { ...r, a, ac, en, qq, refEnvio, dAc:diasDesde(ac&&ac.ts), dEn:diasDesde(refEnvio),
+               nEd:a.filter(x=>x.ev==='edicao'||x.ev==='gov').reduce((s2,x)=>s2+(x.n||1)+(x.ev==='resumo'?(x.qtd||0):0),0) }; });
+    linhas.sort((x,y)=>{ const a=x.dAc==null?1e9:x.dAc, b=y.dAc==null?1e9:y.dAc; return b-a || x.om.localeCompare(y.om); });
+    const semNunca=linhas.filter(x=>!x.ac).length;
+    const ativas=linhas.filter(x=>x.dAc!=null && x.dAc<=15).length;
+    const paradas=linhas.filter(x=>x.dAc!=null && x.dAc>45).length;
+    const totEv=linhas.reduce((s2,x)=>s2+x.a.length,0);
+    let h=`<div class="gov-kpis" style="margin-bottom:14px">
+      <div class="gov-kpi"><div class="l">Nunca acessaram</div><div class="v" style="color:var(--red)">${semNunca}</div><div class="s">sem registro de entrada no painel</div></div>
+      <div class="gov-kpi"><div class="l">Ativas (\u2264 15 dias)</div><div class="v" style="color:var(--green)">${ativas}</div><div class="s">acessaram recentemente</div></div>
+      <div class="gov-kpi"><div class="l">Paradas (> 45 dias)</div><div class="v" style="color:var(--orange)">${paradas}</div><div class="s">candidatas \u00e0 cobran\u00e7a</div></div>
+      <div class="gov-kpi"><div class="l">Eventos registrados</div><div class="v">${totEv}</div><div class="s">no hist\u00f3rico consolidado</div></div></div>
+      <div class="gov-filter" style="margin-bottom:10px">
+        <button class="gov-btn sec" id="govAudCsv" type="button">Exportar auditoria (CSV)</button>
+        <button class="gov-btn sec" id="govAudCobrar" type="button">Lista de cobran\u00e7a</button>
+        <span class="gov-msg">registro append-only, gravado no pacote de cada OM e consolidado no servidor</span></div>
+      <div class="gov-card" style="padding:0;overflow:auto"><table class="gov-table"><thead><tr>
+        <th>ODS</th><th>Guarn.</th><th>OM</th><th>\u00daltimo acesso</th><th>Quem</th><th>\u00daltimo envio</th><th class="num">Altera\u00e7\u00f5es</th><th>\u00daltima a\u00e7\u00e3o</th><th class="num">Eventos</th></tr></thead><tbody>`;
+    linhas.forEach(r=>{
+      const acTxt = r.ac? `${fmtDT(r.ac.ts)}<br><small class="au-dias ${clsDias(r.dAc)}">h\u00e1 ${r.dAc} dia(s)</small>`
+                        : '<span class="au-nunca">nunca acessou</span>';
+      const enTxt = r.refEnvio? `${fmtDT(r.refEnvio)}<br><small class="au-dias ${clsDias(r.dEn)}">h\u00e1 ${r.dEn} dia(s)</small>` : '<span class="gov-pill na">sem envio</span>';
+      const ult = r.qq? `<span class="au-ev ${r.qq.ev}">${EV_ROT[r.qq.ev]||r.qq.ev}</span>${esc(r.qq.acao||'')}${r.qq.det?`<br><small style="color:var(--gray-500)">${esc(r.qq.det)}</small>`:''}` : '\u2014';
+      h+=`<tr class="clk" data-audom="${esc(r.om)}" title="Ver o hist\u00f3rico completo da OM">
+        <td>${esc(r.ods)}</td><td><span class="badge">${esc(r.guarn||'\u2014')}</span></td>
+        <td><b>${esc(r.om)}</b><br><small style="color:var(--gray-500)">${esc(r.nome)}</small></td>
+        <td>${acTxt}</td><td>${esc(quemTxt(r.ac))}</td><td>${enTxt}</td>
+        <td class="num">${r.nEd||0}</td><td>${ult}</td><td class="num">${r.a.length}</td></tr>`;
+    });
+    return h+`</tbody></table></div>`;
+  }
+  function fmtDT(iso){ if(!iso) return '\u2014'; const d=new Date(iso); return isNaN(d)?'\u2014':d.toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}); }
+  function abrirHistorico(om){
+    const a=auditDe(om).slice().reverse(); const R=roster()[om]||{};
+    const sub=`${esc(om)} \u00b7 ${esc(R.nome||'')} \u00b7 ODS ${esc(R.ods||'\u2014')} \u00b7 Guarni\u00e7\u00e3o ${esc(R.guarnicao||'\u2014')}`;
+    if(!a.length){ openDrawer('Hist\u00f3rico de auditoria', sub,
+      '<div style="padding:22px 4px;color:var(--gray-500);font-size:13px">Esta OM ainda n\u00e3o registrou nenhum acesso ou altera\u00e7\u00e3o. O hist\u00f3rico come\u00e7a a ser gravado no primeiro acesso feito com a vers\u00e3o u2.24 ou posterior.</div>'); return; }
+    const body=`<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        ${pill('na',a.length+' evento(s)')}
+        ${pill('ok',a.filter(x=>x.ev==='envio').length+' envio(s)')}
+        ${pill('warn',a.filter(x=>x.ev==='edicao'||x.ev==='gov').length+' altera\u00e7\u00e3o(\u00f5es)')}</div>
+      <ul class="au-tl">${a.map(x=>`<li><span class="ts">${fmtDT(x.ts)}</span>
+        <span class="what"><span class="au-ev ${x.ev}">${EV_ROT[x.ev]||x.ev}</span><b>${esc(x.acao||'')}</b>${x.n>1?` <small style="display:inline;color:var(--gray-500)">(${x.n}\u00d7)</small>`:''}
+        ${x.det?`<small>${esc(x.det)}</small>`:''}${(x.nome||x.posto)?`<small>por ${esc(((x.posto?x.posto+' ':'')+(x.nome||'')).trim())}</small>`:''}</span></li>`).join('')}</ul>`;
+    openDrawer('Hist\u00f3rico de auditoria', sub, body);
+  }
+  function exportAuditCsv(list){
+    const head=['OM','ODS','Guarnicao','Data/hora','Evento','Acao','Detalhe','Posto','Nome','Repeticoes'];
+    const linhas=[];
+    list.forEach(r=>auditDe(r.om).forEach(x=>linhas.push([r.om,r.ods,r.guarn,fmtDT(x.ts),EV_ROT[x.ev]||x.ev,x.acao||'',x.det||'',x.posto||'',x.nome||'',x.n||1])));
+    const csv=[head].concat(linhas).map(l=>l.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}); const aEl=document.createElement('a');
+    aEl.href=URL.createObjectURL(blob); aEl.download='SISI_Auditoria_OMs.csv'; document.body.appendChild(aEl); aEl.click(); aEl.remove();
+  }
+  function listaCobranca(list){
+    const alvo=list.map(r=>{ const a=auditDe(r.om); const ac=ultimoDe(a,'login');
+      return { ...r, ac, d:diasDesde(ac&&ac.ts) }; })
+      .filter(r=>r.d==null || r.d>45)
+      .sort((x,y)=>{ const a=x.d==null?1e9:x.d, b=y.d==null?1e9:y.d; return b-a; });
+    if(!alvo.length){ openDrawer('Lista de cobran\u00e7a','todas as OMs do escopo acessaram nos \u00faltimos 45 dias',
+      '<div style="padding:22px 4px;color:var(--gray-500);font-size:13px">Nenhuma OM pendente de cobran\u00e7a.</div>'); return; }
+    const linhas=alvo.map(r=>{ const g=r.g?norm(r.g):null; const o=g?g.osd:null;
+      return `<li><span class="ts">${r.d==null?'nunca':'h\u00e1 '+r.d+'d'}</span>
+        <span class="what"><b>${esc(r.om)}</b> \u00b7 ${esc(r.ods)} \u00b7 ${esc(r.guarn||'\u2014')}
+        ${o&&o.nome?`<small>OSD: ${esc((o.posto?o.posto+' ':'')+o.nome)}${o.email?' \u00b7 '+esc(o.email):''}${o.tel?' \u00b7 '+esc(o.tel):''}</small>`:'<small style="color:var(--red)">OSD n\u00e3o informado no checklist</small>'}</span></li>`; }).join('');
+    const mails=alvo.map(r=>{ const g=r.g?norm(r.g):null; return g&&g.osd.email?g.osd.email:''; }).filter(Boolean);
+    openDrawer('Lista de cobran\u00e7a', alvo.length+' OM(s) sem acesso h\u00e1 mais de 45 dias, ou que nunca acessaram',
+      `<ul class="au-tl">${linhas}</ul>`+
+      (mails.length? `<div class="dz-sec">E-mails dos OSD (${mails.length} de ${alvo.length})</div>
+        <textarea readonly rows="3" style="width:100%;font-size:11.5px;font-family:'Roboto Mono',monospace;border:1px solid var(--gray-200);border-radius:3px;padding:8px">${esc(mails.join('; '))}</textarea>`
+        : '<div class="dz-sec">Nenhum e-mail de OSD dispon\u00edvel: as OMs em atraso tamb\u00e9m n\u00e3o preencheram o checklist.</div>'));
+  }
+
   function renderCons(){
     const s=sess();
     const todas=universo();            // universo já filtrado — os KPIs acompanham os filtros
@@ -12192,8 +12482,9 @@ window.GOV = (function(){
     $('govCount').textContent=`${todas.length} OM \u00b7 ${K.comD} com checklist`;
     let h=K.html+filtrosHtml()+`<div class="gov-tabs">
       <div class="gov-tab${aba==='oms'?' active':''}" data-gtab="oms">Por OM</div>
-      <div class="gov-tab${aba==='guarn'?' active':''}" data-gtab="guarn">Ranking por guarni\u00e7\u00e3o</div></div>`;
-    h += aba==='guarn' ? tabelaGuarn(list).html : tabelaOms(list);
+      <div class="gov-tab${aba==='guarn'?' active':''}" data-gtab="guarn">Ranking por guarni\u00e7\u00e3o</div>
+      <div class="gov-tab${aba==='audit'?' active':''}" data-gtab="audit">Acessos e auditoria</div></div>`;
+    h += aba==='guarn' ? tabelaGuarn(list).html : (aba==='audit' ? tabelaAudit(list) : tabelaOms(list));
     if(detalhe && DBall()[detalhe]){ h+=`<h2 class="section-title" style="margin-top:24px"><span>Detalhe \u00b7 ${esc(detalhe)}</span><span class="count">somente leitura \u2014 a OM preenche pelo pr\u00f3prio perfil</span></h2>`+formHtml(detalhe, DBall()[detalhe].governanca, (roster()[detalhe]||{}).nome, true); }
     $('govBody').innerHTML=h;
     const bind=(id,ev,f)=>{ const e=$(id); if(e) e.addEventListener(ev,f); };
@@ -12206,6 +12497,9 @@ window.GOV = (function(){
     bind('govRel','click',()=>emitirRelatorio(list, todas, totalPerfil.length));
     document.querySelectorAll('#govBody .gov-tab').forEach(x=>x.addEventListener('click',()=>{ aba=x.dataset.gtab; renderCons(); }));
     document.querySelectorAll('#govBody tr.clk[data-guarn]').forEach(tr=>tr.addEventListener('click',()=>{ filtro.guarn=tr.dataset.guarn; aba='oms'; renderCons(); }));
+    document.querySelectorAll('#govBody tr.clk[data-audom]').forEach(tr=>tr.addEventListener('click',()=>abrirHistorico(tr.dataset.audom)));
+    bind('govAudCsv','click',()=>exportAuditCsv(list));
+    bind('govAudCobrar','click',()=>listaCobranca(list));
     document.querySelectorAll('#govBody td.cell-clk').forEach(td=>td.addEventListener('click',ev=>{ ev.stopPropagation(); abrirDrill(td.dataset.drill, td.dataset.om); }));
   }
 
@@ -12326,7 +12620,7 @@ window.GOV = (function(){
     if(!s){ $('govBody').innerHTML='<div class="empty-state" style="padding:24px"><p>Entre no painel para acessar a governan\u00e7a.</p></div>'; return; }
     if(s.tipo==='om') renderOm(); else renderCons();
   }
-  return { render, avaliar, pend, norm, score, _docs:DOCS, _drill:abrirDrill, _setFiltro:f=>{ Object.assign(filtro,f); }, _getFiltro:()=>filtro, _setAba:a=>{aba=a;}, _relatorio:()=>{ const t=universo(); emitirRelatorio(aplicarSo(t),t); } };
+  return { render, avaliar, pend, norm, score, _docs:DOCS, _drill:abrirDrill, _setFiltro:f=>{ Object.assign(filtro,f); }, _getFiltro:()=>filtro, _setAba:a=>{aba=a;}, _historico:abrirHistorico, _cobranca:()=>listaCobranca(aplicarSo(universo())), _relatorio:()=>{ const t=universo(); emitirRelatorio(aplicarSo(t),t); } };
 })();
 
 document.addEventListener('DOMContentLoaded', function(){ try{ SideNav.init(); }catch(e){ console.warn(e); } });
