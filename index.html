@@ -3618,6 +3618,8 @@
       <span>Detalhamento por OM e Natureza <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--fab-yellow-dark);font-weight:500;letter-spacing:.05em;margin-left:8px;">&#8599; clique numa linha</span></span>
       <span style="display:flex;align-items:center;gap:14px;margin-left:auto;">
         <span class="count" id="exec-table-count"></span>
+        <input type="search" id="execBusca" placeholder="buscar OM ou ND&#8230;" title="Filtra as linhas por OM (sigla ou nome) ou natureza de despesa"
+          style="border:1px solid var(--gray-200);border-radius:3px;padding:5px 9px;font-family:'Roboto',sans-serif;font-size:12px;min-width:200px;">
         <button class="export-btn" id="exportExecBtn" title="Exportar para CSV">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>Exportar CSV</span>
@@ -3744,16 +3746,11 @@
   <!-- ============ ABA: 2026 (ANO CORRENTE) · PLANEJADO × EXECUTADO ============ -->
   <div class="view-section" id="sec-liberar">
     <h2 class="section-title"><span>Planejado × Executado · 2026</span><span class="count">aprovado &#8594; liberado &#8594; empenhado</span></h2>
-    <section class="charts-row r-2">
+    <section class="charts-row r-1">
       <div class="chart-card">
         <h3>Execução do Aprovado · 2026<span class="info-ico" tabindex="0" data-tip="Caminho do crédito em 2026, com percentuais sobre o Aprovado. 'Aprovado p/ 2026' é uma linha de base FIXA por OM e ND (R$ 3.400.000) — não muda ao longo do ano. 'Liberado à OM' é o que a OM pôde efetivamente empenhar: disponível + empenhos a liquidar + liquidados a pagar + pagos. O que sobra é bloqueio: a parcela ainda retida para controle interno mais, se houver, o crédito cortado — que some da planilha mas continua contando no aprovado, para que a perda do exercício fique visível.">i</span></h3>
         <div class="chart-sub" id="liberarSub">Aprovado &#8594; Descentralizado (c/ bloqueio) &#8594; Liberado &#224; OM &#8594; Bloqueado &#8594; Empenhos a Liquidar</div>
         <div class="funnel" id="liberarFunnel"></div>
-      </div>
-      <div class="chart-card">
-        <h3>Situação do Crédito que está na OM<span class="info-ico" tabindex="0" data-tip="Situação do crédito aprovado em 2026: quanto está disponível, quanto segue bloqueado para controle interno, quanto virou empenho a liquidar e — a partir de JUL/2026 — quanto já foi liquidado a pagar e pago. Se parte do crédito tiver sido cortada, aparece em barra própria. Tudo o que não está bloqueado nem cortado foi liberado à OM.">i</span></h3>
-        <div class="chart-sub">Disponível · Bloqueado · Empenhos a Liquidar</div>
-        <div class="funnel" id="liberarStatus"></div>
       </div>
     </section>
   </div>
@@ -3991,8 +3988,7 @@
     </div>
   </div>
   <div class="view-section" id="sec-modulos">
-    <h2 class="section-title"><span>Análise dos Módulos SISI · Planejamento 2026</span><span class="count">independe do exercício · usa filtros OM / Natureza / ODS / Guarnição</span></h2>
-    <h2 class="section-title"><span>Análise por Módulo SISI</span><span class="count" id="cred-mod-count"></span></h2>
+    <h2 class="section-title"><span>Análise por Módulo SISI · Planejamento 2026</span><span class="count" id="cred-mod-count">independe do exercício · usa filtros OM / Natureza / ODS / Guarnição</span></h2>
     <section class="charts-row r-2">
       <div class="chart-card">
         <h3>Necessidades por Módulo<span class="info-ico" tabindex="0" data-tip="Participação de cada módulo do SISI (Infraestrutura, Vigilância Operacional, Controle de Acesso, Equipe de Reação) no total solicitado pelas OMs filtradas. Clique numa fatia ou item da legenda para ver as OMs e quanto cada uma precisa daquele módulo.">i</span></h3>
@@ -4035,24 +4031,34 @@ pelo canal oficial. A senha é pessoal e intransferível.</p>
 </div>
 
 <div class="manual-card">
-<h3>2 · Abas financeiras</h3>
+<h3>2 · Módulo Financeiro (menu lateral)</h3>
+<p>A navegação é pelo <strong>menu lateral</strong>: Financeiro, Gestão do Projeto e Governança, cada um com
+seus itens. O botão ☰ no topo recolhe o menu.</p>
 <ul>
 <li><strong>2023–2025 · Histórico</strong> — execução por ano (Destaque → Empenhado → Liquidado → Pago),
 com o Comparativo estatístico entre anos e naturezas de despesa.</li>
-<li><strong>2026 · Ano Corrente</strong> — situação do crédito (Disponível, Bloqueado, Empenhos a Liquidar),
-funil Planejado × Executado e <strong>Prazos de Liquidação</strong> dos empenhos
-(60 dias para ND 339030 e 449052; 90 dias para ND 339039).</li>
+<li><strong>2026 · Ano Corrente</strong> — <em>Aprovado</em> (linha de base fixa do ano, R$ 3,4 mi),
+<em>Liberado à OM</em> (disponível + empenhos a liquidar + liquidados + pagos) e <em>Bloqueado</em>
+(aprovado − liberado; se houver corte, ele aparece aqui, para a perda ficar visível); evolução semanal
+entre uploads; funil Planejado × Executado; onde está o disponível (DIREF × OM) e os
+<strong>Prazos de Liquidação</strong> dos empenhos (60 dias para ND 339030 e 449052; 90 dias para
+ND 339039; 180 dias para ND 449051 — obras). A planilha de prazos traz uma aba por mês: o painel usa
+somente a mais recente.</li>
 <li><strong>Restos a Pagar</strong> — RaP por situação e por natureza.</li>
 <li><strong>Necessário × Recebido</strong> — planejamento consolidado: quanto o projeto precisa, quanto já
 foi recebido por ano e os módulos do SISI.</li>
 </ul>
-<p>Use os <strong>filtros</strong> (OM, ND, guarnição — conforme o seu perfil) e os botões
-<strong>JPG</strong> que aparecem nos cartões de gráficos e nos velocímetros para salvar imagens
-prontas para relatórios e apresentações.</p>
+<p>Use os <strong>filtros</strong> (OM, ND, ODS, guarnição — conforme o seu perfil), o campo de
+<strong>busca</strong> na tabela de detalhamento e os botões <strong>JPG</strong> dos cartões. Ao clicar
+numa barra de situação (Disponível, Bloqueado, Empenhos…), a gaveta lateral traz o detalhamento por OM e
+os botões <strong>Relatório</strong> (JPG em A4, PDF ou CSV para Excel/Google Sheets). O
+<strong>Relatório do ODS</strong> gera o PDF completo de um ODS.</p>
 </div>
 
 <div class="manual-card">
-<h3>3 · Gestão do Projeto (aba própria)</h3>
+<h3>3 · Gestão do Projeto</h3>
+<p>Nas visões <em>Por ODS</em> e <em>Por OM</em>, os <strong>chips</strong> no alto trocam de ODS/OM sem
+voltar ao menu; o botão <strong>← Voltar</strong> retorna ao nível anterior (Panorama ou ODS de origem).</p>
 <p><strong>Perfil OM:</strong></p>
 <ul>
 <li><strong>Resumo da OM</strong> — velocímetro geral e situação por módulo.</li>
@@ -4070,6 +4076,20 @@ renomeado (✎) ou removido (×). Ocorrências com fotos ficam no botão "Ocorr�
 <p><strong>Perfil ODS:</strong> acompanha o consolidado das suas OMs (visão por ODS, por OM e necessidades), em leitura.</p>
 <p><strong>Perfil Gestor:</strong> Panorama FAB, visão por ODS e por OM, e Admin do projeto
 (rol de OMs, importação de pacotes, configuração do servidor).</p>
+</div>
+
+<div class="manual-card">
+<h3>3b · Governança de Segurança e Defesa</h3>
+<ul>
+<li><strong>Perfil OM</strong> — preenche o <em>checklist SEGDEF</em>: dados do OSD (nome, contato, e-mail funcional,
+boletim de designação), situação e data da DSOD, PSOD, PSI e Projeto SISI, e a data do último CTSOD.
+Salve e envie ao servidor.</li>
+<li><strong>Gestor e ODS</strong> — consolidado por OM com pendências e base normativa, filtro por ODS e guarnição,
+<em>ranking por guarnição</em> (índice de conformidade), relatório imprimível e CSV. Clique no OSD, num documento ou
+em "Pendências" para ver o detalhe.</li>
+<li><strong>Acessos e auditoria</strong> — quem entrou por último em cada OM, o que alterou e quando; lista de
+cobrança das OMs paradas há mais de 45 dias. O registro é permanente e viaja com o pacote da OM.</li>
+</ul>
 </div>
 
 <div class="manual-card">
@@ -4477,7 +4497,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.24 &#183; 10/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.25 &#183; 21/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -5395,7 +5415,7 @@ function renderExec2026(rows){
   renderEvolucao(rows);
   renderTopOms(rows);
   // tabela 2026
-  const sorted=[...rows].sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
+  const sorted=[...rows].filter(_execMatch).sort((a,b)=>a.om.localeCompare(b.om)||ndOrder(a.nd,b.nd));
   const num=v=>`<td class="num ${v===0?'zero':''}"><span class="cur">R$</span>${fmtBRL0(v)}</td>`;
   document.getElementById('execTbody').innerHTML = sorted.length? sorted.map(r=>`<tr data-om="${r.om.replace(/"/g,'&quot;')}" title="Clique para ver a OM"><td class="code">${r.om}</td><td><span class="badge">${r.nd}</span></td>${num(aprovadoDe(r))}${num(liberadoDe(r))}${num(bloqueadoDe(r))}${num(r.disponivel)}${num(r.emp_a_liquidar)}${num(r.liq_a_pagar||0)}${num(r.pago||0)}</tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><div class="glyph">∅</div><p>Sem registros para os filtros.</p></div></td></tr>`;
   const sum=k=>sorted.reduce((s,r)=>s+(r[k]||0),0);
@@ -5403,7 +5423,7 @@ function renderExec2026(rows){
   set('fe26-apr',somaPor(sorted,aprovadoDe)); set('fe26-lib',somaPor(sorted,liberadoDe)); set('fe26-blq',somaPor(sorted,bloqueadoDe));
   set('fe26-disp',sum('disponivel')); set('fe26-eal',sum('emp_a_liquidar'));
   set('fe26-lap',sum('liq_a_pagar')); set('fe26-pag',sum('pago'));
-  document.getElementById('exec-table-count').textContent=`${sorted.length} linha(s)`;
+  document.getElementById('exec-table-count').textContent=`${sorted.length} linha(s)`+(execBusca?` · busca "${execBusca}"`:'');
 }
 function renderExec(){
   const rows = filterRows(execRows(state.ano));
@@ -5507,8 +5527,8 @@ function renderRapComp(){
   const m=DATA.rapMeta.prev||{}, mc=DATA.rapMeta.cur||{};
   document.getElementById('rapCompRef').textContent =
     (m.sheet? 'de '+m.sheet : 'planilha anterior') + (mc.sheet? ' para '+mc.sheet : '');
-  const card=(cls,rot,val,sub)=>'<div class="kpi '+cls+'"><div class="kpi-label">'+rot+'</div>'+
-    '<div class="kpi-value">'+(val>=0?'+':'\u2212')+' R$ '+fmtBRL0(Math.abs(val))+'</div>'+
+  const card=(cls,rot,val,sub)=>'<div class="kpi '+cls+'"><div class="kpi-lbl">'+rot+'</div>'+
+    '<div class="kpi-val"><span class="cur">'+(val>=0?'+ R$':'\u2212 R$')+'</span><span>'+fmtBRL0(Math.abs(val))+'</span></div>'+
     '<div class="kpi-sub">'+sub+'</div></div>';
   document.getElementById('rapCompKpis').innerHTML=
     card('kpi-liq','Liquidado no per\u00edodo', dLiq, dLiq>0?'empenhos que sa\u00edram do a liquidar':'sem avan\u00e7o de liquida\u00e7\u00e3o')+
@@ -5593,8 +5613,6 @@ function rapxDrawer(om){
     drawerListHtml(items,'ND(s)'));
 }
 function renderRapx(){
-  /* formatador local: fmtBRL2 pertence ao modulo de projeto, nao a esta camada */
-  const brl2=v=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const sec=document.getElementById('sec-rapx');
   if(!sec) return;
   const d=rapxDados();
@@ -5614,7 +5632,7 @@ function renderRapx(){
     ['kpi-pag','Pago','R$ '+fmtBRL0(pago), liq>0? fmtPct(pago/liq*100,1)+' do liquidado':''],
     [aliq>0?'kpi-warn':'kpi-disp','Ainda a liquidar','R$ '+fmtBRL0(aliq), base>0? fmtPct(aliq/base*100,1)+' do saldo inscrito':''],
     ['kpi-nec','Cancelado','R$ '+fmtBRL0(canc),'empenhos baixados sem liquida\u00e7\u00e3o']
-  ].map(([c,l,v,s])=>'<div class="kpi '+c+'"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-sub">'+s+'</div></div>').join('');
+  ].map(([c,l,v,s])=>'<div class="kpi '+c+'"><div class="kpi-lbl">'+l+'</div><div class="kpi-val"><span class="cur">R$</span><span>'+v.replace(/^R\$ /,'')+'</span></div><div class="kpi-sub">'+s+'</div></div>').join('');
   const ad=Math.round(d.aderencia*100);
   let nota='Os valores descentralizados e empenhados de <strong>'+d.ano+'</strong> n\u00e3o mudam. '+
     'O que evolui \u00e9 a liquida\u00e7\u00e3o dos empenhos inscritos em restos a pagar \u2014 \u00e9 isso que esta se\u00e7\u00e3o acompanha, '+
@@ -5636,14 +5654,14 @@ function renderRapx(){
     '</div>').join('') : '<div class="empty-state"><div class="glyph">\u2205</div><p>Sem restos a pagar para o filtro atual</p></div>';
   const ord=[...lista].sort((a,b)=>b.base-a.base);
   document.getElementById('rapxTbody').innerHTML = ord.length? ord.map(x=>
-    '<tr><td><span class="code-tag">'+x.om+'</span>'+(x.misto?'<span class="rapx-tag" title="Inclui restos reinscritos de exerc\u00edcios anteriores">reinscritos</span>':'')+'</td>'+
-    '<td class="num"><span class="cur">R$</span>'+brl2(x.base)+'</td>'+
-    '<td class="num">'+(x.canc? '<span class="cur">R$</span>'+brl2(x.canc) : '\u2014')+'</td>'+
-    '<td class="num"><span class="cur">R$</span>'+brl2(x.liq)+'</td>'+
-    '<td class="num"><span class="cur">R$</span>'+brl2(x.pago)+'</td>'+
-    '<td class="num">'+(x.aliq? '<span class="cur">R$</span>'+brl2(x.aliq) : '\u2014')+'</td>'+
+    '<tr><td class="code">'+x.om+(x.misto?' <span class="rapx-tag" title="Inclui restos reinscritos de exerc\u00edcios anteriores">reinscritos</span>':'')+'</td>'+
+    '<td class="num"><span class="cur">R$</span>'+fmtBRL0(x.base)+'</td>'+
+    '<td class="num'+(x.canc?'':' zero')+'"><span class="cur">R$</span>'+fmtBRL0(x.canc)+'</td>'+
+    '<td class="num"><span class="cur">R$</span>'+fmtBRL0(x.liq)+'</td>'+
+    '<td class="num"><span class="cur">R$</span>'+fmtBRL0(x.pago)+'</td>'+
+    '<td class="num'+(x.aliq?'':' zero')+'"><span class="cur">R$</span>'+fmtBRL0(x.aliq)+'</td>'+
     '<td class="num"><strong>'+fmtPct(x.pct,1)+'</strong></td></tr>').join('')
-    : '<tr><td colspan="7" style="text-align:center;color:#8a93a0">Sem dados para o filtro atual</td></tr>';
+    : '<tr><td colspan="7"><div class="empty-state"><div class="glyph">\u2205</div><p>Sem dados para o filtro atual</p></div></td></tr>';
 }
 function renderEficiencia(rows){
   const byOm={};
@@ -5797,8 +5815,22 @@ function renderTopOms(rows){
     </div>`).join('') : '<div class="empty-state"><div class="glyph">∅</div><p>Sem dados</p></div>';
 }
 
+/* u2.25 — busca livre na tabela de detalhamento (OM ou ND) */
+let execBusca='';
+function _execMatch(r){
+  if(!execBusca) return true;
+  const q=execBusca.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const om=String(r.om||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const nd=String(r.nd||'')+' '+String((ndLabel[r.nd]||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  // também casa pela SIGLA da OM (BAPV, BASP…), lida do rol do projeto
+  let sigla='';
+  try{ if(window.PM&&PM.getRoster){ const R=PM.getRoster(); for(const k in R){ if(R[k].nome===r.om){ sigla=k.toLowerCase(); break; } } } }catch(e){}
+  return om.includes(q) || nd.includes(q) || (sigla && sigla.includes(q));
+}
+(function(){ const b=document.getElementById('execBusca'); if(!b) return;
+  b.addEventListener('input',()=>{ execBusca=b.value.trim(); refresh(); const e=document.getElementById('execBusca'); if(e){ e.focus(); } }); })();
 function renderExecTable(rows){
-  const sorted=[...rows].sort((a,b)=> a.om.localeCompare(b.om)|| ndOrder(a.nd,b.nd));
+  const sorted=[...rows].filter(_execMatch).sort((a,b)=> a.om.localeCompare(b.om)|| ndOrder(a.nd,b.nd));
   const tb=document.getElementById('execTbody');
   const num=(v)=>`<td class="num ${v===0?'zero':''}"><span class="cur">R$</span>${fmtBRL0(v)}</td>`;
   tb.innerHTML = sorted.length? sorted.map(r=>`
@@ -5811,7 +5843,7 @@ function renderExecTable(rows){
   const set=(id,v)=>document.getElementById(id).textContent=fmtBRL0(v);
   set('fe-sal',sum('saldo'));set('fe-dev',sum('devolvido'));set('fe-emp',sum('empenhado'));
   set('fe-liq',sum('liquidado'));set('fe-lap',sum('liq_a_pagar'));set('fe-rp',sum('inscrito_rp'));set('fe-pag',sum('pago'));
-  document.getElementById('exec-table-count').textContent=`${sorted.length} linha(s)`;
+  document.getElementById('exec-table-count').textContent=`${sorted.length} linha(s)`+(execBusca?` · busca "${execBusca}"`:'');
 }
 
 // ---------- Render RAP ----------
@@ -6248,6 +6280,87 @@ function pdfAddCanvasPaged(pdf, canvas, opts){
     first=false; y+=sh;
   }
 }
+/* ---------- u2.25 · Relatório da gaveta (JPG A4 · PDF · CSV) ---------- */
+function _drillLinhas(){
+  const c=_drillCtx; if(!c) return [];
+  const tot=c.items.reduce((a,x)=>a+(x.value||0),0);
+  return c.items.filter(x=>Math.abs(x.value||0)>0.005).sort((a,b)=>b.value-a.value).map(x=>{
+    const om=String(x.label||''); const R=(typeof odsOf==='function')?odsOf(om):''; 
+    const nk=x2=>String(x2||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\b(DA|DE|DO|DAS|DOS)\b/g,'').replace(/[^A-Z0-9]/g,'');
+    const gu=(window.PM&&PM.getRoster)?((Object.values(PM.getRoster()).find(r=>r.nome===om||nk(r.nome)===nk(om))||{}).guarnicao||''):'';
+    return { om, ods:R||'', guarn:gu, valor:x.value||0, pct: tot? x.value/tot*100 : 0 }; });
+}
+function _drillSheetHtml(orient){
+  const c=_drillCtx; const L=_drillLinhas(); const tot=L.reduce((a,x)=>a+x.valor,0); const max=Math.max(1,...L.map(x=>x.valor));
+  const em=(document.querySelector('.header .emblem img')||{}).src||'';
+  const filtros=[ state.om.size?('OM: '+[...state.om].join(', ')):'', state.natureza.size?('ND: '+[...state.natureza].join(', ')):'',
+    state.ods.size?('ODS: '+[...state.ods].join(', ')):'', state.guarnicao.size?('Guarnição: '+[...state.guarnicao].join(', ')):'' ].filter(Boolean).join(' · ') || 'sem filtros — todo o COMAER';
+  const top=L[0];
+  const kp=(l,v,s2)=>`<div class="rl-kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s2||''}</div></div>`;
+  return `<div class="rl-sheet ${orient==='l'?'l':'p'}">
+    <div class="rl-head">${em?`<img src="${em}" alt="">`:''}
+      <div><div class="t1">Comando da Aeronáutica · Força Aérea Brasileira · Projeto SISI</div>
+        <div class="t2">${c.title}</div><div class="t3">${c.subtitle||''}</div></div>
+      <div class="meta">Situação em<br><b>${new Date().toLocaleString('pt-BR')}</b></div></div>
+    <div class="rl-esc"><b>Filtros:</b> ${filtros}</div>
+    <div class="rl-kpis">
+      ${kp('Total','R$ '+fmtBRL0(tot))}
+      ${kp(c.unit+'(s)', L.length, 'com valor')}
+      ${kp('Maior valor', top?('R$ '+fmtBRL0(top.valor)):'—', top?top.om:'')}
+      ${kp('Média por '+c.unit, L.length?('R$ '+fmtBRL0(tot/L.length)):'—')}</div>
+    <table><colgroup><col class="c-n"><col><col class="c-ods"><col class="c-gu"><col class="c-val"><col class="c-pct"><col class="c-bar"></colgroup><thead><tr><th>#</th><th>${c.colLabel||'OM'}</th><th>ODS</th><th>Guarn.</th><th class="num">${c.valLabel||'Valor'}</th><th class="num">% do total</th><th>Participação</th></tr></thead>
+    <tbody>${L.map((x,i)=>`<tr><td>${i+1}</td><td>${x.om}</td><td>${x.ods}</td><td>${x.guarn}</td><td class="num">R$ ${fmtBRL0(x.valor)}</td><td class="num">${fmtPct(x.pct,1)}</td><td><div class="rl-bar"><i style="width:${x.valor/max*100}%"></i></div></td></tr>`).join('')}</tbody>
+    <tfoot><tr><td></td><td>Total</td><td></td><td></td><td class="num">R$ ${fmtBRL0(tot)}</td><td class="num">100%</td><td></td></tr></tfoot></table>
+    <div class="rl-foot"><span>${_stampTxt()}</span><span>Fonte: Tesouro Gerencial · planilha semanal de execução</span></div></div>`;
+}
+async function _drillRel(tipo){
+  const c=_drillCtx; if(!c) return;
+  const orient=(document.getElementById('drillOrient')||{}).value||'p';
+  const btn=document.getElementById(tipo==='jpg'?'drillRelJpg':(tipo==='pdf'?'drillRelPdf':'drillRelCsv'));
+  const nome=(c.arquivo||'SISI_relatorio')+'_'+_hoje();
+  if(tipo==='csv'){
+    const L=_drillLinhas();
+    const esc2=v=>{ const t2=String(v==null?'':v); return /[;"\n\r]/.test(t2)?'"'+t2.replace(/"/g,'""')+'"':t2; };
+    const numBR=v=>Number(v).toFixed(2).replace('.',',');
+    const lines=[[c.colLabel||'OM','ODS','Guarnicao',c.valLabel||'Valor','% do total'].map(esc2).join(';')]
+      .concat(L.map(x=>[esc2(x.om),esc2(x.ods),esc2(x.guarn),numBR(x.valor),numBR(x.pct)].join(';')));
+    const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nome+'.csv'; a.click();
+    try{ URL.revokeObjectURL(a.href); }catch(e){}
+    return;
+  }
+  let host=null;
+  try{
+    if(btn){ btn.disabled=true; btn.textContent='Gerando…'; }
+    await ensureHtml2Canvas(); if(tipo==='pdf') await ensureJsPDF();
+    host=document.createElement('div');
+    host.style.cssText='position:absolute;left:0;top:'+(window.pageYOffset||0)+'px;z-index:-1000;pointer-events:none;background:#fff;';
+    host.innerHTML=_drillSheetHtml(orient); document.body.appendChild(host);
+    const sheet=host.firstElementChild;
+    const w=sheet.offsetWidth, h=Math.max(sheet.scrollHeight, orient==='l'?794:1123);
+    if(tipo==='jpg'){
+      // imagem ÚNICA na proporção A4: a folha cresce em altura conforme as linhas;
+      // se ficar mais alta que uma A4, a imagem é maior que A4 mas continua uma só.
+      sheet.style.minHeight=(orient==='l'?794:1123)+'px';
+      const canvas=await html2canvas(sheet,{scale:2,backgroundColor:'#FFFFFF',useCORS:true,windowWidth:w+40,windowHeight:h+40});
+      const a=document.createElement('a'); a.download=nome+'.jpg'; a.href=canvas.toDataURL('image/jpeg',0.92); a.click();
+    } else {
+      const canvas=await html2canvas(sheet,{scale:2,backgroundColor:'#FFFFFF',useCORS:true,windowWidth:w+40,windowHeight:h+40});
+      const pdf=new window.jspdf.jsPDF({orientation:orient==='l'?'l':'p',unit:'mm',format:'a4'});
+      pdfAddCanvasPaged(pdf, canvas, {orientation:orient});
+      pdf.save(nome+'.pdf');
+    }
+    if(btn) btn.textContent='✓ Gerado';
+  }catch(e){ alert('Falha ao gerar o relatório: '+e.message); }
+  finally{ if(host&&host.parentNode) host.parentNode.removeChild(host);
+    if(btn){ btn.disabled=false; setTimeout(()=>{ btn.innerHTML = tipo==='jpg'?'&#128247; JPG':(tipo==='pdf'?'&#128196; PDF':'&#128202; CSV'); },1800); } }
+}
+// A gaveta é declarada depois deste script no HTML, então os botões são tratados por
+// delegação no documento (funciona independentemente da ordem de carregamento).
+document.addEventListener('click',e=>{
+  const b=e.target.closest('#drillRelJpg,#drillRelPdf,#drillRelCsv'); if(!b) return;
+  _drillRel(b.id==='drillRelJpg'?'jpg':(b.id==='drillRelPdf'?'pdf':'csv'));
+});
 function _sanit(x){ return String(x||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,60); }
 function _hoje(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function _stampTxt(){ return `Acompanhamento da Execução do Projeto SISI · situação em ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`; }
@@ -6820,7 +6933,9 @@ function renderLiberar2026(){
   sit.push({l:'Empenhos a Liquidar',v:eal,c:'var(--fab-yellow-dark)',k:'emp_a_liquidar'});
   if(lap>0.005||pag>0.005){ sit.push({l:'Emp. Liquidados a Pagar',v:lap,c:'var(--fab-blue-light)',k:'liq_a_pagar'});
                             sit.push({l:'Empenhos Pagos',v:pag,c:'var(--green)',k:'pago'}); }
-  document.getElementById('liberarStatus').innerHTML = funnel(sit, Math.max(disp,retidoT,corteT,eal,lap,pag,1));
+  /* u2.25 — o funil de situação desta seção foi removido: repetia, barra a barra, o
+     "Situação do Crédito · 2026" que já abre a aba. A lista `sit` fica para eventual reuso. */
+  void sit;
 }
 function isDirefUGE(name){
   const s=String(name==null?'':name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
@@ -6908,9 +7023,14 @@ function renderDisponivelUGE(){
   host.innerHTML = groups.map(item).join('');
 }
 // ---------- Drawer (slider) de detalhamento ao clicar nos gráficos ----------
-function openDrawer(title, subtitle, bodyHtml){
+/* u2.25 — contexto do relatório da gaveta: preenchido por quem abre a gaveta com uma
+   lista de OM/valor. Sem contexto, a barra de relatório fica oculta. */
+let _drillCtx=null;
+function openDrawer(title, subtitle, bodyHtml, ctx){
   const d=document.getElementById('drillDrawer'), b=document.getElementById('drillBackdrop');
   if(!d) return;
+  _drillCtx = (ctx && Array.isArray(ctx.items)) ? Object.assign({title, subtitle}, ctx) : null;
+  const tools=document.getElementById('drillTools'); if(tools) tools.classList.toggle('on', !!_drillCtx);
   const t=document.getElementById('drillTitle'); if(t) t.textContent=title||'Detalhamento';
   const s=document.getElementById('drillSub'); if(s) s.textContent=subtitle||'';
   const bd=document.getElementById('drillBody'); if(bd) bd.innerHTML=bodyHtml||'';
@@ -6937,12 +7057,14 @@ function openDrill(kind, key){
     const valDe = key==='corte' ? corteDe : (r=>r[key]||0);
     const byOm={}; filterRows(execRows('2026')).forEach(r=>{ byOm[r.om]=(byOm[r.om]||0)+valDe(r); });
     const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v}));
-    openDrawer(lbl+' · 2026', 'OMs com '+lbl.toLowerCase()+' (filtros aplicados)', drawerListHtml(items,'OM(s)'));
+    openDrawer(lbl+' · 2026', 'OMs com '+lbl.toLowerCase()+' (filtros aplicados)', drawerListHtml(items,'OM(s)'),
+      { items, unit:'OM', colLabel:'OM (UGR)', valLabel:lbl, arquivo:'SISI_'+_sanit(lbl)+'_2026', extraCols:true });
   } else if(kind==='uge'){
     const rows=ugeFilteredRows().filter(r=>String(r.uge||'')===String(key));
     const byOm={}; rows.forEach(r=>byOm[r.om]=(byOm[r.om]||0)+r.disponivel);
     const items=Object.entries(byOm).map(([om,v])=>({label:om,value:v,color:isDirefUGE(key)?'var(--fab-blue)':'var(--orange)'}));
-    openDrawer('UGE: '+ugeDisplay(key), 'UGRs com crédito disponível nesta UGE', drawerListHtml(items,'UGR(s)'));
+    openDrawer('UGE: '+ugeDisplay(key), 'UGRs com crédito disponível nesta UGE', drawerListHtml(items,'UGR(s)'),
+      { items, unit:'UGR', colLabel:'OM (UGR)', valLabel:'Crédito disponível na UGE', arquivo:'SISI_Disponivel_UGE_'+_sanit(ugeDisplay(key)), extraCols:true });
   } else if(kind==='ods'){
     const rows=ugeFilteredRows().filter(r=>odsOf(r.om)===String(key));
     const byOm={}; rows.forEach(r=>{ const o=byOm[r.om]||(byOm[r.om]={d:0,o:0}); if(isDirefUGE(r.uge)) o.d+=r.disponivel; else o.o+=r.disponivel; });
@@ -7031,7 +7153,10 @@ function recebidoPorAno(){
     '2023':filterRows(execRows('2023')).reduce((a,r)=>a+(r.saldo||0),0),
     '2024':filterRows(execRows('2024')).reduce((a,r)=>a+(r.saldo||0),0),
     '2025':filterRows(execRows('2025')).reduce((a,r)=>a+(r.saldo||0),0),
-    '2026':filterRows(execRows('2026')).reduce((a,r)=>a+(r.bloqueado||0),0)
+    // u2.25 — 2026 passa a contar o LIBERADO à OM (o que efetivamente chegou às mãos
+    // da OM), coerente com a semântica adotada desde a u2.20. Antes contava o crédito
+    // bloqueado — justamente a parcela que a OM NÃO recebeu.
+    '2026':somaPor(filterRows(execRows('2026')), liberadoDe)
   };
 }
 function renderNecRec(){
@@ -7046,7 +7171,7 @@ function renderNecRec(){
   const falta=Math.max(0,necTotal-totalRec);
   document.getElementById('necrec-kpis').innerHTML =
     kpi('kpi-nec','Total Necessário (desde 2023)',necTotal,'R$ 45M (a partir de 2026) + recebido 23–25','Total necessário do Projeto SISI contado desde 2023: o necessário a partir de 2026 (planejamento, ~45 mi) somado ao que já foi recebido em 2023–2025.') +
-    kpi('kpi-rec','Recebido Acumulado',totalRec,`${fmtPct(cob,1)} do necessário`,'Soma do recebido em todos os exercícios (2023–2025 = destaque recebido; 2026 = crédito bloqueado para controle interno).') +
+    kpi('kpi-rec','Recebido Acumulado',totalRec,`${fmtPct(cob,1)} do necessário`,'Soma do recebido em todos os exercícios (2023–2025 = destaque recebido; 2026 = crédito liberado à OM, isto é, aprovado menos bloqueado). Antes da u2.25 contava o bloqueado para controle interno).') +
     kpi('kpi-apr','Aprovado 2026',apr, necFwd>0?`${fmtPct(apr/necFwd*100,1)} do necessário 2026`:'—','Crédito aprovado e descentralizado para 2026, na mesma base do funil da aba do ano corrente: a planilha semanal de execução (R$ 3.400.000). A coluna Aprovado do planejamento embutido soma R$ 3.410.000 e será substituída no primeiro upload da planilha de planejamento.') +
     kpi('kpi-warn','Ainda Falta',falta,'p/ cobrir o necessário','Quanto ainda falta receber para cobrir o total necessário do projeto desde 2023.');
   const years=['2023','2024','2025','2026'];
@@ -8242,6 +8367,41 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
   .drill-sub{font-size:11.5px;opacity:.85;margin-top:3px;}
   .drill-close{background:transparent;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0 2px;}
   .drill-body{padding:18px 20px;overflow-y:auto;flex:1;}
+  /* u2.25 — barra de relatório da gaveta */
+  .drill-tools{display:none;gap:6px;flex-wrap:wrap;padding:10px 20px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);}
+  .drill-tools.on{display:flex;}
+  .drill-tools .lbl{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-500);align-self:center;margin-right:4px;}
+  .drill-tools button{border:1px solid var(--gray-200);background:#fff;color:var(--fab-blue);border-radius:3px;padding:5px 10px;font-size:11.5px;font-family:'Roboto',sans-serif;cursor:pointer;}
+  .drill-tools button:hover:not(:disabled){background:var(--fab-blue);color:#fff;border-color:var(--fab-blue);}
+  .drill-tools button:disabled{opacity:.5;cursor:default;}
+  .drill-tools select{border:1px solid var(--gray-200);border-radius:3px;padding:4px 6px;font-size:11.5px;font-family:'Roboto',sans-serif;}
+  /* folha do relatório (montada fora da tela e capturada) */
+  .rl-sheet{background:#fff;font-family:'Roboto',sans-serif;color:var(--gray-900);padding:36px 40px;box-sizing:border-box;}
+  .rl-sheet.p{width:794px;}  .rl-sheet.l{width:1123px;}
+  .rl-head{display:flex;align-items:center;gap:16px;border-bottom:3px solid var(--fab-blue);padding-bottom:12px;margin-bottom:14px;}
+  .rl-head img{width:56px;height:56px;object-fit:contain;}
+  .rl-head .t1{font-size:10px;letter-spacing:.14em;color:var(--fab-blue-light);text-transform:uppercase;}
+  .rl-head .t2{font-size:20px;color:var(--fab-blue);font-weight:500;font-family:'Roboto Condensed',sans-serif;}
+  .rl-head .t3{font-size:12px;color:var(--gray-500);}
+  .rl-head .meta{margin-left:auto;text-align:right;font-size:10.5px;color:var(--gray-500);}
+  .rl-esc{background:var(--gray-50);border-left:4px solid var(--fab-accent);padding:8px 12px;font-size:11.5px;color:var(--gray-700);margin-bottom:12px;}
+  .rl-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+  .rl-kpi{border:1px solid var(--gray-200);border-top:3px solid var(--fab-blue);padding:8px 10px;}
+  .rl-kpi .l{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--gray-500);}
+  .rl-kpi .v{font-size:20px;font-weight:300;color:var(--fab-blue);font-family:'Roboto Mono',monospace;}
+  .rl-kpi .s{font-size:9.5px;color:var(--gray-500);}
+  .rl-sheet table{width:100% !important;min-width:0 !important;table-layout:fixed;border-collapse:collapse;font-size:11px;}
+  .rl-sheet thead{position:static;}
+  .rl-sheet col.c-n{width:28px;} .rl-sheet col.c-ods{width:82px;} .rl-sheet col.c-gu{width:52px;} .rl-sheet col.c-val{width:112px;} .rl-sheet col.c-pct{width:64px;} .rl-sheet col.c-bar{width:96px;}
+  .rl-sheet td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rl-sheet th{background:var(--fab-blue);color:#fff;text-align:left;padding:6px 8px;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:500;}
+  .rl-sheet th.num,.rl-sheet td.num{text-align:right;font-family:'Roboto Mono',monospace;}
+  .rl-sheet td{padding:5px 8px;border-bottom:1px solid var(--gray-100);}
+  .rl-sheet tr:nth-child(even) td{background:var(--gray-50);}
+  .rl-sheet tfoot td{font-weight:600;border-top:2px solid var(--gray-200);background:#fff !important;}
+  .rl-bar{height:8px;background:var(--gray-100);border-radius:2px;overflow:hidden;min-width:80px;}
+  .rl-bar i{display:block;height:100%;background:var(--fab-blue);}
+  .rl-foot{margin-top:14px;padding-top:8px;border-top:1px solid var(--gray-200);font-size:9.5px;color:var(--gray-500);display:flex;justify-content:space-between;}
   [data-drill]{cursor:pointer;}
   [data-drill]:hover{filter:brightness(1.06);}
   h3.sortable{cursor:pointer;}
@@ -8257,6 +8417,13 @@ const JSONBIN_BUILTIN = { binId: '6a025e88c0954111d80c7018', accessKey: '' };
   <div class="drill-head">
     <div><div id="drillTitle" class="drill-title">Detalhamento</div><div id="drillSub" class="drill-sub"></div></div>
     <button id="drillClose" class="drill-close" aria-label="Fechar">&#215;</button>
+  </div>
+  <div class="drill-tools" id="drillTools">
+    <span class="lbl">Relat&#243;rio</span>
+    <select id="drillOrient" title="Orienta&#231;&#227;o da folha"><option value="p">A4 retrato</option><option value="l">A4 paisagem</option></select>
+    <button type="button" id="drillRelJpg" title="Imagem &#250;nica em A4, pronta para anexar">&#128247; JPG</button>
+    <button type="button" id="drillRelPdf" title="PDF em A4, paginado">&#128196; PDF</button>
+    <button type="button" id="drillRelCsv" title="Planilha (Excel / Google Sheets)">&#128202; CSV</button>
   </div>
   <div id="drillBody" class="drill-body"></div>
 </aside>
