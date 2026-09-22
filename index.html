@@ -45,6 +45,13 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* ===== u2.26 · abas internas do bloco "Onde está o crédito" ===== */
+  .ib-tabs{ display:flex; gap:2px; border-bottom:2px solid var(--gray-100); margin:0 0 16px; }
+  .ib-tab{ background:none; border:0; border-bottom:3px solid transparent; margin-bottom:-2px; padding:10px 18px; font-family:'Roboto',sans-serif; font-size:13px; color:var(--gray-500); cursor:pointer; }
+  .ib-tab:hover{ color:var(--fab-blue); }
+  .ib-tab.active{ color:var(--fab-blue); border-bottom-color:var(--fab-accent); font-weight:500; }
+  .ib-tab .ib-hint{ font-size:10px; color:var(--gray-500); margin-left:6px; letter-spacing:.04em; }
+  .ib-pane{ display:none; } .ib-pane.active{ display:block; }
 
   /* ===================== u2.24 · CABE\u00c7ALHO INTEGRADO ===================== */
   /* A barra superior deixa de ter cor pr\u00f3pria: assume o mesmo azul do cabe\u00e7alho,
@@ -3745,7 +3752,12 @@
 
   <!-- ============ ABA: 2026 (ANO CORRENTE) · PLANEJADO × EXECUTADO ============ -->
   <div class="view-section" id="sec-liberar">
-    <h2 class="section-title"><span>Planejado × Executado · 2026</span><span class="count">aprovado &#8594; liberado &#8594; empenhado</span></h2>
+    <h2 class="section-title"><span>Onde est&#225; o cr&#233;dito &#183; 2026</span><span class="count">aprovado &#8594; liberado &#8594; empenhado &#183; e em qual UGE est&#225; o dispon&#237;vel</span></h2>
+    <div class="ib-tabs" id="ondeTabs">
+      <button type="button" class="ib-tab active" data-ib="exec">Execu&#231;&#227;o do Aprovado</button>
+      <button type="button" class="ib-tab" data-ib="uge">Dispon&#237;vel por UGE <span class="ib-hint">DIREF &#215; OM</span></button>
+    </div>
+    <div class="ib-pane active" data-ibpane="exec">
     <section class="charts-row r-1">
       <div class="chart-card">
         <h3>Execução do Aprovado · 2026<span class="info-ico" tabindex="0" data-tip="Caminho do crédito em 2026, com percentuais sobre o Aprovado. 'Aprovado p/ 2026' é uma linha de base FIXA por OM e ND (R$ 3.400.000) — não muda ao longo do ano. 'Liberado à OM' é o que a OM pôde efetivamente empenhar: disponível + empenhos a liquidar + liquidados a pagar + pagos. O que sobra é bloqueio: a parcela ainda retida para controle interno mais, se houver, o crédito cortado — que some da planilha mas continua contando no aprovado, para que a perda do exercício fique visível.">i</span></h3>
@@ -3753,9 +3765,8 @@
         <div class="funnel" id="liberarFunnel"></div>
       </div>
     </section>
-  </div>
-  <div class="view-section" id="sec-uge">
-    <h2 class="section-title"><span>Disponível por UGR · em qual UGE está</span><span class="count">controle por UGR — DIREF ou outra UGE</span></h2>
+    </div>
+    <div class="ib-pane" data-ibpane="uge" id="sec-uge">
     <section class="charts-row r-1">
       <div class="chart-card">
         <h3>Onde está o crédito disponível · DIREF &#215; outra UGE<span class="info-ico" tabindex="0" data-tip="Do crédito disponível de 2026 (após os filtros aplicados), quanto está na UGE DIREF (Diretoria de Economia e Finanças da Aeronáutica) e quanto está descentralizado em outra UGE. O controle continua sendo feito por UGR.">i</span></h3>
@@ -3782,6 +3793,7 @@
         <div id="ugeList" style="max-height:560px;overflow-y:auto;padding-right:6px;margin-top:4px;"></div>
       </div>
     </section>
+    </div>
   </div>
   <div class="view-section" id="sec-prazos">
     <h2 class="section-title"><span>Prazos de Liquidação dos Empenhos &#183; 2026</span><span class="count" id="prazos-count"></span></h2>
@@ -4497,7 +4509,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Painel de Gestão do Projeto SISI no COMAER</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.25 &#183; 21/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.26 &#183; 21/09/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -4964,16 +4976,40 @@ const APR26 = (function(){
     // Redefine a linha de base a partir de uma lista de linhas de execução.
     setFrom(rows, rotulo){
       const arr=[]; (rows||[]).forEach(r=>{ const v=soma5De(r); if(v>0.005) arr.push({om:r.om,nd:r.nd,v:+v.toFixed(2)}); });
-      map=build(arr); origem=rotulo||'personalizada';
+      map=build(arr); origem=rotulo||'personalizada'; _aprCache.key='';
       try{ localStorage.setItem(LSK, JSON.stringify({rows:arr, origem, savedAt:new Date().toISOString()})); }catch(e){}
       return arr.length;
     },
-    reset(){ try{ localStorage.removeItem(LSK); }catch(e){} map=null; origem='embutida'; load(); }
+    reset(){ try{ localStorage.removeItem(LSK); }catch(e){} map=null; origem='embutida'; load(); _aprCache.key=''; },
+    _map(){ return load(); }
   };
 })();
-// Aprovado da linha: a base fixa; se a planilha trouxer MAIS que a base (suplementação),
-// vale o maior — assim um acréscimo aparece, mas um corte permanece visível como bloqueio.
-const aprovadoDe  = r => Math.max(APR26.get(r.om,r.nd), soma5De(r));
+/* u2.26 — APROVADO POR OM.
+   Comparar base e planilha linha a linha (OM×ND) inflava o aprovado sempre que a OM
+   remanejava crédito entre naturezas: a ND de origem ficava com a base (o valor antigo)
+   e a ND de destino trazia o valor novo — a mesma verba contada duas vezes. Por OM o
+   remanejamento é neutro: aprovado da OM = max(base da OM, total da OM na planilha).
+   Um corte continua visível (a base prevalece); uma suplementação continua aparecendo
+   (a planilha prevalece). Para as tabelas, o aprovado da OM é distribuído entre as NDs
+   na proporção da planilha atual; se a OM foi cortada por inteiro, vale a base por ND. */
+const _aprCache={ key:'', om:{} };
+function _aprOmMapa(){
+  const rows=execRows('2026');
+  const key=rows.length+'|'+(DATA.execution['2026']||[]).length+'|'+APR26.total();
+  if(_aprCache.key===key) return _aprCache.om;
+  const M={};
+  const bm=APR26._map? APR26._map() : {};
+  Object.keys(bm).forEach(k=>{ const [om,nd]=k.split('|'); const o=M[om]||(M[om]={base:0,cur:0,baseNd:{},curNd:{}}); o.base+=bm[k]; o.baseNd[nd]=(o.baseNd[nd]||0)+bm[k]; });
+  rows.forEach(r=>{ const o=M[r.om]||(M[r.om]={base:0,cur:0,baseNd:{},curNd:{}}); const v=soma5De(r); o.cur+=v; o.curNd[r.nd]=(o.curNd[r.nd]||0)+v; });
+  Object.values(M).forEach(o=>{ o.aprovado=Math.max(o.base,o.cur); });
+  _aprCache.key=key; _aprCache.om=M; return M;
+}
+function aprovadoOm(om){ const o=_aprOmMapa()[om]; return o? o.aprovado : 0; }
+const aprovadoDe = r => {
+  const o=_aprOmMapa()[r.om]; if(!o) return soma5De(r);
+  if(o.cur>0.005) return o.aprovado * (soma5De(r)/o.cur);       // proporcional à planilha atual
+  return o.baseNd[r.nd]||0;                                       // OM cortada por inteiro: base por ND
+};
 // Bloqueado = o que foi aprovado e ainda não chegou às mãos da OM.
 const bloqueadoDe = r => Math.max(0, aprovadoDe(r)-liberadoDe(r));
 // Decomposição do bloqueio: retido na planilha × cortado (sumiu da planilha).
@@ -5361,7 +5397,13 @@ function aprovadoAno(){
   // não há planilha carregada ou quando há filtro de Guarnição, que a execução ignora.
   if(!state.guarnicao.size){
     const ex=filterRows(execRows('2026'));
-    if(ex.length) return somaPor(ex, aprovadoDe);
+    if(ex.length){
+      // Por OM (u2.26). Sem filtro de ND, o aprovado da OM inteira; com filtro de ND,
+      // a parcela proporcional das NDs filtradas — evita contar duas vezes remanejamentos.
+      const oms=[...new Set(ex.map(r=>r.om))];
+      if(!state.natureza.size) return oms.reduce((a,om)=>a+aprovadoOm(om),0);
+      return somaPor(ex, aprovadoDe);
+    }
   }
   const semFiltro = !state.om.size && !state.ods.size && !state.guarnicao.size;
   if(semFiltro && CREDDATA.teto>0) return CREDDATA.teto;
@@ -6249,6 +6291,14 @@ async function saveModalAsImage(){
 }
 document.getElementById('modalSaveImgBtn').addEventListener('click',saveModalAsImage);
 
+// ---------- u2.26 · abas internas de "Onde está o crédito" ----------
+document.addEventListener('click',e=>{
+  const b=e.target.closest('#ondeTabs .ib-tab'); if(!b) return;
+  document.querySelectorAll('#ondeTabs .ib-tab').forEach(x=>x.classList.toggle('active', x===b));
+  document.querySelectorAll('#sec-liberar .ib-pane').forEach(p=>p.classList.toggle('active', p.dataset.ibpane===b.dataset.ib));
+  try{ localStorage.setItem('sisi_onde_tab', b.dataset.ib); }catch(_){}
+});
+(function(){ try{ const t=localStorage.getItem('sisi_onde_tab'); if(t){ const b=document.querySelector('#ondeTabs .ib-tab[data-ib="'+t+'"]'); if(b) b.click(); } }catch(_){} })();
 // ---------- Infra PDF (jsPDF sob demanda + paginação de canvas) ----------
 let _jspdfLoading=null;
 function ensureJsPDF(){
@@ -7199,8 +7249,7 @@ function refresh(){
   const A=id=>document.getElementById(id);
   A('view-exec').classList.toggle('active', v==='hist'||v==='corrente');
   A('view-comp').classList.toggle('active', v==='hist');
-  A('sec-liberar').classList.toggle('active', v==='corrente');
-  A('sec-uge').classList.toggle('active', v==='corrente');
+  A('sec-liberar').classList.toggle('active', v==='corrente');   // u2.26: sec-uge é uma aba interna deste bloco
   A('sec-prazos').classList.toggle('active', v==='corrente');
   A('view-rap').classList.toggle('active', v==='rap');
   A('sec-necrec').classList.toggle('active', v==='plan');
@@ -7480,7 +7529,10 @@ function refresh(){
   function updateAprStatus(){
     const el=$('adminAprStatus'); if(!el) return;
     el.className='admin-config-status ok';
-    el.textContent=`Aprovado 2026: R$ ${fmtBRL0(APR26.total())} · ${APR26.pares()} pares OM×ND · base ${APR26.origem()}`;
+    const planilha=somaPor(execRows('2026'), soma5De);
+    const apurado=[...new Set(execRows('2026').map(r=>r.om))].reduce((a,om)=>a+aprovadoOm(om),0);
+    el.textContent=`Base R$ ${fmtBRL0(APR26.total())} (${APR26.pares()} pares OM×ND, ${APR26.origem()}) · planilha atual R$ ${fmtBRL0(planilha)} · aprovado apurado R$ ${fmtBRL0(apurado)}`;
+    if(apurado>APR26.total()+0.005){ el.className='admin-config-status warn'; el.textContent+=' — acima da base: alguma OM soma mais na planilha do que o aprovado (suplementação?)'; }
   }
   $('adminAprSetBtn').addEventListener('click',()=>{
     const cur=DATA.execution['2026']||[];
