@@ -1,5 +1,12 @@
-# fotos: só leitura; nada executável
-Options -Indexes
-<FilesMatch "\.(php|phtml|php5|phar|cgi|pl|py|sh)$">
-  Require all denied
-</FilesMatch>
+# Fotos das OMs: NENHUM acesso direto pelo navegador.
+# Elas só são entregues pela api.php (rota=foto), que confere a sessão e o
+# escopo do usuário. Melhor ainda: mover a pasta para fora da área pública
+# ('uploads' no config.php).
+Require all denied
+Options -Indexes -ExecCGI
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+  php_flag engine off
+</IfModule>

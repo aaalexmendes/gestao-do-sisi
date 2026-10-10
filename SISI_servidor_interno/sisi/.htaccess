@@ -1,13 +1,47 @@
-# Painel Unificado SISI · api
+# =====================================================================
+#  Painel Unificado SISI · regras do Apache 2.4 (pasta sisi/)
+#  Requer "AllowOverride All" (ou ao menos AuthConfig FileInfo Indexes
+#  Options Limit) no <Directory> desta pasta. Equivalentes para IIS e
+#  Nginx: web.config (nesta pasta) e ../servidores/nginx_sisi.conf.
+# =====================================================================
 Options -Indexes
-<FilesMatch "^(config|config\.exemplo|db)\.php$">
+DirectoryIndex index.html
+
+# 1) Só a api.php pode ser executada; qualquer outro .php é negado
+#    (inclui config.php e config.exemplo.php).
+<FilesMatch "\.(php|phtml|php[0-9]|phar|inc)$">
   Require all denied
 </FilesMatch>
-<FilesMatch "\.(sql|md|log)$">
+<Files "api.php">
+  Require all granted
+</Files>
+
+# 2) Arquivos de instalação, documentação e cópias nunca são servidos.
+<FilesMatch "\.(sql|md|log|sh|py|bak|old|orig|ini|dist|swp|zip|config)$|^\.">
   Require all denied
 </FilesMatch>
-# limites de upload (se o php.ini não puder ser alterado)
+
+# 3) Cabeçalhos de segurança (precisa de mod_headers; sem ele, o painel
+#    funciona igual, só sem esta camada extra).
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "no-referrer"
+  Header set X-Frame-Options "DENY"
+  <Files "index.html">
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.jsonbin.io; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'"
+    Header set Cache-Control "no-cache"
+  </Files>
+</IfModule>
+
+# 4) Limites do PHP (se o php.ini não puder ser alterado e o PHP rodar como módulo).
 <IfModule mod_php.c>
+  php_value post_max_size 80M
+  php_value upload_max_filesize 80M
+  php_value memory_limit 256M
+  php_value max_execution_time 120
+  php_flag  expose_php off
+</IfModule>
+<IfModule mod_php7.c>
   php_value post_max_size 80M
   php_value upload_max_filesize 80M
   php_value memory_limit 256M
