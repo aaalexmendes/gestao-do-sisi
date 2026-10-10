@@ -1,0 +1,5 @@
+# fotos: só leitura; nada executável
+Options -Indexes
+<FilesMatch "\.(php|phtml|php5|phar|cgi|pl|py|sh)$">
+  Require all denied
+</FilesMatch>

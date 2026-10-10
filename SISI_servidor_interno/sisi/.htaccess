@@ -1,0 +1,15 @@
+# Painel Unificado SISI · api
+Options -Indexes
+<FilesMatch "^(config|config\.exemplo|db)\.php$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "\.(sql|md|log)$">
+  Require all denied
+</FilesMatch>
+# limites de upload (se o php.ini não puder ser alterado)
+<IfModule mod_php.c>
+  php_value post_max_size 80M
+  php_value upload_max_filesize 80M
+  php_value memory_limit 256M
+  php_value max_execution_time 120
+</IfModule>
