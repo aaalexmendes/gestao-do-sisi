@@ -129,10 +129,15 @@ function segLog(string $evento, string $detalhe = '', ?int $uid = null, string $
 function algoSenha() { return defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_BCRYPT; }
 function hashSenha(string $s): string { return password_hash($s, algoSenha()); }
 /* Confere a senha contra o hash moderno ou, no primeiro acesso, contra o hash
-   herdado do painel antigo: sha256(salt + senha), em hexadecimal. */
+   herdado do painel antigo / senha provisória definida pelo gestor: sha256(salt+senha).
+   Esse sha256 nunca é guardado puro: fica EMBRULHADO em password_hash (mesmo custo
+   de uma senha normal — não dá para quebrar rápido se o banco vazar, e o tempo de
+   resposta não revela quem ainda está com senha provisória). */
+function embrulhaLegado(string $sha256hex): string { return password_hash(strtolower($sha256hex), algoSenha()); }
 function senhaConfere(array $u, string $senha): bool {
   if (!empty($u['senha_hash'])) return password_verify($senha, (string)$u['senha_hash']);
-  if (!empty($u['legado_hash'])) return hash_equals(strtolower((string)$u['legado_hash']), hash('sha256', (string)$u['legado_salt'] . $senha));
+  if (!empty($u['legado_hash'])) return password_verify(hash('sha256', (string)$u['legado_salt'] . $senha), (string)$u['legado_hash']);
+  password_hash($senha, algoSenha());                 // custo equivalente mesmo sem senha cadastrada
   return false;
 }
 /* Política (NIST SP 800-63B / OWASP): tamanho mínimo, sem regra de composição,
@@ -173,7 +178,7 @@ function gravaCookie(string $valor, bool $apagar = false): void {
   setcookie((string)$CFG['cookie_nome'], $apagar ? '' : $valor, [
     'expires'  => $apagar ? time() - 3600 : 0,         // cookie de sessão: some ao fechar o navegador
     'path'     => caminhoCookie(),
-    'secure'   => (bool)$CFG['cookie_seguro'],
+    'secure'   => (bool)$CFG['cookie_seguro'] || ehHttps(),
     'httponly' => true,
     'samesite' => 'Strict',
   ]);
@@ -224,11 +229,19 @@ function origemOk(): bool {
   }
   $o = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
   if ($o === '' || $o === 'null') return $o === '';
-  $hostO = parse_url($o, PHP_URL_HOST); $portO = parse_url($o, PHP_URL_PORT);
-  $hostReq = (string)($_SERVER['HTTP_HOST'] ?? '');
-  $alvo = strtolower($hostO . ($portO ? ':' . $portO : ''));
-  if ($alvo === strtolower($hostReq) || strtolower((string)$hostO) === strtolower((string)preg_replace('/:\d+$/', '', $hostReq))) return true;
+  $esq = ehHttps() ? 'https' : 'http';
+  $host = strtolower((string)($_SERVER['HTTP_HOST'] ?? ''));
+  if (strpos($host, ':') === false) { $pp = (int)($_SERVER['SERVER_PORT'] ?? 0); if ($pp && $pp !== ($esq === 'https' ? 443 : 80) && !proxyConfiavel()) $host .= ':' . $pp; }
+  $u = parse_url(strtolower($o)); if (!$u || empty($u['host'])) return false;
+  $porta = isset($u['port']) ? (int)$u['port'] : (($u['scheme'] ?? '') === 'https' ? 443 : 80);
+  $alvo = ($u['scheme'] ?? '') . '://' . $u['host'] . ($porta === (($u['scheme'] ?? '') === 'https' ? 443 : 80) ? '' : ':' . $porta);
+  if ($alvo === $esq . '://' . preg_replace('/:(80|443)$/', '', $host)) return true;
   return trim((string)$CFG['cors_origin']) !== '' && rtrim($o, '/') === rtrim((string)$CFG['cors_origin'], '/');
+}
+function proxyConfiavel(): bool { global $CFG; return in_array((string)($_SERVER['REMOTE_ADDR'] ?? ''), (array)$CFG['proxies_confiaveis'], true); }
+function ehHttps(): bool {
+  if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') return true;
+  return proxyConfiavel() && strtolower(headerVal('X-Forwarded-Proto')) === 'https';
 }
 function exigeOrigem(): void { if (!origemOk()) { segLog('negado', 'origem recusada: ' . ($_SERVER['HTTP_ORIGIN'] ?? '?')); erro('origem da requisição não autorizada', 403); } }
 /* Exige sessão válida. $gravacao = true também exige o token anti-CSRF. */
@@ -279,17 +292,25 @@ function filtroOms(array $s, string $col): array {
 /* =====================================================================
    LIMITE DE TENTATIVAS DE LOGIN
    ===================================================================== */
+/* Trava por usuário durante a conferência da senha: requisições paralelas com o
+   mesmo login são atendidas uma a uma, então o limite não pode ser burlado em rajada. */
+function travaLogin(string $login): void {
+  try { $st = db()->prepare('SELECT GET_LOCK(?, 15)'); $st->execute(['sisi_login_' . sha1($login)]); } catch (Throwable $e) { }
+}
+/* Bloqueio temporário. Regra: falhas do mesmo login vindas do mesmo IP (login_max_falhas);
+   falhas do mesmo login de qualquer IP (4× — evita que um terceiro trave a conta de
+   alguém com poucas tentativas); falhas do IP (ip_max_falhas). Sucesso zera a contagem. */
 function bloqueioLogin(string $login): int {
   global $CFG;
-  $jan = max(1, (int)$CFG['login_janela_min']);
-  $pdo = db();
+  $jan = max(1, (int)$CFG['login_janela_min']); $max = max(1, (int)$CFG['login_max_falhas']);
+  $pdo = db(); $ip = ipCliente();
   $st = $pdo->prepare("SELECT COUNT(*) FROM login_tentativas WHERE ip = ? AND ok = 0 AND quando > DATE_SUB(NOW(), INTERVAL $jan MINUTE)");
-  $st->execute([ipCliente()]);
+  $st->execute([$ip]);
   if ((int)$st->fetchColumn() >= max(1, (int)$CFG['ip_max_falhas'])) return $jan;
-  $st = $pdo->prepare("SELECT COUNT(*) FROM login_tentativas WHERE login = ? AND ok = 0 AND quando > DATE_SUB(NOW(), INTERVAL $jan MINUTE)
-                       AND quando > COALESCE((SELECT MAX(t2.quando) FROM (SELECT quando FROM login_tentativas WHERE login = ? AND ok = 1) t2), '1970-01-01')");
-  $st->execute([$login, $login]);
-  if ((int)$st->fetchColumn() >= max(1, (int)$CFG['login_max_falhas'])) return $jan;
+  $ult = "COALESCE((SELECT MAX(t2.quando) FROM (SELECT quando FROM login_tentativas WHERE login = ? AND ok = 1) t2), '1970-01-01')";
+  $st = $pdo->prepare("SELECT SUM(ip = ?), COUNT(*) FROM login_tentativas WHERE login = ? AND ok = 0 AND quando > DATE_SUB(NOW(), INTERVAL $jan MINUTE) AND quando > $ult");
+  $st->execute([$ip, $login, $login]); $r = $st->fetch(PDO::FETCH_NUM);
+  if ((int)$r[0] >= $max || (int)$r[1] >= 4 * $max) return $jan;
   return 0;
 }
 function registraTentativa(string $login, bool $ok): void {
@@ -334,6 +355,7 @@ if ($ROTA === 'login') {
   $login = strtolower(str(prop($body, 'login', ''), 120)); $senha = (string)prop($body, 'senha', '');
   if ($login === '' || $senha === '') erro('informe usuário e senha', 400);
   if (strlen($senha) > 1024) erro('senha inválida', 400);
+  travaLogin($login);
   if ($m = bloqueioLogin($login)) { segLog('login_bloqueado', 'limite de tentativas', null, $login); header('Retry-After: ' . ($m * 60));
     erro("muitas tentativas sem sucesso — aguarde $m minutos e tente de novo (ou peça ao gestor uma nova senha)", 429, ['codigo'=>'bloqueado']); }
   $st = db()->prepare('SELECT * FROM usuarios WHERE login = ? AND ativo = 1'); $st->execute([$login]); $u = $st->fetch();
@@ -365,6 +387,7 @@ if ($ROTA === 'senha') {
   if ($METHOD !== 'POST' || $body === null) erro('use POST com {atual, nova}', 405);
   $s = exigeSessao(true, true);
   $atual = (string)prop($body, 'atual', ''); $nova = (string)prop($body, 'nova', '');
+  travaLogin((string)$s['login']);
   if ($m = bloqueioLogin((string)$s['login'])) erro("muitas tentativas sem sucesso — aguarde $m minutos", 429);
   if (!senhaConfere($s, $atual)) { registraTentativa((string)$s['login'], false); segLog('senha_falha', 'senha atual incorreta', (int)$s['id'], (string)$s['login']); erro('a senha atual não confere', 400, ['codigo'=>'senha_atual']); }
   $p = senhaProblema($nova, ['login'=>$s['login'], 'nome'=>$s['nome'], 'atual'=>$atual]);
@@ -382,6 +405,7 @@ if ($ROTA === 'senha') {
 if ($ROTA === 'instalar') {
   if ($METHOD !== 'POST' || $body === null) erro('use POST', 405);
   exigeOrigem();
+  travaLogin('#instalar');
   if ($m = bloqueioLogin('#instalar')) erro("muitas tentativas — aguarde $m minutos", 429);
   $tok = (string)$CFG['token'];
   if ($tok === '' || $tok === 'TROQUE-ESTE-TOKEN' || strlen($tok) < 16) erro('defina um "token" longo e aleatório no config.php antes de instalar', 500);
@@ -533,7 +557,7 @@ if ($ROTA === 'ciencias') {
   logApi(true, '', 'ciencias'); out(['ok'=>true,'ciencias'=>$st->fetchAll()]);
 }
 if ($ROTA === 'auditoria') {                   // consulta direta: ?rota=auditoria&om=BAPV
-  $cols = 'om, ts, evento, acao, detalhe, posto, nome, repeticoes';
+  $cols = 'om, ts, evento, acao, detalhe, posto, nome, repeticoes, enviado_por_login AS enviadoPor, recebido_em AS recebidoEm';
   if ($OM !== '') {
     if (!podeLerOm($S, $OM)) negar($S, 'sem acesso à auditoria da OM ' . $OM);
     $st = db()->prepare("SELECT $cols FROM auditoria WHERE om = ? ORDER BY ts DESC LIMIT 1000"); $st->execute([$OM]);
@@ -568,7 +592,7 @@ if ($METHOD === 'POST' && $body instanceof stdClass && isset($body->om, $body->d
   $om = str($body->om, 40); if (!siglaOk($om)) erro('sigla inválida');
   if (!podeGravarOm($S, $om)) negar($S, 'sem permissão para enviar o pacote da OM ' . $om);
   $res = gravarPacote($body, $om, $S);
-  out(['ok'=>true,'versao'=>'mysql-2.0','fotosNovas'=>$res['fotosNovas'],'fotosTotal'=>$res['fotosTotal'],'fotosRecusadas'=>$res['fotosRecusadas'],
+  out(['ok'=>true,'versao'=>'mysql-2.0','fotosNovas'=>$res['fotosNovas'],'fotosTotal'=>$res['fotosTotal'],'fotosRecusadas'=>$res['fotosRecusadas'],'fotosRenomeadas'=>$res['fotosRenomeadas'],
        'folderUrl'=>'(servidor interno) uploads/'.pastaOm($om).'/', 'sheetUrl'=>'(banco de dados interno · tabela pacotes)']);
 }
 
@@ -603,7 +627,7 @@ function tipoImagem(string $bin): string {
 function gravarPacote(stdClass $pkg, string $om, array $S): array {
   global $CFG;
   unset($pkg->token);
-  $om = (string)$om;
+  $om = sig((string)$om);                               // sigla canônica (pasta e índice sempre iguais)
   // OM, nome e ODS vêm do rol (fonte de autoridade), nunca do que o navegador informa
   $pkg->om = $om;
   $odsRol = odsDaOm($om); if ($odsRol !== '') $pkg->ods = $odsRol;
@@ -616,25 +640,36 @@ function gravarPacote(stdClass $pkg, string $om, array $S): array {
   $maxFoto = (int)$CFG['foto_max_mb'] * 1024 * 1024;
   $stF = $pdo->prepare('INSERT INTO fotos (om, nome, mime, registro_id, data_reg, tamanho, caminho) VALUES (?,?,?,?,?,?,?)
                         ON DUPLICATE KEY UPDATE registro_id = VALUES(registro_id), data_reg = VALUES(data_reg)');
+  $renomeadas = [];
   foreach ($fotos as $f) {
     $nome = basename(str(prop($f,'name',''), 200)); $b64 = (string)prop($f,'b64','');
     if ($nome === '' || $b64 === '') continue;
     if (!nomeFotoOk($nome)) { $recusadas[] = $nome . ' (nome)'; continue; }
+    $bin = base64_decode($b64, true);
+    if ($bin === false || $bin === '') { $recusadas[] = $nome . ' (base64)'; continue; }
+    if (strlen($bin) > $maxFoto) { $recusadas[] = $nome . ' (tamanho)'; continue; }
+    $mime = tipoImagem($bin);
+    if ($mime === '') { $recusadas[] = $nome . ' (não é imagem JPEG/PNG/WebP)'; continue; }
     $caminho = $dir . '/' . $nome;
-    if (is_file($caminho)) { $mime = tipoImagem((string)file_get_contents($caminho, false, null, 0, 64)); }
-    else {
-      $bin = base64_decode($b64, true);
-      if ($bin === false || $bin === '') { $recusadas[] = $nome . ' (base64)'; continue; }
-      if (strlen($bin) > $maxFoto) { $recusadas[] = $nome . ' (tamanho)'; continue; }
-      $mime = tipoImagem($bin);
-      if ($mime === '') { $recusadas[] = $nome . ' (não é imagem JPEG/PNG/WebP)'; continue; }
-      if (@file_put_contents($caminho, $bin, LOCK_EX) === false) erro('falha ao gravar a foto '.$nome.' (permissão?)', 500);
+    if (is_file($caminho) && !hash_equals((string)sha1_file($caminho), sha1($bin))) {
+      // mesmo nome, imagem diferente (foto trocada ou registro novo com o mesmo título):
+      // nunca sobrescreve — grava com sufixo do conteúdo e corrige a referência no pacote
+      $novo = preg_replace('/(\.[A-Za-z0-9]+)$/', '_' . substr(sha1($bin), 0, 8) . '$1', $nome);
+      $renomeadas[$nome] = $novo; $nome = $novo; $caminho = $dir . '/' . $nome;
+    }
+    if (!is_file($caminho)) {
+      $tmp = $caminho . '.tmp' . bin2hex(random_bytes(4));
+      if (@file_put_contents($tmp, $bin, LOCK_EX) === false || !@rename($tmp, $caminho)) { @unlink($tmp); erro('falha ao gravar a foto '.$nome.' (permissão?)', 500); }
       $novas++;
     }
     $stF->execute([$om, $nome, $mime ?: null, str(prop($f,'registroId',''), 80), str(prop($f,'data',''), 40), is_file($caminho) ? filesize($caminho) : null, $caminho]);
   }
   if ($recusadas) segLog('foto_recusada', implode(', ', array_slice($recusadas, 0, 5)), (int)$S['id'], (string)$S['login']);
   $dados   = ($pkg->dados ?? null) instanceof stdClass ? $pkg->dados : new stdClass;
+  if ($renomeadas && is_array($dados->registros ?? null)) {
+    foreach ($dados->registros as $reg) { if (!is_object($reg) || !is_array($reg->fotos ?? null)) continue;
+      foreach ($reg->fotos as $fo) { if (is_object($fo) && isset($fo->ref) && isset($renomeadas[(string)$fo->ref])) $fo->ref = $renomeadas[(string)$fo->ref]; } }
+  }
   $savedAt = str(prop($dados,'savedAt', prop($pkg,'savedAt', now())), 40);
   $json    = json_encode($pkg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
   $quem    = cortar(trim(($S['posto'] ?? '') . ' ' . $S['nome']), 0, 160);   // quem enviou = usuário da sessão
@@ -652,16 +687,16 @@ function gravarPacote(stdClass $pkg, string $om, array $S): array {
     if ($hm > 0) { $st = $pdo->prepare('SELECT id FROM pacotes_hist WHERE om = ? ORDER BY id DESC LIMIT 1000 OFFSET ?'); $st->bindValue(1, $om); $st->bindValue(2, $hm, PDO::PARAM_INT); $st->execute();
       $ids = array_column($st->fetchAll(), 'id'); if ($ids) $pdo->exec('DELETE FROM pacotes_hist WHERE id IN ('.implode(',', array_map('intval', $ids)).')'); }
     if ($aud) {
-      $stA = $pdo->prepare('INSERT IGNORE INTO auditoria (om, ts, evento, acao, detalhe, posto, nome, repeticoes, hash) VALUES (?,?,?,?,?,?,?,?,?)');
+      $stA = $pdo->prepare('INSERT IGNORE INTO auditoria (om, ts, evento, acao, detalhe, posto, nome, repeticoes, hash, enviado_por_login) VALUES (?,?,?,?,?,?,?,?,?,?)');
       foreach ($aud as $a) { $ts = str(prop($a,'ts',''), 40); if ($ts === '') continue;
         $ev = str(prop($a,'ev','edicao'), 20); $ac = str(prop($a,'acao',''), 200); $dt = str(prop($a,'det',''), 2000); $nm = str(prop($a,'nome',''), 160);
         $h = sha1($om.'|'.$ts.'|'.$ev.'|'.$ac.'|'.$dt.'|'.$nm);
-        $stA->execute([$om, $ts, $ev, $ac, $dt, str(prop($a,'posto',''), 40), $nm, (int)prop($a,'n',1), $h]); }
+        $stA->execute([$om, $ts, $ev, $ac, $dt, str(prop($a,'posto',''), 40), $nm, (int)prop($a,'n',1), $h, cortar((string)$S['login'], 0, 120)]); }
     }
     $pdo->commit();
   } catch (Throwable $e) { $pdo->rollBack(); error_log('SISI pacote ' . $om . ': ' . $e->getMessage()); erro('falha ao gravar o pacote (detalhe no log de erros do PHP)', 500); }
   logApi(true, '', 'pacote', $om);
-  return ['fotosNovas'=>$novas, 'fotosTotal'=>$tot, 'fotosRecusadas'=>$recusadas];
+  return ['fotosNovas'=>$novas, 'fotosTotal'=>$tot, 'fotosRecusadas'=>$recusadas, 'fotosRenomeadas'=>(object)$renomeadas];
 }
 
 /* ---------- usuários ---------- */
@@ -670,7 +705,8 @@ function listaUsuarios(): array {
                               (senha_hash IS NULL AND legado_hash IS NOT NULL) AS legado FROM usuarios ORDER BY nome')->fetchAll();
   $l = []; $v = [];
   foreach ($rows as $r) {
-    $v[] = $r['id'] . ':' . ($r['alterado_em'] ?? '');      // troca de senha pelo próprio usuário não invalida a lista do gestor
+    // versão = conteúdo dos campos que o gestor edita (a troca de senha pelo próprio usuário não invalida a lista)
+    $v[] = implode("\x1f", [$r['id'], $r['login'], $r['nome'], $r['posto'], $r['om_lotacao'], $r['tel'], $r['email'], $r['perfil'], $r['escopo'], $r['ativo']]);
     $l[] = ['id'=>(int)$r['id'], 'login'=>$r['login'], 'nome'=>$r['nome'], 'posto'=>(string)$r['posto'], 'omUser'=>(string)$r['om_lotacao'],
             'tel'=>(string)$r['tel'], 'email'=>(string)$r['email'], 'perfil'=>$r['perfil'], 'escopo'=>$r['escopo'],
             'rotulo'=>trim($r['posto'] . ' ' . $r['nome']), 'ativo'=>(int)$r['ativo'] === 1,
@@ -692,7 +728,7 @@ function loginLivre(string $base, ?int $exceto = null): string {
 /* Login sugerido: e-mail (se houver) ou perfil.escopo.nome — ex.: om.bapv.silva */
 function loginSugerido(string $email, string $perfil, string $escopo, string $nome): string {
   $email = strtolower(trim($email));
-  if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) && strlen($email) <= 120) return $email;
+  if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) && preg_match('/^[a-z0-9][a-z0-9._@-]{2,119}$/', $email)) return $email;
   $ult = preg_split('/\s+/', trim($nome)); $sob = $ult ? end($ult) : '';
   return slugLogin($perfil . ($escopo !== '' ? ' ' . $escopo : '') . ' ' . $sob);
 }
@@ -702,9 +738,10 @@ function validaCad(stdClass $c): array {
   $escopo = $perfil === 'gestor' ? '' : sig(str(prop($c,'escopo',''), 40));
   if ($perfil !== 'gestor' && ($escopo === '' || !siglaOk($escopo))) throw new CadInvalido('escopo (ODS/OM) inválido para ' . str(prop($c,'nome',''), 60));
   $nome = str(prop($c,'nome',''), 160); if ($nome === '') throw new CadInvalido('nome obrigatório');
+  foreach (['nome','posto','omUser','tel','email'] as $k) if (preg_match('/[<>"`]/', str(prop($c,$k,''), 200))) throw new CadInvalido('caracteres não permitidos (< > " `) em ' . $k . ' de ' . cortar($nome, 0, 40));
   $email = str(prop($c,'email',''), 160); if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) throw new CadInvalido('e-mail inválido: ' . $email);
   $login = strtolower(str(prop($c,'login',''), 120));
-  if ($login !== '' && !preg_match('/^[a-z0-9][a-z0-9._@-]{2,119}$/', $login)) throw new CadInvalido('usuário (login) inválido: ' . $login . ' — use de 3 a 120 caracteres: letras minúsculas, números, ponto, hífen, @');
+  if ($login !== '' && !preg_match('/^[a-z0-9][a-z0-9._@-]{2,119}$/', $login) && $login !== strtolower(str(prop($c,'_loginAtual',''), 120))) throw new CadInvalido('usuário (login) inválido: ' . $login . ' — use de 3 a 120 caracteres: letras minúsculas, números, ponto, hífen, @');
   return ['perfil'=>$perfil, 'escopo'=>$escopo ?: null, 'nome'=>$nome, 'posto'=>str(prop($c,'posto',''), 40), 'om_lotacao'=>str(prop($c,'omUser',''), 80),
           'tel'=>str(prop($c,'tel',''), 40), 'email'=>$email, 'login'=>$login];
 }
@@ -713,7 +750,11 @@ function validaCad(stdClass $c): array {
    antiga apague usuários cadastrados em outro). Senhas novas chegam como
    sha256(salt+senha) gerado no navegador do gestor e valem só até o 1º acesso,
    quando o usuário é obrigado a trocar (a nova vai para password_hash). */
+function travaUsuarios(): void {   // uma alteração de usuários por vez (duplo clique, duas abas)
+  try { db()->query("SELECT GET_LOCK('sisi_usuarios', 15)"); } catch (Throwable $e) { }
+}
 function sincronizarUsuarios(array $S, stdClass $b): array {
+  travaUsuarios();
   $atual = listaUsuarios();
   if (str(prop($b,'versao',''), 64) !== $atual['versao']) erro('a lista de usuários foi alterada em outro navegador — recarregue a lista e refaça a alteração', 409, ['codigo'=>'versao']);
   $lista = prop($b, 'credenciais', []); if (!is_array($lista)) erro('credenciais deve ser uma lista');
@@ -723,8 +764,9 @@ function sincronizarUsuarios(array $S, stdClass $b): array {
   try {
     foreach ($lista as $c) {
       if (!($c instanceof stdClass)) continue;
-      $d = validaCad($c);
       $id = (int)prop($c,'id',0);
+      if ($id && isset($existentes[$id])) $c->_loginAtual = $existentes[$id]['login'];
+      $d = validaCad($c);
       $salt = str(prop($c,'salt',''), 64); $hash = strtolower(str(prop($c,'hash',''), 64));
       $temSenha = $salt !== '' && preg_match('/^[a-f0-9]{64}$/', $hash);
       if ($id && isset($existentes[$id])) {
@@ -742,7 +784,7 @@ function sincronizarUsuarios(array $S, stdClass $b): array {
           $res['alterados']++; segLog('usuario_alterado', $login . ' · ' . $d['perfil'] . ' ' . $d['escopo'], (int)$S['id'], (string)$S['login']);
         }
         if ($temSenha) {
-          $pdo->prepare('UPDATE usuarios SET senha_hash=NULL, legado_salt=?, legado_hash=?, troca_obrigatoria=1, senha_alterada_em=NOW() WHERE id=?')->execute([$salt, $hash, $id]);
+          $pdo->prepare('UPDATE usuarios SET senha_hash=NULL, legado_salt=?, legado_hash=?, troca_obrigatoria=1, senha_alterada_em=NOW() WHERE id=?')->execute([$salt, embrulhaLegado($hash), $id]);
           $pdo->prepare('DELETE FROM sessoes WHERE usuario_id = ?')->execute([$id]);
           $res['senhas']++; segLog('senha_redefinida', $login . ' (pelo gestor)', (int)$S['id'], (string)$S['login']);
         }
@@ -754,7 +796,7 @@ function sincronizarUsuarios(array $S, stdClass $b): array {
       $login = loginLivre($login);
       $pdo->prepare('INSERT INTO usuarios (login, nome, posto, om_lotacao, tel, email, perfil, escopo, legado_salt, legado_hash, troca_obrigatoria, alterado_em, senha_alterada_em)
                      VALUES (?,?,?,?,?,?,?,?,?,?,1,NOW(),NOW())')
-          ->execute([$login, $d['nome'], $d['posto'], $d['om_lotacao'], $d['tel'], $d['email'], $d['perfil'], $d['escopo'], $salt, $hash]);
+          ->execute([$login, $d['nome'], $d['posto'], $d['om_lotacao'], $d['tel'], $d['email'], $d['perfil'], $d['escopo'], $salt, embrulhaLegado($hash)]);
       $res['criados']++; segLog('usuario_criado', $login . ' · ' . $d['perfil'] . ' ' . $d['escopo'], (int)$S['id'], (string)$S['login']);
     }
     foreach ($existentes as $id => $e) {
@@ -777,7 +819,7 @@ function sincronizarUsuarios(array $S, stdClass $b): array {
 function importarUsuarios(array $S, $lista): array {
   if (!is_array($lista)) erro('credenciais deve ser uma lista');
   $pdo = db(); $rel = [];
-  $stH = $pdo->prepare('SELECT login FROM usuarios WHERE legado_hash = ?');
+  travaUsuarios(); $hashesVistos = [];
   $stN = $pdo->prepare('SELECT login FROM usuarios WHERE perfil = ? AND COALESCE(escopo, \'\') = ? AND nome = ?');
   $ins = $pdo->prepare('INSERT INTO usuarios (login, nome, posto, om_lotacao, tel, email, perfil, escopo, legado_salt, legado_hash, troca_obrigatoria, criado_em, alterado_em, senha_alterada_em)
                         VALUES (?,?,?,?,?,?,?,?,?,?,1,NOW(),NOW(),NOW())');
@@ -788,10 +830,11 @@ function importarUsuarios(array $S, $lista): array {
     try { $d = validaCad($c); } catch (CadInvalido $e) { $rel[] = ['nome'=>$nome, 'situacao'=>'ignorado: ' . $e->getMessage()]; continue; }
     $salt = str(prop($c,'salt',''), 64); $hash = strtolower(str(prop($c,'hash',''), 64));
     if (!preg_match('/^[a-f0-9]{64}$/', $hash)) { $rel[] = ['nome'=>$nome, 'situacao'=>'ignorado (sem senha)']; continue; }
-    $stH->execute([$hash]); if ($l = $stH->fetchColumn()) { $rel[] = ['nome'=>$nome, 'login'=>$l, 'situacao'=>'já importado']; continue; }
+    if (isset($hashesVistos[$hash])) { $rel[] = ['nome'=>$nome, 'login'=>$hashesVistos[$hash], 'situacao'=>'já importado']; continue; }
     $stN->execute([$d['perfil'], (string)$d['escopo'], $d['nome']]); if ($l = $stN->fetchColumn()) { $rel[] = ['nome'=>$nome, 'login'=>$l, 'situacao'=>'já existe (mesmo nome e escopo)']; continue; }
     $login = loginLivre(loginSugerido($d['email'], $d['perfil'], (string)$d['escopo'], $d['nome']));
-    $ins->execute([$login, $d['nome'], $d['posto'], $d['om_lotacao'], $d['tel'], $d['email'], $d['perfil'], $d['escopo'], $salt, $hash]);
+    $ins->execute([$login, $d['nome'], $d['posto'], $d['om_lotacao'], $d['tel'], $d['email'], $d['perfil'], $d['escopo'], $salt, embrulhaLegado($hash)]);
+    $hashesVistos[$hash] = $login;
     $rel[] = ['nome'=>trim($d['posto'] . ' ' . $d['nome']), 'login'=>$login, 'perfil'=>$d['perfil'], 'escopo'=>(string)$d['escopo'], 'situacao'=>'importado'];
   }
   $n = count(array_filter($rel, function ($r) { return $r['situacao'] === 'importado'; }));

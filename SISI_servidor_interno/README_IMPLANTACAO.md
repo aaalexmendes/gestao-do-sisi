@@ -20,7 +20,7 @@ Navegador (gestor, ODS, OM)                Servidor interno
                                       └──────────────────────────────────────┘
 ```
 
-A variante é gerada da linha principal pelo script `para_o_gestor/build_u230_variante_srv.py` (51 alterações por âncora). O `index.html` do GitHub **não é alterado**. Aberta como arquivo local, sem servidor, a variante se comporta como a u2.30.
+A variante é gerada da linha principal pelo script `para_o_gestor/build_u230_variante_srv.py` (53 alterações por âncora). O `index.html` do GitHub **não é alterado**. Aberta como arquivo local, sem servidor, a variante se comporta como a u2.30.
 
 ## 2. O que vai para o servidor
 
@@ -39,7 +39,7 @@ sisi/                          ← pasta pública (ex.: /var/www/html/sisi)
     └── web.config
 servidores/nginx_sisi.conf     ← regras equivalentes para o Nginx
 testes/                        ← verificação do servidor, teste no navegador, roteador do php -S
-teste_api.sh                   ← 112 verificações da API num MariaDB temporário
+teste_api.sh                   ← 125 verificações da API num MariaDB temporário
 ```
 
 Não precisam ir para o servidor: `schema.sql` e `config.exemplo.php` (as regras os bloqueiam, de qualquer forma), `testes/`, `docs/` e `para_o_gestor/`.
@@ -125,7 +125,7 @@ O PHP deve rodar via FastCGI.
    - **Importar de arquivo .json:** salve antes o conteúdo de `https://api.jsonbin.io/v3/b/<Bin ID>/latest`.
 
    O painel grava o estado no MySQL e importa os usuários. A lista mostra o **login** de cada um, gerado a partir do e-mail ou como `perfil.escopo.sobrenome`, por exemplo `om.bapv.silva`.
-3. **Usuários migrados** entram com o login informado pelo gestor e a **senha que já tinham**. A API confere o hash antigo `sha256(sal+senha)` e obriga a criar uma senha nova nesse mesmo acesso. A nova vai para `password_hash` e o hash antigo é apagado (decisão do gestor, 10/10/2026).
+3. **Usuários migrados** entram com o login informado pelo gestor e a **senha que já tinham**. A API confere o hash antigo `sha256(sal+senha)`, que no banco fica embrulhado em `password_hash`, e obriga a criar uma senha nova nesse mesmo acesso. A nova vai para `password_hash` e o hash antigo é apagado (decisão do gestor, 10/10/2026).
 4. **Pacotes das OMs:** cada OM entra pelo novo endereço e clica **Enviar ao servidor** uma vez, porque os dados estão no navegador dela. As fotos antigas continuam no Drive; se quiser trazê-las, copie para `uploads/<SIGLA>/` e cadastre na tabela `fotos`.
 
 ## 6. Modelo de segurança
@@ -137,8 +137,13 @@ O PHP deve rodar via FastCGI.
   - mínimo de 12 caracteres e máximo de 128;
   - sem regras de composição;
   - bloqueio de senhas comuns, repetitivas, com o nome do sistema ou com o nome/usuário da pessoa.
-- **Senhas definidas pelo gestor** (cadastro, "Nova senha", "Reenviar e-mail") são **provisórias**: chegam como `sha256(sal+senha)` gerado no navegador do gestor, valem só até o primeiro acesso e obrigam a troca.
-- **Limite de tentativas:** 5 falhas por usuário ou 30 por IP em 15 minutos → HTTP 429. A mensagem de erro é a mesma para usuário inexistente e para senha errada, e o tempo de resposta também é equivalente.
+- **Senhas definidas pelo gestor** (cadastro, "Nova senha", "Reenviar e-mail") são **provisórias**: chegam como `sha256(sal+senha)` gerado no navegador do gestor. A API guarda esse valor embrulhado em `password_hash`, para que não possa ser quebrado rapidamente se o banco vazar e para que o tempo de resposta não revele quem está com senha provisória. Valem só até o primeiro acesso e obrigam a troca.
+- **Limite de tentativas** (em 15 minutos → HTTP 429):
+  - 5 falhas do mesmo usuário vindas do mesmo IP;
+  - 20 falhas do mesmo usuário de qualquer IP (assim um terceiro não trava a conta de alguém com poucas tentativas);
+  - 30 falhas por IP.
+
+  A conferência é serializada por usuário (`GET_LOCK`): uma rajada de requisições paralelas não burla o limite (teste no Apache: 25 tentativas simultâneas, 5 conferidas e 20 recusadas). A mensagem de erro é a mesma para usuário inexistente e para senha errada, e o tempo de resposta também é equivalente.
 
 ### 6.2 Sessão
 - **Decisão técnica:** cookie `HttpOnly` + `SameSite=Strict` (+ `Secure` com HTTPS), e não `Authorization: Bearer` guardado pelo JavaScript.
@@ -177,13 +182,16 @@ O PHP deve rodar via FastCGI.
   - sessão, escopo e registro na tabela `fotos`;
   - caminho conferido com `realpath` dentro de `uploads`;
   - `Content-Type` correto, `nosniff`, `Cache-Control: private` e `Content-Security-Policy: sandbox`.
-- **Acesso direto a `uploads/`:** negado (Apache, IIS e Nginx).
+- **Mesmo nome com outra imagem** (foto trocada, ou registro novo com o mesmo título e data): o arquivo antigo nunca é sobrescrito. A nova foto ganha um sufixo do conteúdo (`_a1b2c3d4`), e a referência no pacote é corrigida pela API.
+- **Acesso direto a `uploads/`:** negado (Apache, IIS e Nginx), assim como qualquer cópia do `config.php` (`config.php~`, `.bak`, `.save`, `.txt`).
 
 ### 6.5 Outras medidas
 - **Cabeçalhos da API:** `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, CSP `default-src 'none'`, `Cross-Origin-Resource-Policy: same-origin`. Sem CORS por padrão.
 - **CSP do painel:** só a própria origem (exceção: `api.jsonbin.io`, usada pela migração). `'unsafe-inline'` continua necessário porque o painel é um único HTML com scripts embutidos.
 - **Erros de banco** aparecem só no log do PHP; o navegador recebe mensagem genérica.
-- **Registros:** `seguranca_log` (eventos de segurança) e `api_log` (chamadas).
+- **Registros:** `seguranca_log` (eventos de segurança) e `api_log` (chamadas). Na `auditoria`, os campos do evento são declarados pelo painel da OM. A API acrescenta `enviado_por_login` (o usuário da sessão que enviou) e `recebido_em` (relógio do servidor), que não podem ser forjados.
+- **Cadastro de usuários:** nome, posto, telefone e e-mail não aceitam `< > " \``. A gravação é serializada, e a versão da lista é calculada pelo conteúdo: duas abas ou um duplo clique não duplicam nem sobrescrevem cadastros.
+- **Cookie `Secure` automático** quando a requisição chega por HTTPS, mesmo com `cookie_seguro` em `false`.
 - **Ao sair:** o painel apaga deste navegador o consolidado das OMs e a lista de usuários. O rascunho não enviado da OM é mantido para não perder trabalho.
 
 ## 7. Rotas da API
@@ -253,7 +261,7 @@ SELECT om, ods, saved_at, enviado_por, fotos FROM pacotes ORDER BY saved_at DESC
 
 | Bateria | Resultado | O que cobre |
 |---|---|---|
-| `teste_api.sh` | **112/112** | instalação, política de senha, troca obrigatória, migração do hash antigo, limite de tentativas, CSRF, origem, matriz gestor/ODS/OM, fotos (tipo real, nome malicioso, `../`), sessão expirada, logout, redefinição e remoção de usuário, registros de segurança |
+| `teste_api.sh` | **125/125** | rajada paralela de logins, hash provisório embrulhado, tempo de resposta igual, foto com nome repetido, e-mail com '+' no login, HTML no nome, gravações simultâneas, origem exata; instalação, política de senha, troca obrigatória, migração do hash antigo, limite de tentativas, CSRF, origem, matriz gestor/ODS/OM, fotos (tipo real, nome malicioso, `../`), sessão expirada, logout, redefinição e remoção de usuário, registros de segurança |
 | `testes/teste_servidor.sh` (Apache real) | **39/39** | bloqueio de `config.php`, `uploads/`, `.sql`, `.htaccess` e `web.config`; 401 em todas as leituras sem sessão; cabeçalhos; bibliotecas locais |
 | `testes/e2e_navegadores.cjs` | **49/49** | gestor, OM A e OM B em navegadores separados com a **internet bloqueada**: detecção automática, instalação, migração por arquivo, cadastro pela Área Admin, primeiro acesso com troca, envio com foto, recuperação noutro navegador, fotos exibidas, tentativas entre OMs, perfil ODS, sessão de 8 h vencida, saída, nenhuma violação de CSP, nenhum erro de JavaScript |
 | Modo arquivo local (sem servidor) | ok | variante sem a API volta ao comportamento da u2.30 |
@@ -266,7 +274,8 @@ SELECT om, ods, saved_at, enviado_por, fotos FROM pacotes ORDER BY saved_at DESC
 2. **xlsx 0.18.5.** É a versão que a u2.30 usa (mantida para não mudar o comportamento). Ela tem duas vulnerabilidades publicadas, ambas ao **ler** planilhas maliciosas: **CVE-2023-30533** (poluição de protótipo, corrigida na 0.19.3) e **CVE-2024-22363** (ReDoS, corrigida na 0.20.2). As versões corrigidas não estão no npm: a SheetJS as distribui em cdn.sheetjs.com, e os avisos oficiais também estão lá (`/advisories/`). O risco aqui é baixo, porque só o gestor importa planilhas, vindas de fontes oficiais. Mesmo assim, recomenda-se atualizar a linha principal para a versão corrigida e regenerar a variante.
 3. **Segundo fator (MFA)** não foi implementado. Para perfis de gestor, é a evolução natural (ex.: TOTP), conforme as boas práticas citadas abaixo.
 4. **Inatividade.** A sessão vale 8 h corridas (decisão do gestor), sem encerramento por inatividade.
-5. **Computador compartilhado.** Ao sair, o consolidado é apagado do navegador, mas o rascunho não enviado da OM permanece (para não perder trabalho). Oriente o uso de contas individuais do sistema operacional.
+5. **Estado do gestor visível a todos os perfis.** A `rota=estado` (execução financeira, prazos, RaP e planejamento) é lida por qualquer usuário logado, como já acontecia com o JSONBin; é o painel que filtra a tela por OM e ODS. Assim, uma OM tecnicamente consegue ler os números financeiros das demais. Os pacotes, fotos, auditoria e ciências já são filtrados no servidor. Filtrar também o estado é possível (por linhas de cada OM), mas muda a forma como o painel carrega os dados: **depende de decisão do gestor**.
+6. **Computador compartilhado.** Ao sair, o consolidado é apagado do navegador, mas o rascunho não enviado da OM permanece (para não perder trabalho). Oriente o uso de contas individuais do sistema operacional.
 
 ## 12. Referências consultadas
 

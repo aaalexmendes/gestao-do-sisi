@@ -424,8 +424,13 @@ patch("""    rotulo:rotulo, perfil:f.perfil, escopo:f.escopo||null,
     salt:salt, hash:sha256Hex(salt+f.senha), criadoEm:new Date().toISOString() };""",
 """    rotulo:rotulo, perfil:f.perfil, escopo:f.escopo||null, login:f.login||'',
     salt:salt, hash:sha256Hex(salt+f.senha), criadoEm:new Date().toISOString() };""", 'cadastro: grava o login (novo)')
-patch("""    return '<tr><td><strong>'+credUserLabel(c)+'</strong></td>'+""",
-"""    return '<tr><td><strong>'+credUserLabel(c)+'</strong>'+srvCredInfo(c)+'</td>'+""", 'lista: login e situação')
+patch("""    var contato=[c.tel,c.email].filter(Boolean).join('<br>');""",
+"""    var contato=[c.tel,c.email].filter(Boolean).map(escU).join('<br>');   // u2.30-srv: dados vêm do servidor — escapados""", 'lista: escapa contato')
+patch("""    return '<tr><td><strong>'+credUserLabel(c)+'</strong></td>'+
+      '<td>'+(c.omUser||'\\u2014')+'</td>'+""",
+"""    return '<tr><td><strong>'+escU(credUserLabel(c))+'</strong>'+srvCredInfo(c)+'</td>'+
+      '<td>'+(c.omUser? escU(c.omUser) : '\\u2014')+'</td>'+""", 'lista: login, situação e escape')
+patch("""      '<td>'+acesso+'</td>'+""", """      '<td>'+escU(acesso)+'</td>'+""", 'lista: escapa acesso')
 patch("""Altera\\u00e7\\u00f5es s\\u00f3 valem nos demais navegadores ap\\u00f3s "Enviar dados ao JSONBin".</div>';""",
 """'+((window.SRV&&SRV.ativo())? 'Altera\\u00e7\\u00f5es gravadas direto no servidor.' : 'Altera\\u00e7\\u00f5es s\\u00f3 valem nos demais navegadores ap\\u00f3s "Enviar dados ao JSONBin".')+'</div>';""", 'lista: rodapé')
 patch("""function credNote(t){ var n=el('credNote'); if(n) n.textContent=t; }""",

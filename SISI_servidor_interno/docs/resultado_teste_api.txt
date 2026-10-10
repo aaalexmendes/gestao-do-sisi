@@ -1,4 +1,4 @@
-# teste_api.sh — 10/10/2026 12:30 — PHP 8.3.6 · Ver 10.11.14-MariaDB
+# teste_api.sh — 10/10/2026 12:45 — PHP 8.3.6 · Ver 10.11.14-MariaDB
 [1] infraestrutura
   ✓ ping responde ok
   ✓ ping não revela versão do PHP
@@ -112,7 +112,21 @@
   ✓ usuário removido perde a sessão na hora
   ✓ OM A entra com a provisória e é obrigada a trocar
   ✓ gestor não pode remover a si mesmo (nem o último gestor)
-[14] registros de segurança
+[14] endurecimento (achados da revisão independente)
+  ✓ rajada de 20 logins paralelos: no máximo 5 senhas testadas (resto 429)
+  ✓ senha provisória guardada embrulhada em password_hash (não sha256 puro)
+  ✓ tempo do login igual para senha provisória e usuário inexistente (0.256743 s × 0.183631 s)
+  ✓ foto com mesmo nome e conteúdo diferente: não sobrescreve, recebe nome novo
+  ✓ a referência no registro passa a apontar para o arquivo novo
+  ✓ a foto antiga continua intacta
+  ✓ auditoria grava o usuário da sessão que enviou
+  ✓ e-mail com '+' não vira login inválido (login gerado)
+  ✓ reenviar a lista sem mudanças é aceito
+  ✓ nome com HTML (<img onerror>) é recusado
+  ✓ duas gravações simultâneas não duplicam usuário
+  ✓ Origin com porta diferente é recusada (403)
+  ✓ Origin exata do próprio servidor é aceita
+[15] registros de segurança
   ✓ seguranca_log registra 'login'
   ✓ seguranca_log registra 'login_falha'
   ✓ seguranca_log registra 'login_bloqueado'
@@ -124,6 +138,6 @@
   ✓ seguranca_log registra 'usuarios_importados'
   ✓ seguranca_log registra 'logout'
   ✓ seguranca_log registra 'instalado'
-  ✓ api_log registrou as chamadas (91)
+  ✓ api_log registrou as chamadas (121)
 
-112/112 verificações aprovadas
+125/125 verificações aprovadas

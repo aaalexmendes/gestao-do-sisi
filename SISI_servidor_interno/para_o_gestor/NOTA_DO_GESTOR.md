@@ -33,9 +33,11 @@ cd para_o_gestor
 python3 build_u230_variante_srv.py      # lê ../../index.html, grava ../sisi/index.html
 ```
 
-O script aplica 51 alterações por âncora. Se a linha principal mudou num trecho que ele altera, ele **para** e diz qual âncora sumiu; nada é gerado pela metade. Ele também atualiza o rol inicial de OMs no `schema.sql`.
+O script aplica 53 alterações por âncora. Se a linha principal mudou num trecho que ele altera, ele **para** e diz qual âncora sumiu; nada é gerado pela metade. Ele também atualiza o rol inicial de OMs no `schema.sql`.
 
 ## Pontos para sua decisão (não bloqueiam a instalação)
+
+0. **Dados financeiros no estado.** O estado do gestor (execução 2026, semana anterior, prazos, RaP, planejamento) continua sendo entregue inteiro a qualquer usuário logado, como no JSONBin; o painel é que mostra a cada um só a sua OM/ODS. Isso quer dizer que uma OM que inspecione o tráfego consegue ver os números das outras OMs. Lançamentos, fotos, auditoria e ciências já são filtrados pelo servidor. Se quiser, filtro também o estado no servidor (cada OM recebe só as suas linhas; o ODS, as do seu ODS). Isso muda o carregamento do painel e precisa de testes com os dados reais. **A execução financeira pode ser vista por todas as OMs, ou deve ser restrita?**
 
 1. **Ciência do ODS.** Deixei o ODS registrar a **própria** ciência dos avisos, porque é um dado dele e não da OM. Se preferir bloquear, é uma linha na API.
 2. **Nome da ferramenta e endereço:** nada foi renomeado no código, como combinado.

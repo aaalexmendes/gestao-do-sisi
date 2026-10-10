@@ -1,4 +1,4 @@
-# testes/teste_servidor.sh http://127.0.0.1:8080/sisi — 10/10/2026 12:30 — Apache real com o .htaccess do pacote
+# testes/teste_servidor.sh http://127.0.0.1:8080/sisi — 10/10/2026 12:45 — Apache real com o .htaccess do pacote
 [1] API no ar
   ✓ api.php?ping=1 responde ok
   ✓ versão 2.0 da API

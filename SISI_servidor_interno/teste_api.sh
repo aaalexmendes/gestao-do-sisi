@@ -227,7 +227,34 @@ req $G GET "?rota=usuarios"; V=$(jget versao)
 req $G POST "?rota=usuarios" "{\"acao\":\"sincronizar\",\"versao\":\"$V\",\"credenciais\":[]}"
 t "gestor não pode remover a si mesmo (nem o último gestor)" "[ $C = 400 ]" "$C $R"
 
-echo "[14] registros de segurança"
+echo "[14] endurecimento (achados da revisão independente)"
+N=$(seq 1 20 | xargs -P20 -I{} curl -s -o /dev/null -w '%{http_code}\n' -H 'Content-Type: application/json' -d '{"login":"ods.comprep.lima","senha":"rajada-{}"}' "$B?rota=login" | grep -c 401)
+t "rajada de 20 logins paralelos: no máximo 5 senhas testadas (resto 429)" "[ $N -le 5 ]" "$N testadas"
+$M -e "DELETE FROM sisi.login_tentativas WHERE login='ods.comprep.lima'"
+N=$($M -N -e "SELECT LEFT(legado_hash,9) FROM sisi.usuarios WHERE login='om.bapv.silva'"); t "senha provisória guardada embrulhada em password_hash (não sha256 puro)" "echo '$N' | grep -Eq '^\\\$(argon2id|2y)'" "$N"
+T1=$(curl -s -o /dev/null -w '%{time_total}' -H 'Content-Type: application/json' -d '{"login":"om.bapv.silva","senha":"errada-x"}' "$B?rota=login")
+T2=$(curl -s -o /dev/null -w '%{time_total}' -H 'Content-Type: application/json' -d '{"login":"ninguem.aqui","senha":"errada-x"}' "$B?rota=login")
+t "tempo do login igual para senha provisória e usuário inexistente ($T1 s × $T2 s)" "php -r 'exit(abs($T1-$T2) < max(0.05, 0.5*max($T1,$T2)) && $T1 > 0.02 ? 0 : 1);'"
+req $BB POST "" "$(pacote BABE Muro_BABE_1.png "$(echo $JPG)" image/jpeg)"
+t "foto com mesmo nome e conteúdo diferente: não sobrescreve, recebe nome novo" "[ $C = 200 ] && echo '$R' | grep -q 'Muro_BABE_1_[0-9a-f]\{8\}.png'" "$R"
+req $BB GET "?om=BABE"; t "a referência no registro passa a apontar para o arquivo novo" "echo '$R' | grep -q 'Muro_BABE_1_[0-9a-f]\{8\}.png'" "$R"
+C=$(curl -s -b $G -o $TMPD/f2 -w '%{http_code}' "$B?rota=foto&om=BABE&nome=Muro_BABE_1.png"); t "a foto antiga continua intacta" "[ $C = 200 ] && [ \"\$(base64 -w0 $TMPD/f2)\" = '$PNG' ]" "$C"
+N=$($M -N -e "SELECT COUNT(DISTINCT enviado_por_login) FROM sisi.auditoria WHERE om='BABE' AND enviado_por_login='bruno.souza@fab.mil.br'"); t "auditoria grava o usuário da sessão que enviou" "[ \"$N\" = 1 ]" "$N"
+req $G GET "?rota=usuarios"; V=$(jget versao); L0=$(echo "$R" | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo json_encode($j["usuarios"]);')
+L1=$(echo "$L0" | php -r '$u=json_decode(stream_get_contents(STDIN),true); $u[]=["nome"=>"Joao Mais","perfil"=>"om","escopo"=>"BAPV","email"=>"joao+sisi@fab.mil.br","salt"=>"ab","hash"=>hash("sha256","ab"."provisoria-joao-1")]; echo json_encode($u);')
+req $G POST "?rota=usuarios" "{\"acao\":\"sincronizar\",\"versao\":\"$V\",\"credenciais\":$L1}"
+t "e-mail com '+' não vira login inválido (login gerado)" "[ $C = 200 ] && echo '$R' | grep -q '\"login\":\"om.bapv.mais\"'" "$R"
+V=$(jget versao); L2=$(echo "$R" | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo json_encode($j["usuarios"]);')
+req $G POST "?rota=usuarios" "{\"acao\":\"sincronizar\",\"versao\":\"$V\",\"credenciais\":$L2}"; t "reenviar a lista sem mudanças é aceito" "[ $C = 200 ]" "$C $R"
+V=$(jget versao); L3=$(echo "$L2" | php -r '$u=json_decode(stream_get_contents(STDIN),true); $u[]=["nome"=>"<img src=x onerror=alert(1)>","perfil"=>"om","escopo"=>"BAPV","salt"=>"ab","hash"=>hash("sha256","ab"."x-provisoria-1")]; echo json_encode($u);')
+req $G POST "?rota=usuarios" "{\"acao\":\"sincronizar\",\"versao\":\"$V\",\"credenciais\":$L3}"; t "nome com HTML (<img onerror>) é recusado" "[ $C = 400 ]" "$C $R"
+( req $G POST "?rota=usuarios" "{\"acao\":\"sincronizar\",\"versao\":\"$V\",\"credenciais\":$L1}" ) & PJ=$!
+req $G POST "?rota=usuarios" "{\"acao\":\"sincronizar\",\"versao\":\"$V\",\"credenciais\":$L1}"; wait $PJ
+NJ=$($M -N -e "SELECT COUNT(*) FROM sisi.usuarios WHERE nome='Joao Mais'"); t "duas gravações simultâneas não duplicam usuário" "[ $NJ = 1 ]" "$NJ"
+C=$(curl -s -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json' -H "Origin: http://127.0.0.1:9999" -d '{"login":"x","senha":"y"}' "$B?rota=login"); t "Origin com porta diferente é recusada (403)" "[ $C = 403 ]" "$C"
+C=$(curl -s -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json' -H "Origin: http://127.0.0.1:$PWEB" -d '{"login":"x","senha":"y"}' "$B?rota=login"); t "Origin exata do próprio servidor é aceita" "[ $C = 401 ]" "$C"
+
+echo "[15] registros de segurança"
 N=$($M -N -e "SELECT GROUP_CONCAT(DISTINCT evento ORDER BY evento) FROM sisi.seguranca_log")
 for ev in login login_falha login_bloqueado negado senha_trocada usuario_criado usuario_removido senha_redefinida usuarios_importados logout instalado; do
   t "seguranca_log registra '$ev'" "echo ',$N,' | grep -q ',$ev,'" "$N"; done

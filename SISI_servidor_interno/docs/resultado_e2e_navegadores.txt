@@ -1,4 +1,4 @@
-# e2e_navegadores.cjs — 10/10/2026 12:30 — Apache Apache/2.4.58 · Chromium (Playwright 1.56)
+# e2e_navegadores.cjs — 10/10/2026 12:45 — Apache Apache/2.4.58 · Chromium (Playwright 1.56)
 [1] carga inicial sem nada no navegador → detecta a API sozinho
   ✓ painel detecta ./api.php sem configuração
   ✓ tela de entrada pede USUÁRIO e senha

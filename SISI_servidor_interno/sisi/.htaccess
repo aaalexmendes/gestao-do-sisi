@@ -17,7 +17,9 @@ DirectoryIndex index.html
 </Files>
 
 # 2) Arquivos de instalação, documentação e cópias nunca são servidos.
-<FilesMatch "\.(sql|md|log|sh|py|bak|old|orig|ini|dist|swp|zip|config)$|^\.">
+#    Também qualquer cópia do config (config.php~, config.php.save, config.php.txt…)
+#    e arquivos de editor.
+<FilesMatch "\.(sql|md|log|sh|py|bak|old|orig|ini|dist|swp|swo|save|zip|config)$|^\.|^config|~$">
   Require all denied
 </FilesMatch>
 

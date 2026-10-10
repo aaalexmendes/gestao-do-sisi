@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `pacotes_hist` (
 CREATE TABLE IF NOT EXISTS `fotos` (
   `id`          BIGINT AUTO_INCREMENT PRIMARY KEY,
   `om`          VARCHAR(40)  NOT NULL,
-  `nome`        VARCHAR(200) NOT NULL,
+  `nome`        VARCHAR(200) COLLATE utf8mb4_bin NOT NULL,   -- diferencia maiúsculas (igual ao sistema de arquivos)
   `mime`        VARCHAR(80)  NULL,          -- tipo DETECTADO no conteúdo (não o informado pelo navegador)
   `registro_id` VARCHAR(80)  NULL,
   `data_reg`    VARCHAR(40)  NULL,
@@ -86,6 +86,8 @@ CREATE TABLE IF NOT EXISTS `auditoria` (
   `nome`       VARCHAR(160) NULL,
   `repeticoes` INT          NOT NULL DEFAULT 1,
   `hash`       CHAR(40)     NOT NULL,     -- sha1(om|ts|evento|acao|detalhe|nome) — evita duplicar na reimportação
+  `enviado_por_login` VARCHAR(120) NULL,  -- usuário da SESSÃO que enviou o pacote (os demais campos são declarados pelo painel)
+  `recebido_em` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,   -- relógio do servidor
   UNIQUE KEY `ux_hash` (`hash`),
   KEY `ix_om_ts` (`om`, `ts`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -137,8 +139,9 @@ CREATE TABLE IF NOT EXISTS `api_log` (
 
 -- Usuários do painel. A senha é conferida SOMENTE no servidor.
 --   senha_hash   → password_hash() do PHP (Argon2id quando disponível; senão bcrypt).
---   legado_*     → hash herdado do painel antigo: sha256(salt + senha). Vale apenas
---                  até o primeiro acesso; na troca obrigatória é apagado.
+--   legado_*     → senha herdada do painel antigo ou provisória do gestor: sha256(salt+senha),
+--                  guardado EMBRULHADO em password_hash. Vale só até o primeiro acesso;
+--                  na troca obrigatória é apagado.
 --   perfil/escopo → gestor (escopo vazio) · ods (escopo = sigla do ODS) · om (escopo = sigla da OM)
 CREATE TABLE IF NOT EXISTS `usuarios` (
   `id`                INT AUTO_INCREMENT PRIMARY KEY,
@@ -153,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `ativo`             TINYINT(1)   NOT NULL DEFAULT 1,
   `senha_hash`        VARCHAR(255) NULL,
   `legado_salt`       VARCHAR(64)  NULL,
-  `legado_hash`       CHAR(64)     NULL,
+  `legado_hash`       VARCHAR(255) NULL,      -- password_hash( sha256(salt+senha) ): nunca o sha256 puro
   `troca_obrigatoria` TINYINT(1)   NOT NULL DEFAULT 1,
   `criado_em`         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `alterado_em`       DATETIME     NULL,

@@ -12135,12 +12135,12 @@ function renderCredList(){
   var rows=vis.map(function(r){
     var c=r.c, i=r.i;
     var acesso=String(c.perfil||'').toUpperCase()+(c.perfil==='gestor'?'':' \u00b7 '+(c.escopo||'\u2014'));
-    var contato=[c.tel,c.email].filter(Boolean).join('<br>');
+    var contato=[c.tel,c.email].filter(Boolean).map(escU).join('<br>');   // u2.30-srv: dados vêm do servidor — escapados
     var quando=(c.alteradoEm||c.criadoEm||'').slice(0,10);
-    return '<tr><td><strong>'+credUserLabel(c)+'</strong>'+srvCredInfo(c)+'</td>'+
-      '<td>'+(c.omUser||'\u2014')+'</td>'+
+    return '<tr><td><strong>'+escU(credUserLabel(c))+'</strong>'+srvCredInfo(c)+'</td>'+
+      '<td>'+(c.omUser? escU(c.omUser) : '\u2014')+'</td>'+
       '<td>'+(contato||'\u2014')+'</td>'+
-      '<td>'+acesso+'</td>'+
+      '<td>'+escU(acesso)+'</td>'+
       '<td>'+quando+'</td>'+
       '<td class="cred-acoes">'+
         '<button type="button" class="admin-btn cred-edit" data-i="'+i+'">Editar</button>'+

@@ -13,7 +13,7 @@ Uma página HTML, uma API em PHP e um banco MySQL/MariaDB. Depois de instalado, 
 | 3. Leituras e imagens | Toda leitura exige sessão e respeita o escopo. Fotos só pela `api.php?rota=foto`, com nome, escopo e tipo de imagem conferidos. A pasta `uploads/` fica bloqueada para acesso direto. |
 | 4. Bibliotecas locais | xlsx, papaparse, chart.js, html2canvas, jspdf e as fontes Roboto em `sisi/vendor/`, com hashes em `vendor/LEIA-ME.txt`. |
 | 5. SQL, usuário e config | `schema.sql` com 12 tabelas e o rol de 69 OMs; usuário `sisi_app` com privilégio mínimo; `config.exemplo.php` revisto. |
-| 6. Teste completo | 112 verificações da API, 39 do servidor e 49 no navegador (gestor e duas OMs em navegadores separados). Ver "Validação" no README. |
+| 6. Teste completo | 125 verificações da API, 39 do servidor e 49 no navegador (gestor e duas OMs em navegadores separados). Ver "Validação" no README. |
 
 ## Requisitos
 
@@ -48,7 +48,8 @@ Uma página HTML, uma API em PHP e um banco MySQL/MariaDB. Depois de instalado, 
 
 - **Backup semanal:** exporte o banco `sisi` (SQL) e copie a pasta `uploads/`.
 - **Segurança:** a tabela `seguranca_log` registra logins, falhas, bloqueios, acessos negados e alterações de usuários. A tabela `api_log` registra as chamadas. As duas podem ser esvaziadas periodicamente.
-- **Usuário bloqueado** (5 senhas erradas em 15 min): espera de 15 minutos, ou o gestor gera uma nova senha na Área Admin.
+- **Usuário bloqueado** (5 senhas erradas do mesmo computador, ou 20 de computadores diferentes, em 15 min): espera de 15 minutos, ou o gestor gera uma nova senha na Área Admin.
+- **Proxy reverso ou NAT:** se todos os acessos chegarem à API com o mesmo IP, informe o IP do proxy em `proxies_confiaveis`. Sem isso, o limite de 30 falhas por IP vale para todos juntos.
 - **Gestor esqueceu a senha:** outro gestor gera uma nova. Se não houver outro, a TI desativa os gestores (`UPDATE usuarios SET ativo=0 WHERE perfil='gestor'`) e o painel volta a oferecer a "Primeira configuração", que exige o `token`. Usando o mesmo usuário, o cadastro é reativado com a nova senha.
 
 ## Se algo falhar
