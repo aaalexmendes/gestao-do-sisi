@@ -1,0 +1,38 @@
+BIBLIOTECAS E FONTES LOCAIS · Painel SISI u2.30-srv (pedido 4 da TI)
+=====================================================================
+Cópias exatas das versões que a u2.30 carrega da internet, para o painel
+funcionar sem acesso externo. Origem: pacotes oficiais do registro npm
+(registry.npmjs.org), baixados com "npm pack", que confere a integridade
+(sha512) declarada pelo registro. Fontes: Google Fonts (subconjuntos
+latin e latin-ext), servidas pelo próprio servidor.
+
+Pasta                 Versão   Licença      Arquivo usado pelo painel     Equivalente na u2.30 (CDN)
+xlsx-0.18.5           0.18.5   Apache-2.0   xlsx.full.min.js              cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js
+papaparse-5.4.1       5.4.1    MIT          papaparse.min.js              cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js
+chart.js-4.4.1        4.4.1    MIT          chart.umd.js (já minificado)  cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js
+html2canvas-1.4.1     1.4.1    MIT          html2canvas.min.js            cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js
+jspdf-2.5.1           2.5.1    MIT          jspdf.umd.min.js              cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js
+fonts/                —        ver abaixo   fonts.css + 6 arquivos .woff2 fonts.googleapis.com (Roboto, Roboto Condensed, Roboto Mono)
+
+Observações
+- chart.js 4.4.1 não traz "chart.umd.min.js" no pacote npm: o arquivo publicado é
+  dist/chart.umd.js, já minificado (o .min.js do jsDelivr é gerado pelo próprio CDN).
+- O texto de cada licença está em LICENSE.txt dentro da pasta da biblioteca.
+- Fontes Roboto: licenças abertas publicadas pelo Google Fonts (consulte
+  fonts.google.com/specimen/<família>/license para o texto vigente de cada família).
+- Atualizar uma biblioteca = trocar o arquivo, ajustar o caminho no
+  build_u230_variante_srv.py e gerar o painel de novo.
+
+SHA-256 dos arquivos (conferência: sha256sum -c, a partir desta pasta)
+74401d738dd3e03ee5dfb3b6841210fe2c4ead8a960c4011ca4ba0b78a9fd8f3  ./chart.js-4.4.1/chart.umd.js
+b968f806b93734d2525cd0c541c09c31fbfc621dd7b0349eecd93e1bfe6d97cc  ./fonts/fonts.css
+4a44e6b11ccc88bc6a1cb2abb313d99dea08824417d05e0e171d06ef26ee381b  ./fonts/roboto-condensed-latin-ext-527244f3.woff2
+8d230115e58faa2ed303bee567b91d1a792e0c958a0118998b53648b2ab7c057  ./fonts/roboto-condensed-latin-ff1f75d6.woff2
+1404ca348bd75ef836f4dd8b6f2cc719458642d1237c368296b2fc652dca47dc  ./fonts/roboto-latin-0f7fcdc8.woff2
+cedb374b05a35034cf96db185db4eeb8f8ce49e1a56197673702ff11b5533d6e  ./fonts/roboto-latin-ext-f0106b44.woff2
+b81cd55177300649be8f95b3b747d721ce607e8ed2856e25bd0c630cfd631faf  ./fonts/roboto-mono-latin-b676853f.woff2
+4cc0d52e0fa37c28084e0cbce3589a8ab32dd21e6ea619489c5f7c6e8c43b922  ./fonts/roboto-mono-latin-ext-250a849a.woff2
+e87e550794322e574a1fda0c1549a3c70dae5a93d9113417a429016838eab8cb  ./html2canvas-1.4.1/html2canvas.min.js
+98ccf17aa10c20bb1301762618fcc9b6ab3a4e7f26b6071d64d0b41154df3875  ./jspdf-2.5.1/jspdf.umd.min.js
+b8e870c5d2b29772f10c9fa9a693c8b896aac8540ed6701e3cc6304c683febdb  ./papaparse-5.4.1/papaparse.min.js
+c9506197caf809a075b6dee1da0d36fb19da7158ffe8a88e7b0c96c5d8623c99  ./xlsx-0.18.5/xlsx.full.min.js

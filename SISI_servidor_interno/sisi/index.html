@@ -11881,7 +11881,7 @@ function srvCredInfo(c){
   if(!(window.SRV && SRV.ativo()) || !c) return '';
   var x=function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]; }); };
   var bits=['usuário: <code>'+x(c.login||'(definido ao salvar)')+'</code>'];
-  if(c.trocaPendente) bits.push(c.senhaHerdada? 'senha do painel antigo · troca no 1º acesso' : 'senha provisória · troca no 1º acesso');
+  if(c.trocaPendente) bits.push('senha provisória · troca no 1º acesso');
   bits.push(c.ultimoLogin? 'último acesso '+x(String(c.ultimoLogin).slice(0,16)) : 'nunca entrou');
   return '<br><small style="color:#5b6572">'+bits.join(' · ')+'</small>';
 }

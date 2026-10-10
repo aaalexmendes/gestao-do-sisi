@@ -1,0 +1,4 @@
+# nunca versionar segredos nem dados das OMs
+sisi/config.php
+sisi/uploads/*/
+*.log

@@ -1,0 +1,129 @@
+# teste_api.sh — 10/10/2026 12:30 — PHP 8.3.6 · Ver 10.11.14-MariaDB
+[1] infraestrutura
+  ✓ ping responde ok
+  ✓ ping não revela versão do PHP
+  ✓ sessão: não logado e servidor não instalado
+  ✓ config.php não é servido (403)
+  ✓ schema.sql não é servido (403)
+  ✓ estado sem sessão → 401
+  ✓ preflight OPTIONS → 204
+  ✓ sem CORS aberto ('*') por padrão
+[2] instalação (gestor inicial)
+  ✓ token de instalação errado → 401
+  ✓ senha curta recusada (política)
+  ✓ instalação cria o gestor e abre sessão
+  ✓ Set-Cookie traz HttpOnly e SameSite=Strict
+  ✓ segunda instalação é recusada (409)
+  ✓ senha do gestor em Argon2id/bcrypt (password_hash)
+[3] estado do gestor
+  ✓ gravar estado sem token anti-CSRF → 403
+  ✓ gestor grava o estado
+  ✓ estado gravado SEM credenciais nem token
+  ✓ gravação vinda de outro site (Origin/Sec-Fetch-Site) → 403
+[4] usuários (cadastro pelo gestor, migração do painel antigo)
+  ✓ gestor lista usuários (sem hashes)
+  ✓ gestor cadastra 2 OMs do COMPREP, 1 ODS e 1 OM de outro ODS
+  ✓ login gerado a partir do e-mail
+  ✓ lista desatualizada é recusada (409) — nada é apagado
+  ✓ migração importa usuário do painel antigo e não duplica
+  ✓ usuário migrado entra com a senha antiga (hash herdado)…
+[5] login e troca obrigatória de senha
+  ✓ senha errada → 401 com mensagem genérica
+  ✓ usuário inexistente → mesma mensagem
+  ✓ login (sem diferenciar maiúsculas) com senha provisória
+  ✓ com troca pendente, nada além da troca → 403
+  ✓ nova senha curta → 400
+  ✓ nova senha óbvia ('sisi…') → 400
+  ✓ nova senha com o nome do usuário → 400
+  ✓ senha atual errada → 400
+  ✓ troca obrigatória concluída
+  ✓ hash herdado apagado; nova senha com password_hash
+  ✓ senha provisória deixa de valer
+  ✓ OM B, ODS e OM C criaram as próprias senhas
+  ✓ OM A entra com a nova senha
+  ✓ o banco guarda só o SHA-256 do cookie (nunca o valor)
+[6] limite de tentativas
+  ✓ após 5 falhas o login fica bloqueado (429), mesmo com a senha certa
+  ✓ o bloqueio é por usuário: os demais continuam entrando
+[7] envio de pacotes com foto
+  ✓ OM A envia pacote com foto JPEG
+  ✓ OM B envia pacote com foto PNG
+  ✓ arquivo que não é imagem é recusado (PHP disfarçado de .jpg)
+  ✓ nada executável gravado em uploads
+  ✓ reenvio não duplica a foto
+  ✓ ODS e nome da OM vêm do rol; 'enviado por' vem da sessão
+  ✓ auditoria linearizada sem duplicar
+  ✓ tipo da foto detectado pelo conteúdo
+[8] recuperação em outro navegador (contexto limpo)
+  ✓ OM A recupera os próprios dados (?om=)
+  ✓ OM A recupera o próprio pacote (rota=pacotes&om=)
+  ✓ OM A baixa a própria foto
+[9] gestor vê tudo
+  ✓ ?all=1 traz BAPV e BABE
+  ✓ rota=pacotes lista as duas OMs
+  ✓ gestor vê a foto de BAPV (image/jpeg, nosniff, privada)
+  ✓ gestor vê a foto de BABE (image/png, nosniff, privada)
+  ✓ gestor consulta a auditoria de todas as OMs
+[10] ataques entre OMs (todos devem falhar)
+  ✓ OM A lê dados da OM B (?om=) → 403
+  ✓ OM A lê pacote da OM B → 403
+  ✓ OM A pede todos os pacotes → só a própria
+  ✓ OM A pede ?all=1 → só a própria
+  ✓ OM A baixa foto da OM B → 403
+  ✓ OM A envia pacote como OM B → 403
+  ✓ OM A grava ?om=BABE → 403
+  ✓ nenhuma foto da tentativa foi gravada
+  ✓ OM A grava o estado → 403
+  ✓ OM A lista usuários → 403
+  ✓ OM A altera o rol (escopo) → 403
+  ✓ OM A lê auditoria da OM B → 403
+  ✓ OM A pede toda a auditoria → só a própria
+  ✓ foto sem sessão → 401
+  ✓ nome de foto malicioso (../config.php) → 400
+  ✓ nome de foto malicioso (..%2Fconfig.php) → 400
+  ✓ nome de foto malicioso (Muro_BABE_1.png%00.jpg) → 400
+  ✓ nome de foto malicioso (x.php) → 400
+  ✓ acesso direto a uploads/BABE/ → 403
+  ✓ envio sem token anti-CSRF → 403
+  ✓ cookie forjado → 401
+  ✓ após logout a sessão não vale mais → 401
+  ✓ sessão expirada (8 h) → 401
+  ✓ validade da sessão = 8 h
+[11] perfil ODS (somente consulta das OMs do seu ODS)
+  ✓ ODS COMPREP lê OM A
+  ✓ ODS vê as duas OMs do COMPREP
+  ✓ ODS vê foto de OM do seu ODS
+  ✓ ODS COMPREP lê OM de outro ODS (AFA/COMGEP) → 403
+  ✓ ODS ?all=1 não traz OM de outro ODS
+  ✓ ODS envia pacote de OM → 403
+  ✓ ODS grava ?om= → 403
+  ✓ ODS grava o estado → 403
+  ✓ ODS altera o rol → 403
+  ✓ ODS registra a própria ciência
+  ✓ ciência gravada com usuário/perfil/escopo da sessão (não do navegador)
+  ✓ ODS vê ciências do seu ODS, não as de outro
+  ✓ OM vê só as próprias ciências
+[12] o que cada perfil lê do estado
+  ✓ OM lê o estado (avisos, execução)…
+  ✓ …sem credenciais, hashes ou tokens
+[13] gestão de acessos
+  ✓ gestor redefine a senha da OM A e remove a OM C
+  ✓ sessão da OM A cai com a redefinição
+  ✓ usuário removido perde a sessão na hora
+  ✓ OM A entra com a provisória e é obrigada a trocar
+  ✓ gestor não pode remover a si mesmo (nem o último gestor)
+[14] registros de segurança
+  ✓ seguranca_log registra 'login'
+  ✓ seguranca_log registra 'login_falha'
+  ✓ seguranca_log registra 'login_bloqueado'
+  ✓ seguranca_log registra 'negado'
+  ✓ seguranca_log registra 'senha_trocada'
+  ✓ seguranca_log registra 'usuario_criado'
+  ✓ seguranca_log registra 'usuario_removido'
+  ✓ seguranca_log registra 'senha_redefinida'
+  ✓ seguranca_log registra 'usuarios_importados'
+  ✓ seguranca_log registra 'logout'
+  ✓ seguranca_log registra 'instalado'
+  ✓ api_log registrou as chamadas (91)
+
+112/112 verificações aprovadas

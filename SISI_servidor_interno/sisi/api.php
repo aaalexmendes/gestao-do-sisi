@@ -36,6 +36,7 @@ header('Referrer-Policy: no-referrer');
 header('X-Frame-Options: DENY');
 header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'");
 header('Cross-Origin-Resource-Policy: same-origin');
+header_remove('X-Powered-By');                       // não revela a versão do PHP
 
 /* ---------- configuração ---------- */
 $CFG_FILE = getenv('SISI_CONFIG') ?: (__DIR__ . '/config.php');

@@ -1,0 +1,60 @@
+# e2e_navegadores.cjs — 10/10/2026 12:30 — Apache Apache/2.4.58 · Chromium (Playwright 1.56)
+[1] carga inicial sem nada no navegador → detecta a API sozinho
+  ✓ painel detecta ./api.php sem configuração
+  ✓ tela de entrada pede USUÁRIO e senha
+  ✓ servidor novo oferece "Primeira configuração"
+  ✓ nenhum token guardado no navegador
+[2] gestor: instalação, migração do painel antigo e cadastro de OM
+  ✓ gestor inicial criado e logado
+  ✓ cookie de sessão é HttpOnly (JS não lê)
+  ✓ cartão do servidor mostra o modo automático
+  ✓ migração do arquivo .json concluída (estado + 2 usuários)
+  ✓ login gerado para a OM A migrada
+  ✓ gestor cadastra a OM B pela Área Admin (grava direto no servidor)
+  ✓ lista mostra login e "troca no 1º acesso"
+[3] OM A e OM B: primeiro acesso com troca obrigatória, envio de pacote com foto
+  ✓ OM A entra com a senha do painel antigo e cai na troca obrigatória
+  ✓ OM A no painel, restrita à própria OM
+  ✓ OM A recebeu o aviso migrado (estado lido após o login)
+  ✓ OM A enviou o pacote com foto
+  ✓ OM B entra com a senha provisória e cai na troca obrigatória
+  ✓ OM B enviou o pacote com foto
+[4] recuperação: OM A em outro navegador limpo
+  ✓ OM A recupera o próprio registro do servidor
+  ✓ foto recuperada exibida pela api.php (rota=foto)
+  ✓ aba Registros exibe a foto vinda do servidor
+[5] gestor vê os dois pacotes e as duas fotos
+  ✓ sessão do gestor restaurada pelo cookie após recarregar
+  ✓ gestor lista BAPV e BABE
+  ✓ gestor carrega a foto da OM A
+  ✓ gestor carrega a foto da OM B
+  ✓ consolidado do gestor (PM) com as duas OMs
+[6] tentativas de acesso entre OMs (todas devem falhar)
+  ✓ OM A lê dados da OM B → 403
+  ✓ OM A lê pacote da OM B → 403
+  ✓ OM A baixa foto da OM B → 403
+  ✓ OM A exibe foto da OM B em <img> → não carrega
+  ✓ OM A envia pacote como OM B → 403
+  ✓ OM A grava o estado → 403
+  ✓ OM A lista usuários → 403
+  ✓ acesso direto a uploads/BABE/ → 403
+  ✓ acesso direto ao config.php → 403
+  ✓ nome de foto com ../ → 400
+  ✓ estado lido pela OM não tem credenciais/hashes
+  ✓ ODS lê as duas OMs do COMPREP
+  ✓ ODS vê a foto da OM B
+  ✓ ODS tenta gravar pacote de OM → 403
+  ✓ ODS não vê o botão Admin
+[7] sessão expirada e saída
+  ✓ sessão de 8 h vencida → painel volta à tela de entrada
+  ✓ após "Sair", a sessão da OM A não vale mais → 401
+  ✓ após "Sair", o consolidado não fica no navegador
+[8] rede e segurança da página
+  ✓ nenhuma requisição à internet (bibliotecas e fontes locais)
+  ✓ nenhuma violação da Content-Security-Policy
+  ✓ bibliotecas carregadas (XLSX, Papa, Chart)
+  ✓ html2canvas e jsPDF carregam sob demanda (local)
+  ✓ fontes Roboto locais aplicadas
+  ✓ sem erros de JavaScript nas páginas
+
+49/49 verificações aprovadas

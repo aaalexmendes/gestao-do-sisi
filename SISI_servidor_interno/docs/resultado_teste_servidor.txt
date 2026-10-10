@@ -1,0 +1,48 @@
+# testes/teste_servidor.sh http://127.0.0.1:8080/sisi — 10/10/2026 12:30 — Apache real com o .htaccess do pacote
+[1] API no ar
+  ✓ api.php?ping=1 responde ok
+  ✓ versão 2.0 da API
+  ✓ rota=sessao responde (instalado: "instalado":true)
+[2] arquivos que NUNCA podem ser servidos (esperado 403 ou 404)
+  ✓ config.php → 403
+  ✓ config.exemplo.php → 403
+  ✓ schema.sql → 403
+  ✓ .htaccess → 403
+  ✓ web.config → 403
+  ✓ uploads/ → 403
+  ✓ uploads/.htaccess → 403
+  ✓ uploads/BAPV/ → 403
+  ✓ README.md → 403
+  ✓ listagem de pastas desligada (vendor/ → 403)
+[3] leituras exigem sessão (esperado 401)
+  ✓ ?rota=estado → 401
+  ✓ ?all=1 → 401
+  ✓ ?om=BAPV → 401
+  ✓ ?rota=pacotes → 401
+  ✓ ?rota=pacotes&lista=1 → 401
+  ✓ ?rota=ciencias → 401
+  ✓ ?rota=auditoria → 401
+  ✓ ?roster=1 → 401
+  ✓ ?rota=usuarios → 401
+  ✓ ?rota=foto&om=BAPV&nome=x.jpg → 401
+  ✓ POST de pacote sem sessão → 401
+  ✓ login disparado por outro site → 403
+[4] cabeçalhos
+  ✓ API: X-Content-Type-Options nosniff
+  ✓ API: sem CORS aberto para qualquer origem
+  ✓ API: não expõe a versão do PHP (X-Powered-By)
+  ✓ index.html: Content-Security-Policy (camada extra; ver README)
+  ✓ index.html: X-Frame-Options/frame-ancestors
+  ✓ login inválido responde 401 (sem revelar se o usuário existe)
+[5] painel e bibliotecas locais (sem internet)
+  ✓ index.html é a variante u2.30-srv
+  ✓ nenhuma biblioteca carregada de CDN
+  ✓ vendor/xlsx-0.18.5/xlsx.full.min.js → 200
+  ✓ vendor/papaparse-5.4.1/papaparse.min.js → 200
+  ✓ vendor/chart.js-4.4.1/chart.umd.js → 200
+  ✓ vendor/html2canvas-1.4.1/html2canvas.min.js → 200
+  ✓ vendor/jspdf-2.5.1/jspdf.umd.min.js → 200
+  ✓ vendor/fonts/fonts.css → 200
+  (aviso) endereço em http:// — a senha trafega sem cifragem na rede; recomenda-se https com certificado interno
+
+39/39 verificações aprovadas
