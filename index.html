@@ -3454,6 +3454,8 @@
 .gov-card + .gov-card{ margin-top:14px; }
 tr.pt-grp td{ background:var(--off-white,#f7f8fa); font:600 11px/1.3 'Roboto Condensed',sans-serif; letter-spacing:.04em; text-transform:uppercase; color:var(--fab-blue-mid,#36495C); }
 details.pt-cruz{ margin:12px 0; }
+tr.pt-mine td{ background:#fff8d6; }
+tr.pt-mine td:first-child{ box-shadow:inset 3px 0 0 var(--fab-yellow,#FFCC00); }
 </style>
 <!-- ===================== u2.21 · MENU LATERAL ===================== -->
 <aside id="sideNav" aria-label="Menu principal">
@@ -4215,8 +4217,11 @@ Identificador, Cabo de Dia e Soldado de Plantão (Equipe de Plantão), equipes d
 Contra Incêndio, Operador da Central de Vigilância Eletrônica, Armeiro e Motorista de Dia, Reserva de posto, Sobreaviso —
 e os serviços que a OM instituiu (permanências e outros, art. 7º). Nos postos dos GSD a função vem <em>sugerida pelo nome do
 posto</em> (em itálico) até que uma OM da guarnição a confirme.</li>
-<li><strong>Quadro da OM</strong> (Por OM): (1) serviços lançados pela própria OM; (2) postos do GSD que atendem a OM — a OM
-atendida também é sugerida pelo nome do posto (ex.: "Guarda do HFAG") e confirmada pela OM; (3) postos do GSD comuns à guarnição.
+<li><strong>Todos os postos e serviços ficam na tela</strong>: a página abre com todos os postos dos GSD e todos os serviços
+lançados pelas OMs. A coluna <em>OM atendida</em> mostra a quem cada posto serve, e o filtro <em>OM atendida</em> recorta a
+lista (todas · comuns à guarnição · uma OM). Para corrigir a OM atendida, use <em>✎ Editar postos</em> do GSD.</li>
+<li><strong>Quadro da OM</strong> (Por OM): (1) serviços lançados pela própria OM; (2) todos os postos do GSD da guarnição, com os
+que atendem a OM destacados no topo — a OM atendida é sugerida pelo nome do posto (ex.: "Guarda do HFAG") e confirmada pela OM.
 O <em>cruzamento com o RCA 34-1</em> soma, por função, os postos dos GSD, os serviços das OMs, militares por dia e efetivo.</li>
 <li><strong>Como a OM lança os seus serviços</strong>: botão <em>✎ Serviços da OM</em> → <em>+ Serviço de dia e guarda</em> (inclui
 Oficial de Dia, Adjunto ao Oficial de Dia, Comandante da Guarda e Cabo da Guarda) e <em>+ Adicionar serviço</em> para os demais.
@@ -4652,7 +4657,7 @@ A soma desse campo em todas as tarefas é a necessidade remanescente do SISI naq
 <footer>
   <span>Portal SISDE</span>
   <button id="adminFooterBtn" class="admin-footer-btn" type="button" title="Área administrativa">Admin</button>
-  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.31 &#183; 20/10/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
+  <span>Documento de Controle Interno &#183; <span id="appVersion">u2.32 &#183; 21/10/2026</span><span id="dataSourceTag" style="margin-left:10px;"></span></span>
 </footer>
 
 <!-- MODAL ADMIN -->
@@ -12759,7 +12764,7 @@ window.POSTOS = (function(){
   const GR=()=>window.RISAER_GRUPOS||[];
   const fnObj=k=>(window.risaerFn&&risaerFn(k))||{k:k||'outro_om',g:'om',l:k||'Outro',circ:'',art:'',d:''};
   const DG=['od','adj_od','cmt_guarda','cabo_guarda'];   // "Serviço de dia e guarda" pedido pelo gestor
-  let modo='guarn', sel='', busca='', editGsd='', rascunho=null, msg='', editOm='', rascOm=null, iniSess='';
+  let modo='guarn', sel='', busca='', fOmAt='', editGsd='', rascunho=null, msg='', editOm='', rascOm=null, iniSess='';
 
   function sess(){ return window.SESS||null; }
   function roster(){ return (window.PM&&PM.getRoster)?PM.getRoster():{}; }
@@ -12859,13 +12864,15 @@ window.POSTOS = (function(){
   const fnCel=(k,sug)=>{ const f=fnObj(k); return `<span class="pt-fn${sug?' sug':''}" title="${esc(f.art?('RCA 34-1, '+f.art+' — '):'')}${esc(f.d||'')}${sug?' (sugerida pelo nome do posto)':''}">${esc(f.l)}</span>`; };
   const fnSel=(v,attr)=>`<select ${attr}>${GR().map(g=>`<optgroup label="${esc(g.l)}">${FN().filter(f=>f.g===g.k).map(f=>`<option value="${f.k}"${v===f.k?' selected':''}>${esc(f.l)}</option>`).join('')}</optgroup>`).join('')}</select>`;
 
-  function filtrar(L){ const q=busca.trim().toLowerCase(); if(!q) return L;
+  function okOmAt(p){ if(!fOmAt) return true; if(fOmAt==='__comum') return !p.om && !p.omAt; return p.omAt===fOmAt || p.om===fOmAt; }
+  function filtrar(L){ L=L.filter(okOmAt); const q=busca.trim().toLowerCase(); if(!q) return L;
     return L.filter(p=>[p.nome,p.cat,p.obs,p.gsd,p.om,p.omAt,p.prop,fnObj(p.fn).l].join(' ').toLowerCase().includes(q)); }
 
-  function tabelaGsd(P, titulo, vazio){
+  function tabelaGsd(P, titulo, vazio, destaque){
     const L=filtrar(P);
+    if(destaque) L.sort((a,b)=>(b.omAt===destaque)-(a.omAt===destaque));
     return `<div class="gov-card" style="padding:0;overflow:auto">${titulo?`<div class="pt-cap">${titulo}</div>`:''}<table class="gov-table" id="postosTab"><thead><tr><th>GSD</th><th>Fun&#231;&#227;o (RCA 34-1)</th><th>Posto</th><th>OM atendida</th><th>Categoria</th><th>24 h</th><th>Arm.</th><th class="num">Mil. no posto</th><th class="num">SD/dia</th><th>Regime</th><th class="num">Efetivo</th><th>Proposta SISDE</th><th>Observa&#231;&#245;es</th></tr></thead><tbody>${
-      L.map(p=>`<tr><td><span class="badge">${esc(p.gsd)}</span></td><td>${fnCel(p.fn,p.sug)}</td><td><b>${esc(p.nome)}</b></td><td>${p.omAt?`<b>${esc(p.omAt)}</b>${p.sug?' <small class="pt-sugtag">sugerida</small>':''}`:'<small>comum &#224; guarni&#231;&#227;o</small>'}</td><td><small>${esc(p.cat)}</small></td><td>${/^S/i.test(p.h24)?'<span class="gov-pill ok">24 h</span>':(p.h24?'<span class="gov-pill na">'+esc(p.h24)+'</span>':'')}</td><td title="${esc(ARM[(p.arm||'').toUpperCase()]||'')}">${esc(p.arm)}</td><td class="num">${p.mil!=null&&p.mil!==''?esc(p.mil):'—'}</td><td class="num">${p.sd!=null?fmt1(p.sd):'—'}</td><td>${regCel(p.regime)}</td><td class="num">${fmt1(efetivo(p))}</td><td><small>${esc(p.prop)}</small></td><td><small>${esc(p.obs)}${p.duv?`<br><i style="color:var(--orange)">Dúvida: ${esc(p.duv)}</i>`:''}${p.resp?`<br><i>Resposta: ${esc(p.resp)}</i>`:''}</small></td></tr>`).join('')
+      L.map(p=>`<tr${destaque&&p.omAt===destaque?' class="pt-mine"':''}><td><span class="badge">${esc(p.gsd)}</span></td><td>${fnCel(p.fn,p.sug)}</td><td><b>${esc(p.nome)}</b></td><td>${p.omAt?`<b>${esc(p.omAt)}</b>${p.sug?' <small class="pt-sugtag">sugerida</small>':''}`:'<small>comum &#224; guarni&#231;&#227;o</small>'}</td><td><small>${esc(p.cat)}</small></td><td>${/^S/i.test(p.h24)?'<span class="gov-pill ok">24 h</span>':(p.h24?'<span class="gov-pill na">'+esc(p.h24)+'</span>':'')}</td><td title="${esc(ARM[(p.arm||'').toUpperCase()]||'')}">${esc(p.arm)}</td><td class="num">${p.mil!=null&&p.mil!==''?esc(p.mil):'—'}</td><td class="num">${p.sd!=null?fmt1(p.sd):'—'}</td><td>${regCel(p.regime)}</td><td class="num">${fmt1(efetivo(p))}</td><td><small>${esc(p.prop)}</small></td><td><small>${esc(p.obs)}${p.duv?`<br><i style="color:var(--orange)">Dúvida: ${esc(p.duv)}</i>`:''}${p.resp?`<br><i>Resposta: ${esc(p.resp)}</i>`:''}</small></td></tr>`).join('')
       || `<tr><td colspan="13"><div class="empty-state" style="padding:14px"><p>${vazio||'Nenhum posto para o filtro.'}</p></div></td></tr>`}</tbody>
       <tfoot><tr><td colspan="8">Total</td><td class="num">${fmt1(L.reduce((a,p)=>a+(Number(p.sd)||0),0))}</td><td></td><td class="num">${fmt1(L.reduce((a,p)=>a+efetivo(p),0))}</td><td colspan="2">${L.length} posto(s)</td></tr></tfoot></table></div>`;
   }
@@ -13084,10 +13091,8 @@ window.POSTOS = (function(){
   function iniciarSessao(){
     const s=sess(); const k=chaveSess();
     if(k===iniSess) return; iniSess=k; editGsd=''; rascunho=null; editOm=''; rascOm=null;
-    if(!s) return;
-    if(s.tipo==='om'){ modo='om'; sel=s.om; }
-    else if(s.tipo==='comar'){ modo='comar'; sel=s.comar||''; }
-    else if(s.tipo==='ods'){ modo='ods'; sel=s.ods||''; }
+    // u2.32 — a tela abre sempre com todos os postos e serviços cadastrados (como na u2.30), para qualquer perfil
+    modo='guarn'; sel=''; fOmAt='';
   }
   function render(){
     const host=$('postosBody'); if(!host) return;
@@ -13111,29 +13116,31 @@ window.POSTOS = (function(){
       else {
         const r=roster()[sel]||{}; const g=guarnOm(sel);
         const daOm=P.filter(p=>p.omAt===sel), comuns=P.filter(p=>!p.omAt), outras=P.filter(p=>p.omAt&&p.omAt!==sel);
-        nota=`<div class="gnote"><b>Quadro de servi&#231;os de seguran&#231;a da ${esc(sel)}</b>${r.nome?' — '+esc(r.nome):''} · guarni&#231;&#227;o <b>${esc(g||'—')}</b>${window.comarDaGuarn&&g?' · '+esc(comarRot(comarDaGuarn(g))):''} · ODS ${esc(r.ods||'—')}. Re&#250;ne (1) os servi&#231;os lan&#231;ados pela pr&#243;pria OM, (2) os postos do GSD que atendem a OM e (3) os postos do GSD comuns &#224; guarni&#231;&#227;o.</div>`;
-        P=daOm;
+        nota=`<div class="gnote"><b>Quadro de servi&#231;os de seguran&#231;a da ${esc(sel)}</b>${r.nome?' — '+esc(r.nome):''} · guarni&#231;&#227;o <b>${esc(g||'—')}</b>${window.comarDaGuarn&&g?' · '+esc(comarRot(comarDaGuarn(g))):''} · ODS ${esc(r.ods||'—')}. Mostra (1) os servi&#231;os lan&#231;ados pela pr&#243;pria OM e (2) todos os postos do GSD da guarni&#231;&#227;o, com a OM atendida por cada um; os da ${esc(sel)} ficam destacados no topo. Os indicadores contam os servi&#231;os da OM e os postos que a atendem.</div>`;
         corpo=kpiHtml(daOm,S,oms)+cruzHtml(daOm,S)+
           tabelaSvc(S,'1 &#183; Servi&#231;os lan&#231;ados pela OM', eu===sel? 'Nenhum servi&#231;o lan&#231;ado. Use &#9998; Servi&#231;os da '+esc(sel)+' — comece por "+ Servi&#231;o de dia e guarda".' : 'A OM ainda n&#227;o lan&#231;ou os seus servi&#231;os.')+
-          tabelaGsd(daOm,'2 &#183; Postos do GSD que atendem a '+esc(sel),'Nenhum posto do GSD atribu&#237;do a esta OM.')+
-          `<details class="gdet"><summary>3 &#183; Postos do GSD comuns &#224; guarni&#231;&#227;o ${esc(g)} (${comuns.length})${outras.length?' · e '+outras.length+' de outras OM da guarni&#231;&#227;o':''}</summary>${tabelaGsd(comuns.concat(outras),'','Nenhum.')}</details>`+
+          tabelaGsd(P,'2 &#183; Todos os postos do GSD da guarni&#231;&#227;o '+esc(g)+' &#8212; '+daOm.length+' atendem a '+esc(sel)+' (destacados, no topo) · '+comuns.length+' comuns · '+outras.length+' de outras OM','Nenhum posto.',sel)+
           (gsds.length===1? resumoHtml(gsds[0]) : '');
       }
     } else {
       if(modo==='ods' && sel) nota=`<div class="gnote">ODS ${esc(sel)}: GSD das guarni&#231;&#245;es onde h&#225; OM desse ODS no rol do painel (${gsds.join(', ')||'nenhum'}) e servi&#231;os lan&#231;ados pelas ${oms.length} OM do ODS.</div>`;
       if(modo==='comar' && sel){ const c=window.comarInfo? comarInfo(sel):null; nota=`<div class="gnote">${esc(comarRot(sel))}${c?' ('+esc(c.sede)+')':''}: guarni&#231;&#245;es ${esc(c?c.g.join(', '):'')} · GSD ${gsds.join(', ')||'nenhum'} · ${oms.length} OM do rol. Vincula&#231;&#227;o guarni&#231;&#227;o &#8594; COMAR conforme a p&#225;gina "Unidades da FAB" (fab.mil.br).</div>`; }
-      corpo=kpiHtml(P,S,oms)+cruzHtml(P,S)+(gsds.length===1? resumoHtml(gsds[0]) : '')+
+      corpo=kpiHtml(P.filter(okOmAt),S.filter(okOmAt),oms)+cruzHtml(P.filter(okOmAt),S.filter(okOmAt))+(gsds.length===1? resumoHtml(gsds[0]) : '')+
         tabelaGsd(P,'Postos dos GSD')+tabelaSvc(S,'Servi&#231;os lan&#231;ados pelas OMs');
     }
-    host.innerHTML=tabs+`<div class="gov-filter">${selectorHtml()}<input type="search" id="ptBusca" placeholder="buscar posto, fun&#231;&#227;o, OM, observa&#231;&#227;o&#8230;" value="${esc(busca)}"><button class="gov-btn sec" id="ptCsv" type="button">Exportar CSV</button>${btnEd}</div>
+    const omsAt=[...new Set(P.map(p=>p.omAt).filter(Boolean).concat(S.map(p=>p.om)))].sort();
+    if(fOmAt && fOmAt!=='__comum' && !omsAt.includes(fOmAt)) fOmAt='';
+    const selOmAt=`<select id="ptOmAt" title="Filtrar pela OM atendida"><option value="">Todas as OM atendidas</option><option value="__comum"${fOmAt==='__comum'?' selected':''}>Comuns &#224; guarni&#231;&#227;o</option>${omsAt.map(o=>`<option${fOmAt===o?' selected':''}>${esc(o)}</option>`).join('')}</select>`;
+    host.innerHTML=tabs+`<div class="gov-filter">${selectorHtml()}${selOmAt}<input type="search" id="ptBusca" placeholder="buscar posto, fun&#231;&#227;o, OM, observa&#231;&#227;o&#8230;" value="${esc(busca)}"><button class="gov-btn sec" id="ptCsv" type="button">Exportar CSV</button>${btnEd}</div>
       <div class="gov-msg" id="ptMsg"></div>${nota}${corpo}${refHtml()}`;
     host.querySelectorAll('[data-pt]').forEach(t=>t.addEventListener('click',()=>{ const ss=sess(); modo=t.dataset.pt; sel=''; if(modo==='om'&&eu) sel=eu; else if(modo==='comar'&&ss&&ss.tipo==='comar') sel=ss.comar||''; else if(modo==='ods'&&ss&&ss.tipo==='ods') sel=ss.ods||''; render(); if(window.SideNav) SideNav.sync(); }));
     const se=$('ptSel'); if(se) se.addEventListener('change',e=>{ sel=e.target.value; render(); });
+    const sa=$('ptOmAt'); if(sa) sa.addEventListener('change',e=>{ fOmAt=e.target.value; render(); });
     const b=$('ptBusca'); if(b) b.addEventListener('input',e=>{ busca=e.target.value; render(); const q=$('ptBusca'); if(q){ q.focus(); q.setSelectionRange(q.value.length,q.value.length); } });
     host.querySelectorAll('[data-edit]').forEach(x=>x.addEventListener('click',()=>{ const g=x.dataset.edit; const V=vigente(g); editGsd=g; msg='';
       rascunho={ regime:V.regime||'2x1', contato:(V.contato&&!/somat/i.test(V.contato))?V.contato:'', postos:V.postos.map(p=>({...p, regime:p.regime||V.regime||'2x1', fn:fnDe(p), omAt:omAtDe(p,g)})) }; render(); }));
     host.querySelectorAll('[data-svc]').forEach(x=>x.addEventListener('click',()=>abrirSvc(x.dataset.svc)));
-    const c=$('ptCsv'); if(c) c.addEventListener('click',()=>exportarCsv(modo==='om'&&sel? postosDe(gsds) : P, S));
+    const c=$('ptCsv'); if(c) c.addEventListener('click',()=>exportarCsv(filtrar(P), filtrar(S)));
   }
   function exportarCsv(P,S){
     const R=roster();
